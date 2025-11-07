@@ -12,15 +12,15 @@ class Feature:
         return f"Feature(name={self.name}, description={self.description}, is_list={self.is_list}), title_page_part={self.title_page_part})"
 
 BASE_CONTENT = Feature(
-    "BASE CONTENT",
-    "The minimal designation of the book’s main content, typically appearing at the beginning of the title page, without elaboration."
+    "base_content",
+    "The minimal designation of the book's main content, typically appearing at the beginning of the title page, without elaboration."
 )
 ADAPTER_ATTRIBUTION = Feature(
-    "AUTHOR NAME",
+    "editor_name",
     "The name of the contemporary adapter (author, editor, translator, commentator, etc.) as it appears on the title page."
 )
 ADAPTER_DESCRIPTION = Feature(
-    "AUTHOR DESCRIPTION",
+    "editor_description",
     "Any descriptors found alongside the adapter name, such as academic titles, ranks, or affiliations."
 )
 ADAPTER_DESCRIPTION2 = Feature(
@@ -28,40 +28,40 @@ ADAPTER_DESCRIPTION2 = Feature(
     "Any descriptors found alongside the adapter name, such as academic titles, ranks, or affiliations. (an additional quote if applicable)."
 )
 PATRONAGE_DEDICATION = Feature(
-    "PATRON REF",
+    "dedicatee_name",
     "Mentions of patrons or dedication."
 )
 EDITION_STATEMENT = Feature(
-    "EDITION INFO",
+    "edition_details",
     "Any information that is highlighted as relevant for this specific edition such as claims regarding the corrections and revisions introduced in it."
 )
 PUBLISHING_PRIVILEGES = Feature(
-    "PRIVILEGES",
+    "printing_privilege",
     "Mentions of royal privileges or legal permissions granted for printing."
 )
 VERBS = Feature(
-    "VERBS",
+    "action_verbs",
     "Action verbs such as traduit (translated), commenté (commented), augmenté (expanded) that describe the role the contemporary scholar played in bringing about the work.",
     is_list=True
 )
 EXPLICIT_LANGUAGE_REFERENCES = Feature(
-    "EXPLICITLY STATED: TRANSLATED FROM",
+    "origin_language",
     "Mentions of the source language (e.g., Latin or Greek) and/or the target language.",
     is_list=True
 )
 REFERENCES_TO_OTHER_EDUCATIONAL_AUTHORITIES = Feature(
-    "OTHER NAMES",
+    "educational_authorities_references",
     "Mentions of other scholars, either ancients, such as Theon of Alexandria, or contemporary, like Simon Stevin.",
     is_list=True
 )
 EUCLID_MENTIONS = Feature(
-    "EUCLID REF",
+    "references_to_Euclid",
     "Euclid's name as it appears on the title page.",
     is_list=True
 )
 EUCLID_DESCRIPTION = Feature(
-    "EUCLID DESCRIPTION",
-    "Any descriptors found alongside Euclid’s name, such as mentioning him being a mathematician.",
+    "description_of_Euclid",
+    "Any descriptors found alongside Euclid's name, such as mentioning him being a mathematician.",
     is_list=True
 )
 EUCLID_DESCRIPTION2 = Feature(
@@ -70,7 +70,7 @@ EUCLID_DESCRIPTION2 = Feature(
     is_list=True
 )
 INTENDED_AUDIENCE = Feature(
-    "RECIPIENT",
+    "audience",
     "Explicit mentions of the work's intended recipients or audience.",
     is_list=True
 )
@@ -80,20 +80,20 @@ INTENDED_AUDIENCE2 = Feature(
     is_list=True
 )
 ELEMENTS_DESIGNATION = Feature(
-    "ELEMENTS DESIGNATION",
-    "The designation of the Elements, such as 'Elements of Geometry' or 'Euclid’s Elements', as it appears on the title page."
+    "Elements_designation",
+    "The designation of the Elements, such as 'Elements of Geometry' or 'Euclid's Elements', as it appears on the title page."
 )
 GREEK_DESIGNATION = Feature(
-    "GREEK DESIGNATION",
+    "Greek_text",
     "Greek designation of the book in non-Greek books."
 )
 INSTITUTIONS = Feature(
-    "INSTITUTIONS",
+    "institutions",
     "Mentions of institutions, such as societies or universities, associated with the book.",
     is_list=True
 )
 BOUND_WITH = Feature(
-    "BOUND WITH",
+    "bound_with",
     "Mentions of other works that are included in the work, in addition to Euclid's Elements, such as 'Optics', 'Data', theorems by Archimedes. "
     "Mentions of additions ingrained in the core text and written by the adapter/translator of the text, such as examples or explanations, should not be included here. "
     "Try to mark the minimal unit of the bound work. For example, instead of marking 'cum expositione Theonis.', mark 'expositione Theonis' as the bound work. "
@@ -101,7 +101,7 @@ BOUND_WITH = Feature(
     is_list=True
 )
 ENRICHED_WITH = Feature(
-    "ENRICHED WITH",
+    "enriched_with",
     "Mentions of additional content that is not part of the core text, such as illustrations, diagrams, explanations, expositions, examples or other supplementary material that enriches the text and makes it more understandable, accurate, or useful. "
     "Mentions of other distinct works that are included in the book, in addition to Euclid's Elements, such as 'Optics', 'Data', theorems by Archimedes, should not be included here."
     "Try to mark the minimal unit of enrichment. For example, instead of marking 'To which are added some utilities', mark 'utilities' as the enriched content. "
@@ -109,12 +109,12 @@ ENRICHED_WITH = Feature(
     is_list=True
 )
 IMPRINT_DATE = Feature(
-    "IMPRINT DATE",
+    "date_in_imprint",
     "Mentions of the date, usually in the form of a year, when the book was printed or published.",
     title_page_part=TitlePagePart.IMPRINT
 )
 IMPRINT_PUBLISHER = Feature(
-    "IMPRINT PUBLISHER",
+    "publisher_in_imprint",
     "Mentions of the publisher or printer, such as the name of the printing house or the person responsible for the publication."
     "Try to include the minimal unit of the publisher's name. For example, instead of marking 'Apud Vincentium Accoltum', mark 'Vincentium Accoltum', "
     "and instead of marking 'Chez GVILLAVME AVVRAY, au haut de la ruë sainct Iean de Beauuais, au Bellerophon couronné', mark 'GVILLAVME AVVRAY'.",
@@ -122,7 +122,7 @@ IMPRINT_PUBLISHER = Feature(
     is_list=True
 )
 IMPRINT_CITY = Feature(
-    "IMPRINT PLACE",
+    "location_in_imprint",
     "Mentions of the city or town where the book was printed or published. "
     "Do not include full addresses, just the city or town name. "
     "For example, instead of marking 'A Paris, chez GVILLAVME AVVRAY, au haut de la ruë sainct Iean de Beauuais, au Bellerophon couronné', mark 'Paris'.",
@@ -130,26 +130,26 @@ IMPRINT_CITY = Feature(
     is_list=True
 )
 IMPRINT_PRIVILEGES = Feature(
-    "IMPRINT PRIVILEGES",
+    "printing_privilege_in_imprint",
     "Mentions of royal privileges or legal permissions granted for printing.",
     title_page_part=TitlePagePart.IMPRINT,
     is_list=True
 )
 IMPRINT_DEDICATION = Feature(
-    "IMPRINT DEDICATION",
+    "dedication_in_imprint",
     "Mentions of patrons or dedications.",
     title_page_part=TitlePagePart.IMPRINT,
     is_list=True
 )
 IMPRINT_ADAPTER_ATTRIBUTION = Feature(
-    "IMPRINT AUTHOR NAME",
+    "editor_in_imprint",
     "The name of the contemporary adapter (author, editor, translator, commentator, etc.) as it appears on the title page. "
     "Do not include any descriptors, just the name itself. "
     "Do not include the printer or publisher's name, just the adapter's name, if exists.",
     title_page_part=TitlePagePart.IMPRINT,
 )
 IMPRINT_ADAPTER_DESCRIPTION = Feature(
-    "IMPRINT AUTHOR DESCRIPTION",
+    "editor_description_in_imprint",
     "Any descriptors found alongside the adapter name, such as academic titles, ranks, or affiliations. "
     "Do not include the printer or publisher's name, just the adapter's description, if exists.",
     is_list=True,

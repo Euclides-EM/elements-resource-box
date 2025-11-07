@@ -675,14 +675,15 @@ export const loadEditionsData = (
                             .flatMap((text) =>
                               FeaturesToSplit[feature as Feature]
                                 ? uniq(text.split(", "))
-                                : [text],
-                            );
+                                : text.split("::"),
+                            )
+                            .map((t) => t.trim());
                           if (feature === "Elements Designation") {
                             acc[feature as Feature] =
-                              !raw["ELEMENTS DESIGNATION"] &&
+                              !raw["Elements_designation"] &&
                               type === "elements"
-                                ? [raw["BASE CONTENT"] as string]
-                                : raw["ELEMENTS DESIGNATION"] === "none" &&
+                                ? [raw["base_content"] as string]
+                                : raw["Elements_designation"] === "none" &&
                                     type === "elements"
                                   ? []
                                   : acc[feature as Feature];
