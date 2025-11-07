@@ -1,10 +1,10 @@
 import csv
-import sys
 
 
 def main():
-    input_file = 'public/docs/copies.csv'
-    output_file = 'public/docs/shelfmarks.csv'
+    input_file = 'public/docs/EiP-secondary.csv'
+    output_file = 'public/docs/translations.csv'
+    write_header = False
 
     try:
         counter = 0
@@ -13,25 +13,38 @@ def main():
 
             # Define output columns according to mapping
             output_columns = [
-                'key', 'volume', 'scan', 'title_page', 'frontispiece', 'annotations', 'shelf_mark', 'copyright'
+                'key', 'field', 'en', 'source'
             ]
 
             with open(output_file, 'a', encoding='utf-8', newline='') as outfile:
-                writer = csv.DictWriter(outfile, fieldnames=output_columns)
-                writer.writeheader()
+                writer = csv.DictWriter(outfile, fieldnames=output_columns, )
+                if write_header:
+                    writer.writeheader()
 
                 for row in reader:
                     # Create new row according to mapping
                     new_row = {}
 
                     new_row['key'] = row.get('key', '')
-                    new_row['volume'] = row.get('vol', '')
-                    new_row['scan'] = row.get('scan_url', '')
-                    new_row['title_page'] = row.get('tp_url_alt', '')
-                    new_row['annotations'] = row.get('annotation', '')
+                    for pair in [
+                        ('title', 'title_EN'),
+                        ('imprint', 'imprint_EN'),
+                        ('colophon', 'colophon_EN'),
+                        ('frontispiece', 'frontispiece_text_EN')
+                    ]:
+                        title, field = pair
+                        new_row['field'] = title
+                        value = row.get(field, '').strip()
+                        if not value:
+                            if title == 'frontispiece':
+                                value = row.get('frontispiece_url', '').strip()
+                            if not value:
+                                continue
+                        new_row['en'] = value
+                        new_row["source"] = "summer_2025"
 
-                    writer.writerow(new_row)
-                    counter += 1
+                        writer.writerow(new_row)
+                        counter += 1
 
         print(f"Successfully transformed {input_file} to {output_file} - with {counter} records.")
 
