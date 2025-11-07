@@ -3,7 +3,7 @@ import csv
 
 def main():
     input_file = 'public/docs/EiP-secondary.csv'
-    output_file = 'public/docs/metadata_elements_print.csv'
+    output_file = 'public/docs/mentions.csv'
     write_header = False
 
     try:
@@ -13,7 +13,7 @@ def main():
 
             # Define output columns according to mapping
             output_columns = [
-                'key','elements_books','additional_content','wardhaugh_classification'
+                'key','secondary'
             ]
 
             with open(output_file, 'a', encoding='utf-8', newline='') as outfile:
@@ -26,10 +26,9 @@ def main():
                     new_row = {}
 
                     new_row['key'] = row.get('key', '')
-                    if not row['books'] and not row.get('wClass'):
+                    if not row.get('books', ''):
                         continue
-                    books_content = row.get('books', '')
-                    new_row["additional_content"] = books_content
+                    new_row['secondary'] = 'EiP'
                     writer.writerow(new_row)
                     counter += 1
 
