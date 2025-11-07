@@ -1,328 +1,320 @@
-key,class,subclass,year_from,year_to,source,elements_books,shelfmark,url,comments
-ms_1,Greek manuscripts,Greek Cardinal Manuscripts,800,900,Lee,,"Oxford, Bodleian, D'Orville, 301, 001-371",http://digital.bodleian.ox.ac.uk/inquire/p/06cfa3b7-2aad-465e-88ac-0ebe3f2b5d13,
-ms_2,Greek manuscripts,Greek Cardinal Manuscripts,800,1200,Lee,,"Paris, Bibliothèque Nationale, Gr., 2466, 001-241v",http://gallica.bnf.fr/ark:/12148/btv1b107229634/f5.image,
-ms_3,Greek manuscripts,Greek Cardinal Manuscripts,800,900,Lee,,"Vatican, Vaticana, Vat.gr., 0190, 003-292",http://digi.vatlib.it/mss/detail/178321,
-ms_4,Greek manuscripts,Greek Cardinal Manuscripts,900,1000,Lee,,"Firenze, Laurenziana, Plut., 28.03, 001-189",http://opac.bmlonline.it/Record.htm?record=576912439419,
-ms_5,Greek manuscripts,Greek Cardinal Manuscripts,1000,1100,Lee,,"Bologna, BC dell'Archiginnasio, Fonds Principal, A 0018, 001-136",http://badigit.comune.bologna.it/books/A18/scorri.asp?Id=1,
-ms_6,Greek manuscripts,Greek Cardinal Manuscripts,1000,1100,Lee,,"Bologna, BC dell'Archiginnasio, Fonds Principal, A 0019, 036-316",http://badigit.comune.bologna.it/books/A19/scorri.asp?Id=1,
-ms_7,Greek manuscripts,Greek Cardinal Manuscripts,1100,1200,Lee,,"Vienna, ÖNB, Phil.gr., 031, 001-254",http://data.onb.ac.at/rec/AL00116256,
-ms_8,Greek manuscripts,Greek Secondary manuscripts,1000,1100,Lee,,"Istanbul, Topkapi Sarayi Müzesi Kütüphanesi, Fonds principal, 001, 003-63",,
-ms_9,Greek manuscripts,Greek Secondary manuscripts,1100,1200,Lee,,"Paris, Bibliothèque Nationale, Gr., 2344, 017-366v",http://gallica.bnf.fr/ark:/12148/btv1b10723139w/f22.image.r=2344#,
-ms_10,Greek manuscripts,Greek Secondary manuscripts,1200,1300,Lee,,"Firenze, Laurenziana, Plut., 28.01, 245-326v",http://teca.bmlonline.it/ImageViewer/servlet/ImageViewer?idr=TECA0000620182&keyworks=euclides,
-ms_11,Greek manuscripts,Greek Secondary manuscripts,1200,1300,Lee,,"Firenze, Laurenziana, Plut., 28.06",http://teca.bmlonline.it/ImageViewer/servlet/ImageViewer?idr=TECA0000324726&keyworks=euclides,
-ms_12,Greek manuscripts,Greek Secondary manuscripts,1200,1300,Lee,,"Firenze, Laurenziana, Plut., 87.16, 357r-383v",http://opac.bmlonline.it/Record.htm?record=789012450729,
-ms_13,Greek manuscripts,Greek Secondary manuscripts,1200,1300,Lee,,"Paris, Bibliothèque Nationale, Gr., 2345, 006-239",http://gallica.bnf.fr/ark:/12148/btv1b11000284r/f10.image.r=2345,
-ms_14,Greek manuscripts,Greek Secondary manuscripts,1200,1300,Lee,,"Vaticano, Vaticana, Vat.gr., 192, 003-95",http://digi.vatlib.it/mss/detail/Vat.gr.192,
-ms_15,Greek manuscripts,Greek Secondary manuscripts,1200,1300,Lee,,"Vaticano, Vaticana, Vat.gr., 207, 118-146",http://digi.vatlib.it/mss/detail/Vat.gr.207,
-ms_16,Greek manuscripts,Greek Secondary manuscripts,1300,1400,Lee,,"Firenze, Laurenziana, Plut., 28.02, 001-245",http://teca.bmlonline.it/ImageViewer/servlet/ImageViewer?idr=TECA0000620040&keyworks=euclides,
-ms_17,Greek manuscripts,Greek Secondary manuscripts,1300,1400,Lee,,"Firenze, Laurenziana, Plut., 28.08",http://teca.bmlonline.it/ImageViewer/servlet/ImageViewer?idr=TECA0000327414&keyworks=euclides,
-ms_18,Greek manuscripts,Greek Secondary manuscripts,1300,1400,Lee,,"Modena, Biblioteca, Estense universitaria Fonds principal, α. T. 8. 21(Puntoni 142), 002-215v",http://bibliotecaestense.beniculturali.it/info/img/mss/i-mo-beu-alfa.t.8.21.html,
-ms_19,Greek manuscripts,Greek Secondary manuscripts,1300,1400,Lee,,"Oxford, Bodleian, Auct., F.6.23 (Misc.117), 001-266",,
-ms_20,Greek manuscripts,Greek Secondary manuscripts,1300,1400,Lee,,"Oxford, Bodleian, Savile, 13, 001-315",,
-ms_21,Greek manuscripts,Greek Secondary manuscripts,1300,1400,Lee,,"Paris, Bibliothèque Nationale, Gr., 2342, 001-96",,
-ms_22,Greek manuscripts,Greek Secondary manuscripts,1300,1400,Lee,,"Paris, Bibliothèque Nationale, Gr., 2373, 037-106",http://gallica.bnf.fr/ark:/12148/btv1b10509305h/f79.image.r=2373,
-ms_23,Greek manuscripts,Greek Secondary manuscripts,1300,1400,Lee,,"Venezia, Marciana, Gr.Z., 300 (COLL.0634), 001-265",,
-ms_24,Greek manuscripts,Greek Secondary manuscripts,1300,1400,Lee,,"Vienna, ÖNB, Pihl.gr., 139, 251-297v",,
-ms_25,Greek manuscripts,Greek Secondary manuscripts,1400,1500,Lee,,"Oxford, Bodleian, Auct., F.3.16 (Misc.090)",,
-ms_26,Greek manuscripts,Greek Secondary manuscripts,1400,1500,Lee,,"Paris, Bibliothèque Nationale, Gr., 2346, 001-166v",http://gallica.bnf.fr/ark:/12148/btv1b525065562/f2.image.r=2346,
-ms_27,Greek manuscripts,Greek Secondary manuscripts,1400,1500,Lee,,"Paris, Bibliothèque Nationale, Gr., 2531, 130-363",http://gallica.bnf.fr/ark:/12148/btv1b10723459v/f135.image.r=2531,
-ms_28,Greek manuscripts,Greek Secondary manuscripts,1400,1500,Lee,,"Vatican, Vaticana, Ottob.gr., 310, 001-123",http://digi.vatlib.it/mss/detail/Ott.gr.310,
-ms_29,Greek manuscripts,Greek Secondary manuscripts,1400,1500,Lee,,"Venezia, Marciana, Gr.Z., 301 (coll.0635), 001-326v",,
-ms_30,Greek manuscripts,Greek Secondary manuscripts,1400,1500,Lee,,"Venezia, Marciana, Gr.Z., 302 (coll.0730), 001-156v",,
-ms_31,Greek manuscripts,Greek Secondary manuscripts,1400,1500,Lee,,"Vienna, ÖNB, Phil.gr., 062, 050-203v",,
-ms_32,Greek manuscripts,Greek Secondary manuscripts,1500,1600,Lee,,"Paris, Bibliothèque Nationale, Gr., 2343",,
-ms_33,Greek manuscripts,Greek Secondary manuscripts,1500,1600,Lee,,"Vaticano, Vaticana, Barb.gr., 244, 001-231",http://digi.vatlib.it/mss/detail/Barb.gr.244,
-ms_34,Greek manuscripts,Greek Secondary manuscripts,,,Lee,,"Escorial, Real Biblioteca, Fonds Principal, Phi.III.05 (Andrés 224), 001-324v",,
-ms_35,Greek manuscripts,Greek Secondary manuscripts,,,Lee,,"Vatican, Vaticana, Vat.gr., 204 (Scholia), 199r-206v",http://digi.vatlib.it/view/MSS_Vat.gr.204,
-ms_36,Arabic manuscripts,Ishāq-Thābit text,,,Lee,,"Copenhagen, 81",http://www.kb.dk/manus/ortsam/2009/okt/orientalia/object57581/en/#,
-ms_37,Arabic manuscripts,Ishāq-Thābit text,1270,1270,Lee,I.39-XV,"Dublin, Chester Beatty Library, MS, 3035, 126ff.",http://www.cbl.ie/cbl_image_gallery/search/detail.aspx?imageId=1429&ImageNumber=T0004847a&page=0,
-ms_38,Arabic manuscripts,Ishāq-Thābit text,1200,1300,Lee,I-XV,"Madrid, Real Biblioteca de San Lorenzo, Ar., 907, 184ff",,
-ms_39,Arabic manuscripts,Ishāq-Thābit text,,,Lee,I.13-XV,"Oxford, British Library, Huntington, 435, 221ff.",,
-ms_40,Arabic manuscripts,Ishāq-Thābit text,1238,1238,Lee,I-XV,"Oxford, British Library, Thurston, 11, 212ff.",,
-ms_41,Arabic manuscripts,Ishāq-Thābit text,1607,1607,Lee,I-V,"Rabat, Bibliothèque Générale, Al-Khizāna al-'Āmma, 53, 46-178",,
-ms_42,Arabic manuscripts,Ishāq-Thābit text,,,Lee,,"Rabat, 1101",,
-ms_43,Arabic manuscripts,Ishāq-Thābit text,1400,1500,Lee,I-XV,"Tehran, Majlis-I Shūrā, MS, 200, 226ff.",,
-ms_44,Arabic manuscripts,Ishāq-Thābit text,954,954,Lee,,"Tehran, Malik, 3586, 240ff.",,
-ms_45,Arabic manuscripts,Ishāq-Thābit text,1042,1042,Lee,,"Uppsala, Universitätsbibliothek, O.Vet., 20, 202ff.",,
-ms_46,Latin Boethius manuscripts,Ma,1004,1004,Lee,excerpts of the Institutiones II.5-6 and extracts of Euclid [II.def.2; V.deff.],"Berne, Burgerbibliothek, Ms, 87, f.9rv",http://www.e-codices.unifr.ch/en/list/one/bbb/0087,
-ms_47,Latin Boethius manuscripts,Ma,800,900,Lee,,"Berne, Burgerbibliothek, Ms, 234, f.1r-53v",http://www.e-codices.unifr.ch/en/list/one/bbb/0234,
-ms_48,Latin Boethius manuscripts,Ma,900,1000,Lee,excerpts of the Institutiones II.5-6 and extracts of Euclid,"Cambridge, Universitätsbibliothek, R.15.14, f.81r-87r",http://trin-sites-pub.trin.cam.ac.uk/james/viewpage.php?index=1165,
-ms_49,Latin Boethius manuscripts,Ma,900,1000,Lee,,"Paris, Bibliothèque Nationale, Lat., 12963",http://gallica.bnf.fr/ark:/12148/btv1b90767898.r=12963?rk=42918;4,
-ms_50,Latin Boethius manuscripts,Ma,900,1000,Lee,,"Paris, Bibliothèque Nationale, Lat., 13048, f.59r-82r",http://gallica.bnf.fr/ark:/12148/btv1b10533305c.r=13048?rk=21459;2,
-ms_51,Latin Boethius manuscripts,Ma,900,1000,Lee,,"Reims, Bibl.Mun., Ms, 975, f.33ff.",http://bvmm.irht.cnrs.fr/consult/consult.php?reproductionId=4772,
-ms_52,Latin Boethius manuscripts,Ma,900,1000,Lee,,"St.Gallen, Stiftsbibliothek, Ms, 199, p.115-374",http://www.e-codices.unifr.ch/en/list/one/csg/0199,
-ms_53,Latin Boethius manuscripts,Mb,900,1000,Lee,"only I def. 19-23, post. 1-5, ax. 1.3.2.7","Munich, Bayerische Staatsbibliothek, Clm, 13084, f.53v-54r",http://www.manuscripta-mediaevalia.de/dokumente/html/obj50010823,
-ms_54,Latin Boethius manuscripts,Mb,800,900,Lee,,"Vatican, Vatican, Palat.lat., 1564, f.79r-82r",http://digi.vatlib.it/view/MSS_Pal.lat.1564,
-ms_55,Latin Boethius manuscripts,Mb,800,900,Lee,,"Wolfenbütel, HAB, Cod.Guelf., 105 Gud.lat., f.43r-45v",http://diglib.hab.de/mss/105-gud-lat/start.htm,
-ms_56,Latin Boethius manuscripts,Mc,900,1000,Lee,,"Einsiedeln, Stiftsbibliothek, Cod., 358, p.1-20, 23-37",http://www.e-codices.unifr.ch/en/list/one/sbe/0358,
-ms_57,Latin Boethius manuscripts,Mc,1200,1300,Lee,,"Florence, BLaur., Plutei, 29.19, f.1r-27r",http://mss.bmlonline.it/Catalogo.aspx?Shelfmark=Plut.29.19,
-ms_58,Latin Boethius manuscripts,Mc,1000,1100,Lee,,"Madrid, Biblioteca Nacional, Ms., 9088, f.130r-142r",http://bdh.bne.es/bnesearch/detalle/bdh0000042034,
-ms_59,Latin Boethius manuscripts,Mc,800,900,Lee,,"Munich, Bayerische Staatsbibliothek, Clm, 560, f.122r-149r",http://www.manuscripta-mediaevalia.de/dokumente/html/obj50007062,
-ms_60,Latin Boethius manuscripts,Mc,1500,1600,Lee,copy of Naples V A 13,"New York, Columbia University, Plimpton, 164, f.1r-15v",http://ds.lib.berkeley.edu/PlimptonMS164_20,
-ms_61,Latin Boethius manuscripts,Mc,900,1000,Lee,,"Oxford, British Library, Douce, 125, p.1-67",http://bodley30.bodley.ox.ac.uk:8180/luna/servlet/s/41j8bz,
-ms_62,Latin Boethius manuscripts,Mc,800,900,Lee,,"Paris, Bibliothèque Nationale, Lat., 13955, f.107r-123v",http://gallica.bnf.fr/ark:/12148/btv1b9066978w/f115.image.r=13955,
-ms_63,Latin Boethius manuscripts,Mc,800,900,Lee,,"Paris, Bibliothèque Nationale, Lat., 14080, f.65r-72v, 80r-87v, 79r-v, 73r-77v",http://gallica.bnf.fr/ark:/12148/btv1b90778250/f69.item.r=14080,
-ms_64,Latin Boethius manuscripts,Mc,1000,1100,Lee,,"St.Gallen, Stiftsbibliothek, Ms, 830, p.283-309",http://www.e-codices.unifr.ch/en/list/one/csg/0830,
-ms_65,Latin Boethius manuscripts,Mc,1500,1600,Lee,incomplete,"Vatican, Vatican, Lat., 3353, f.379r-383r",http://digi.vatlib.it/view/MSS_Vat.lat.3353,
-ms_66,Latin Boethius manuscripts,Mc,1500,1600,Lee,fragment,"Vatican, Vatican, Lat., 3906, f.189r",http://digi.vatlib.it/view/MSS_Vat.lat.3906,
-ms_67,Latin Boethius manuscripts,Mc,800,900,Lee,fragment,"Vatican, Vatican, Regin.lat., 1023, f.16r",http://digi.vatlib.it/view/MSS_Reg.lat.1023,
-ms_68,Latin Boethius manuscripts,Mc,1100,1200,Lee,,"Wroclaw, BU, Rehdig, 55, f.2r-26r",http://www.bibliotekacyfrowa.pl/dlibra/doccontent?id=42814,
-ms_69,Latin Boethius manuscripts,Md,1000,1100,Lee,Md,"London, British Library, Harley, 3595, f.57r-68r",http://www.bl.uk/manuscripts/Viewer.aspx?ref=harley_ms_3595_f057r,
-ms_70,Latin Boethius manuscripts,Md,1100,1200,Lee,,"Munich, Bayerische Staatsbibliothek, Clm, 13021, f.194r-202r",http://daten.digitale-sammlungen.de/bsb00047475/image_393,
-ms_71,Latin Boethius manuscripts,Md,1500,1600,Lee,,"New York, Columbia University, Plimpton, 250, f.98r-129r",http://ds.lib.berkeley.edu/PlimptonMS250_20,copy of Vat.lat.3123
-ms_72,Latin Boethius manuscripts,Md,1100,1200,Lee,,"Paris, Bibliothèque Nationale, Lat., 7185, f.62v-80r",http://gallica.bnf.fr/ark:/12148/btv1b9072601b/f76.item.r=7185,
-ms_73,Latin Boethius manuscripts,Md,1100,1200,Lee,,"Vatican, Vatican, Lat., 3123, f.65v-84r",http://digi.vatlib.it/mss/detail/Vat.lat.3123,
-ms_74,Latin manuscripts,Early texts based upon the Greek,500,500,Lee,XI.24-25; XII.2-3.8; XIII.2-3.7.,"Verona, Bibl.Capit., MS, XL (38), 331v-r; 326v-r; 341r-v; 338r-v; 336r-v; 343r-v",,
-ms_75,Latin manuscripts,Early texts based upon the Greek,800,900,Lee,,"Munich, Universitätsbibliothek, MS, 2o757, 2ff",,
-ms_76,Latin manuscripts,Greek-Latin Translation from the twelfth century,1100,1300,Lee,"I-XIII, XV; abbreviated version of books 14 and 15","Paris, Bibliothèque Nationale, Lat., 7373, 2r-167v; 173r-175v ; 167v-172v",https://gallica.bnf.fr/ark:/12148/btv1b10035274r,
-ms_77,Latin manuscripts,Greek-Latin Translation from the twelfth century,1300,1400,Lee,incomplete; ends within X.48,"Firenze, BNC, Conv.soppr., C I 448, 1r-104v",,
-ms_78,Latin manuscripts,An-Nayrizi's Commentary on Books I-X,1200,1400,Lee,,"Madrid, Biblioteca Nacional, Ms., 10010, 13v-36v, 49v-50r",http://bdh.bne.es/bnesearch/detalle/bdh0000042244,
-ms_79,Latin manuscripts,Version I (Adelard of Bath),1200,1300,Lee,I-VIII.25,"Bruges, SB, MS, 529, 1r-48v",https://sharedcanvas.be/IIIF/viewer/mirador/B_OB_MS529,
-ms_80,Latin manuscripts,Version I (Adelard of Bath),1300,14,Lee,VII.3-VIII.25,"London, British Library, Burney, 275, 302r-308r",http://www.bl.uk/manuscripts/FullDisplay.aspx?ref=Burney_MS_275&index=71,
-ms_81,Latin manuscripts,Version I (Adelard of Bath),1100,1200,Lee,I-VIII.22,"Oxford, Trinity College, MS, 47, 139r-180v",https://medieval.bodleian.ox.ac.uk/catalog/manuscript_11146,https://medieval.bodleian.ox.ac.uk/pdfs/trinity/MS_47.pdf
-ms_82,Latin manuscripts,Version I (Adelard of Bath),1100,1200,Lee,I-VIII.22,"Paris, Bibliothèque Nationale, Lat., 16201, 35r-82r",,
-ms_83,Latin manuscripts,Hermann of Carinthia,1200,1300,Lee,I-XII,"Paris, Bibliothèque Nationale, Lat., 16646, 2r-108r",http://gallica.bnf.fr/ark:/12148/btv1b9066077c.r=16646?rk=42918;4#,
-ms_84,Latin manuscripts,Hermann of Carinthia,1100,1300,Lee,XI-XI.4; XI.5-XIV.1,"Oxford, British Library, Digby, 174, 160r-v ; 160v-173v",,
-ms_85,Latin manuscripts,Gerard of Cremona,1200,1300,Lee,I-XV; scholia I-XIX,"Boulogne-sur-Mer, Bibliotheque de la Ville, MS, 196, 1r-144r ; 144r-147v",http://bvmm.irht.cnrs.fr/sommaire/sommaire.php?reproductionId=20326,
-ms_86,Latin manuscripts,Gerard of Cremona,1300,1400,Lee,I-XV; scholia I-XVII,"Bruges, SB, MS, 521, 1r-109v ; 109v-113v",http://cabrio.bibliotheek.brugge.be/browse/webgaleries/MS521/index.html,
-ms_87,Latin manuscripts,Gerard of Cremona,1400,1500,Lee,I-XV; scholia XVIII-XIX,"Paris, Bibliothèque Nationale, Lat., 7216, 1r-107v ; 107v-108r",http://gallica.bnf.fr/ark:/12148/btv1b90661821.r=7216?rk=21459;2,
-ms_88,Latin manuscripts,Gerard of Cremona,1300,1500,Lee,scholia I-XVII; scholium XVII twice: at the end and after scholium III,"Paris, Bibliothèque Nationale, Lat., 7377B, 1r-9r",http://gallica.bnf.fr/ark:/12148/btv1b9066499b.r=7377b?rk=21459;2,
-ms_89,Latin manuscripts,Gerard of Cremona,1500,1600,Lee,"scholia IV-XVII, XX-XXII","Paris, Bibliothèque Nationale, Lat., 11247, 78r-91v",http://gallica.bnf.fr/ark:/12148/btv1b9066855j.r=11247?rk=42918;4,
-ms_90,Latin manuscripts,Gerard of Cremona,1300,1400,Lee,I-XV; scholia I-XVII,"Vatican, Vatican, Lat., 7299, 1r-136r ; 136r-141r",,
-ms_91,Latin manuscripts,Gerard of Cremona,1300,1400,Lee,XI.5-XV; scholia I-III,"Vatican, Vatican, Regin.lat., 1268, 113v-142v , 142v-143r ; 144r-183v, 206r-207v",http://digi.vatlib.it/view/MSS_Reg.lat.1268,
-ms_92,Latin manuscripts,Gerard of Cremona,1300,1400,Lee,I-XV; scholia I-XVII,"Vatican, Vatican, Rossiano, 579, 1r-126v ; 126v-130v",,
-ms_93,Latin manuscripts,Version II (Robert of Chester),1100,1300,Lee,,"London, British Library, Addit., 34018, 1r-78v",,
-ms_94,Latin manuscripts,Version II (Robert of Chester),1200,1300,Lee,VI.5-XV.5,"London, British Library, Sloane, 285, 14v-65v",http://www.bl.uk/catalogues/illuminatedmanuscripts/ILLUMIN.ASP?Size=mid&IllID=7195,
-ms_95,Latin manuscripts,Version II (Robert of Chester),1100,1200,Lee,,"London, British Library, Royal, 15 A XXVII, 1r-47r",http://www.bl.uk/catalogues/illuminatedmanuscripts/record.asp?MSID=7525&CollID=16&NStart=150127,
-ms_96,Latin manuscripts,Version II (Robert of Chester),1200,1400,Lee,I-XI; proofs only up to IV.1,"Munich, Bayerische Staatsbibliothek, Clm, 14353, 78r-93v",http://daten.digitale-sammlungen.de/0004/bsb00046572/images/,
-ms_97,Latin manuscripts,Version II (Robert of Chester),1200,1300,Lee,I-XV,"Oxford, British Library, Auct., F.5.28, ii r-xli v; 1r- 15r ; 74r",http://bodley30.bodley.ox.ac.uk:8180/luna/servlet/s/6p89o8,
-ms_98,Latin manuscripts,Version II (Robert of Chester),1200,1300,Lee,I-XV,"Paris, Bibliothèque Nationale, Lat., 7215, 4r-105r",http://gallica.bnf.fr/ark:/12148/btv1b9066183f.r=7215?rk=64378;0,
-ms_99,Latin manuscripts,Version II (Robert of Chester),1200,1300,Lee,I.1-I.46; intro to book 10,"Paris, Bibliothèque Nationale, Lat., 7374, 1r-13v, 109v-111r",http://gallica.bnf.fr/ark:/12148/btv1b90661947.r=7374?rk=21459;2,
-ms_100,Latin manuscripts,Version II (Robert of Chester),1200,1300,Lee,X.def.-XV end,"Paris, Bibliothèque Nationale, Lat., 16647, 3r-92r",http://gallica.bnf.fr/ark:/12148/btv1b10720896n.r=16647?rk=42918;4,
-ms_101,Latin manuscripts,Mélanges of the Robert and the Boethius Texts,1100,1200,Lee,I-XV; I-III,"Paris, Bibliothèque Nationale, Lat., 10257, 1r-88r ; 164r-169v",http://gallica.bnf.fr/ark:/12148/btv1b90669532.r=10257?rk=128756;0,
-ms_102,Latin manuscripts,Version III (Johannes de Tinemue),1200,1300,Lee,VII.7-X.36,"Oxford, British Library, D'Orville, 70, 23v-38r",,
-ms_103,Latin manuscripts,Version III (Johannes de Tinemue),1200,1300,Lee,X-XV,"Paris, Bibliothèque Nationale, Lat., 16648, 2r-58r",http://gallica.bnf.fr/ark:/12148/btv1b9066076z.r=16648?rk=42918;4,
-ms_104,Latin manuscripts,Commentary from the early thirteenth century,1200,1300,Lee,I-XV,"Bonn, Universitätsbibliothek, S, 73, 1r-86r",http://www.manuscripta-mediaevalia.de/dokumente/html/obj31275198,
-ms_105,Latin manuscripts,Commentary from the early thirteenth century,1400,1500,Lee,I-II.13,"Paris, Bibliothèque Nationale, Lat., 7292, 188r-210v",http://gallica.bnf.fr/ark:/12148/btv1b10721152w/f4.image.r=7292,
-ms_106,Latin manuscripts,Commentary from the early thirteenth century,1200,1300,Lee,I-V; VI-XV,"Oxford, British Library, Savile, 19, 1r-36v ; 36v-156r",,
-ms_107,Latin manuscripts,Campanus of Novara,1400,1500,Lee,I-XV,"Berkeley, University of California, MS, UCB 79, 2r-165v",http://ds.lib.berkeley.edu/BANCMSUCB079_1,
-ms_108,Latin manuscripts,Campanus of Novara,1400,1500,Lee,"I-II.4, enunciations only","Florence, BLaur., Plut., 29.27, 1r-7v",http://opac.bmlonline.it/Record.htm?record=581712430999,
-ms_109,Latin manuscripts,Campanus of Novara,1400,1500,Lee,I-XV,"Florence, BLaur., San Marco, 212, 1r-132v",http://opac.bmlonline.it/Record.htm?record=979212479749,
-ms_110,Latin manuscripts,Campanus of Novara,1300,1400,Lee,I-XV,"London, British Library, Harely, 5266, 1r-126v",http://www.bl.uk/manuscripts/FullDisplay.aspx?ref=Harley_MS_5266&index=0,
-ms_111,Latin manuscripts,Campanus of Novara,1300,1400,Lee,I-XII,"London, British Library, Harley, 5404, 1r-139v",http://www.bl.uk/manuscripts/Viewer.aspx?ref=harley_ms_5404_fs001r,
-ms_112,Latin manuscripts,Campanus of Novara,1200,1300,Lee,I-XV,"Madrid, Biblioteca Nacional, Ms., 8989, 1r-89v",http://bdh-rd.bne.es/viewer.vm?lang=en&id=0000088851&page=1,
-ms_113,Latin manuscripts,Campanus of Novara,1300,1400,Lee,I-VI.32,"Munich, Bayerische Staatsbibliothek, Clm, 14448, 70r-100r",http://daten.digitale-sammlungen.de/bsb00046456/image_1,
-ms_114,Latin manuscripts,Campanus of Novara,1200,1400,Lee,I-XV,"Munich, Bayerische Staatsbibliothek, Clm, 28209, 1r-89v",http://daten.digitale-sammlungen.de/bsb00107150/image_1,
-ms_115,Latin manuscripts,Campanus of Novara,1300,1300,Lee,I-XV,"New York, Columbia University, MS Plimpton, 156, 1r-164v",http://ds.lib.berkeley.edu/PlimptonMS156_20,
-ms_116,Latin manuscripts,Campanus of Novara,1400,1500,Lee,I,"New York, Columbia University, MS Plimpton, 157, 1r-14v",http://ds.lib.berkeley.edu/PlimptonMS157_20,
-ms_117,Latin manuscripts,Campanus of Novara,1300,1400,Lee,II.3 end – II.7 beginning,"New York, Columbia University, MS Plimpton, 158, 1rv",http://ds.lib.berkeley.edu/PlimptonMS158_20,
-ms_118,Latin manuscripts,Campanus of Novara,1300,1400,Lee,"I-III.29 beginning, III.8 end – V.12","New York, Columbia University, MS Plimpton, 160, 1r-16v; 17r-31v",http://ds.lib.berkeley.edu/PlimptonMS160_20,
-ms_119,Latin manuscripts,Campanus of Novara,1200,1300,Lee,I-XV,"New York, Columbia University, MS Plimpton, 165, 29v-140v",http://ds.lib.berkeley.edu/PlimptonMS165_20,
-ms_120,Latin manuscripts,Campanus of Novara,1200,1300,Lee,I-XV,"Oxford, British Library, Arch. Selden, B 13, 3r-65v",https://digital.bodleian.ox.ac.uk/objects/e7c9cf2c-0440-49d1-9eb5-7d50e682a3a1/surfaces/d1d6c57f-15de-4e5e-ab55-51f697518660/,
-ms_121,Latin manuscripts,Campanus of Novara,1400,1500,Lee,I-VI,"Oxford, British Library, Canon. misc., 554, 1r-73r",,
-ms_122,Latin manuscripts,Campanus of Novara,1300,1400,Lee,I-XV,"Oxford, British Library, Digby, 191, 1r-66v",,
-ms_123,Latin manuscripts,Campanus of Novara,1300,1400,Lee,I-VI.2,"Paris, Bibliothèque Nationale, Lat., 7366, 51r-84v",http://gallica.bnf.fr/ark:/12148/btv1b9067095m.r=7366?rk=64378;0,
-ms_124,Latin manuscripts,Campanus of Novara,1200,1300,Lee,I-XV,"Paris, Bibliothèque Nationale, Lat., 16197, 2r-134v",http://gallica.bnf.fr/ark:/12148/btv1b9067733x.r=16197?rk=21459;2,
-ms_125,Latin manuscripts,Campanus of Novara,1300,1400,Lee,I-XV,"Paris, Bibliothèque Nationale, Lat., 16198, 2r-73v",http://gallica.bnf.fr/ark:/12148/btv1b90671704.r=16198?rk=42918;4,
-ms_126,Latin manuscripts,Campanus of Novara,1300,1400,Lee,I.3 end – XV,"Vatican, Vatican, Palat.lat., 1351, 1r-195v",http://digi.vatlib.it/mss/detail/Pal.lat.1351,
-ms_127,Latin manuscripts,Campanus of Novara,1400,1500,Lee,I-XV,"Vatican, Vatican, Urb.lat., 506, 2r-159v",http://digi.vatlib.it/mss/detail/Urb.lat.506,
-ms_128,Latin manuscripts,Campanus of Novara,1300,1400,Lee,"I-X.3 beg., X-XV","Vatican, Vatican, Urb.lat., 507, 1r-143r",http://digi.vatlib.it/mss/detail/Urb.lat.507,
-ms_129,Latin manuscripts,Campanus of Novara,1400,1500,Lee,I-III,"Krakow, Krakow, BJ, 552, f.98r-125r",https://jbc.bj.uj.edu.pl/dlibra/publication/540572/edition/514035,
-ms_130,Latin manuscripts,Campanus of Novara,1300,1400,Lee,I-XV,"Krakow, Krakow, BJ, 567, f.1r-127v",https://jbc.bj.uj.edu.pl/dlibra/publication/579568/edition/576948,
-ms_131,Latin manuscripts,Campanus of Novara,1400,1500,Lee,I-XV,"Krakow, Krakow, BJ, 568, f.5r-67v",https://jbc.bj.uj.edu.pl/dlibra/publication/421394/edition/432020,
-ms_132,Latin manuscripts,Campanus of Novara,1300,1400,Lee,I-XI.30,"Krakow, Krakow, BJ, 569, f.147r-198v,",https://jbc.bj.uj.edu.pl/dlibra/publication/311224/edition/297913,
-ms_133,Latin manuscripts,Campanus of Novara,1400,1500,Lee,I-III,"Krakow, Krakow, BJ, 1918, f.3r-39v,",https://jbc.bj.uj.edu.pl/dlibra/publication/353838/edition/337896,
-ms_134,Latin manuscripts,An-Nayrizi's Commentary on Books I-X,1300,1400,Lee,,"Krakow, Krakow, BJ, 569, f.1r-23r",https://jbc.bj.uj.edu.pl/dlibra/publication/311224/edition/297913,
-ms_135,Greek manuscripts,Recentiores,1300,1400,Lee,,"Vienna, Vienna, Phil.gr., 139, 251-297",https://digi.vatlib.it/view/MSS_Vat.gr.196,
-ms_136,Greek manuscripts,Novelli,1500,1600,Lee,,"Bologna, Bologna, BU, 2292 (224), 001-246",https://amshistorica.unibo.it/285,
-ms_137,Greek manuscripts,Novelli,1500,1600,Lee,,"Rome, Biblioteca Angelica, Gr., 95, 002-273",https://www.internetculturale.it/jmms/iccuviewer/iccu.jsp?id=oai%3Awww.internetculturale.sbn.it%2FTeca%3A20%3ANT0000%3ACNMD%5C%5C0000151337&mode=all&teca=MagTeca+-+ICCU,
-ms_138,Greek manuscripts,Novelli,1400,1500,Lee,,"Vatican, Vatican, Gr., 1295, 001-158",https://digi.vatlib.it/view/MSS_Vat.gr.1295,
-ms_139,Greek manuscripts,Novelli,1400,1500,Lee,,"Vienna, Vienna, Phil.gr., 62, 050-203",http://data.onb.ac.at/rec/AC14009048,
-ms_140,Greek manuscripts,Epitomes,1400,1600,Lee,,"Würzburg, Würzburg, M.ch.q., 202, 003-040",http://vb.uni-wuerzburg.de/ub/mchq202_117760385/inhalt.html,
-ms_141,Greek manuscripts,Secondary,1533,1533,Lee,,"Paris, Bibliothèque Nationale, Arsenal, 8405, printed+manu note",https://archivesetmanuscrits.bnf.fr/ark:/12148/cc80707v,this is Basel_1533 which has books 1-13
-ms_143,,,1695,1695,,,"Oxford, Bodleian, Christ Church, 131",https://digital.bodleian.ox.ac.uk/objects/9f161887-ec8e-40fe-b417-c11e5845d91d/,
-ms_144,,,1300,1500,,,"Paris, Bibliothèque Nationale, Département des Manuscrits, Latin 7224",https://gallica.bnf.fr/ark:/12148/btv1b9067033h,
-ms_145,,,1400,1600,,,"Paris, Bibliothèque Nationale, Arsenal, 8525",https://gallica.bnf.fr/ark:/12148/btv1b10890284h,
-ms_147,,,1600,1700,,,"New York, Columbia University, Plimpton, 244",https://old.maa.org/press/periodicals/convergence/mathematical-treasures-17th-century-student-notes,"A notebook (not a manual) from the 17th century, including algebraic+arithmetic interpretation of book 2
-http://ds.lib.berkeley.edu/PlimptonMS244_20"
-ms_148,,,1478,1478,,,,,"The Treviso Arithmetic, an anonymous textbook in commercial arithmetic, the earliest known printed mathematics book.
-https://data.cerl.org/istc/ia01141000
-USTC no 760385
-Translation:
-https://tau.primo.exlibrisgroup.com/permalink/972TAU_INST/quev9q/alma990011438890204146
-Partial translation pdf:
-https://drive.google.com/file/d/135ECwlowRXKYIIgy-mXsVohWQpj0AlVg/view"
-ms_149,,,1100,1300,,,"Paris, Bibliothèque Nationale, Département des Manuscrits, italien 463",https://gallica.bnf.fr/ark:/12148/btv1b84268252,
-ms_150,,,1594,1594,,,,https://catalog.lindahall.org/discovery/delivery/01LINDAHALL_INST:LHL/1287367020005961,"Euclid.; Ṭūsī, Naṣīr al-Dīn Muḥammad ibn Muḥammad, 1201-1274 translator; This copy dated 1594"
-ms_151,,Adelard II,1300,1400,https://euclid.analogmachine.org/list-of-web-sites,,"Dresden, Sächsische Landesbibliothek, Mscr.Dresd.Db., 86",https://handschriftenportal.de/search?hspobjectid=HSP-baf77096-2732-3cb5-afcf-ebfa22782fcf&hl=true,Verschiedene Schriften 16
-ms_152,,Adelard II,1100,1200,https://euclid.analogmachine.org/list-of-web-sites,,"Oxford, Balliol College, 257. C12",https://www.flickr.com/photos/balliolarchivist/albums/72157683013828352/,"Balliol College MS 257, 12th century, appears to be fully digitized. Mentioned by Heath, 1925 as  Ball. Coll. 257I, Chap 8. The digitized copy is, however, not well photographed, with a number of pages heavily cropped. Surprisingly the photographs are stored on flickr."
-ms_153,,Adelard II,,,https://euclid.analogmachine.org/list-of-web-sites,,"Vatican, Vatican, Regin.lat., 1137",https://digi.vatlib.it/view/MSS_Reg.lat.1137,"Vatican  Reg Lat. 1137, fully digitized (listed by Folkerts) - it looks like only a very small part of this is Adelard I. Folkerts suggests f.73-74 to include X 24, X 27"
-ms_154,,Adelard II,1300,1400,https://euclid.analogmachine.org/list-of-web-sites,I-XII,"Oxford, British Library, Harley, 5404",,"https://www.davidboeno.org/GROEUVRE//I1p/BritLib/Harley5404.html
-https://www.davidboeno.org/GROEUVRE//I1p/BritLib/Harley5404iv03.html"
-ms_155,,Adelard II,1480,1480,https://euclid.analogmachine.org/list-of-web-sites,,"Glasgow, Glasgow, Sp Coll MS Gen., 1115",https://www.gla.ac.uk/myglasgow/library/files/special/exhibns/month/june2001.html,
-ms_156,,1300,1400,,https://euclid.analogmachine.org/list-of-web-sites,I-XXV.2,"Oxford, Bodleian, D'Orville, 70",https://medieval.bodleian.ox.ac.uk/catalog/manuscript_4172,
-ms_157,Al-Khazini's Epitome of his Zij as-Sanjari,,,,https://www.wilbourhall.org/index.html,,"Tehran, Sipahsalar Mosque, 682",https://www.wilbourhall.org/pdfs/tehran.pdf,"A PDF of a photocopy of manuscript 682 in the library of the Sipahsalar Mosque in Tehran, Iran containing the Zij as-Sanjari (Arabic). [This manuscript includes the astronomical tables of the Zij. ] (From the collection of David E. Pingree)"
-ms_158,Al-Khazini's Epitome of his Zij as-Sanjari,,,,https://www.wilbourhall.org/index.html,,"Istanbul, Suleymaniye Library, Hamidiye, 859",https://www.wilbourhall.org/pdfs/alKhazini.pdf,A PDF of a photocopy of a microfilm of manuscript 859 of the Hamidiye collection in the Suleymaniye Library in Istanbul containing the Zij as-Sanjari (Arabic). [This manuscript does not contain the astronomical tables of the Zij.] (From the collection of David E. Pingree)
-ms_327,Galileo,,1400,1500,,,"Florence, Biblioteca Nazionale Centrale, Ms.Gal., 72, f.1-196",https://www.mpiwg-berlin.mpg.de/Galileo_Prototype/INDEX.HTM,
-ms_328,Boethius tradition,"Cassiodorus, Institutiones, third recension",800,900,folkerts,,"olim Cheltenham, Phillipps MS 16278",,
-ms_329,Boethius tradition,"Cassiodorus, Institutiones, third recension",900,1100,folkerts,,"Glasgow, Hunterian Museum 281",,
-ms_330,Boethius tradition,"Cassiodorus, Institutiones, third recension",900,1000,folkerts,,"Karlsruhe, Badische Landesbibliothek Augiensis 106",,
-ms_331,Boethius tradition,"Cassiodorus, Institutiones, third recension",900,1000,folkerts,only II def. 2; V def. 1-8.11.9.10.13.12.14-16.18.17,"München, Bayerische Staatsbibliothek CLM 13084, f.54-54v",,
-ms_332,Boethius tradition,"Cassiodorus, Institutiones, third recension",800,900,folkerts,,"Valenciennes, Bibliothèque Municipale 195",,
-ms_333,Boethius tradition,Manuscripts of the Corpus agrimensorum,1004,1004,folkerts,only I prop. 1-3 with proofs,"Bern, Bürgerbibliothek 87, f.16v",,
-ms_334,Boethius tradition,Manuscripts of the Corpus agrimensorum,1100,1200,folkerts,only I def. 19-23,"Bruxelles, Bibliothèque Royale 4499-4503, f.4v-5, in.",,
-ms_335,Boethius tradition,Manuscripts of the Corpus agrimensorum,1100,1200,folkerts,,"Bruxelles, Bibliothèque Royale 10629-10660, (copy of Vaticano, Palat. lat. 1564)",,
-ms_336,Boethius tradition,Manuscripts of the Corpus agrimensorum,1100,1200,folkerts,only I def. 19-23,"Chartres, Bibliothèque de la Ville 498, f.153",,
-ms_337,Boethius tradition,Manuscripts of the Corpus agrimensorum,900,1000,folkerts,only I prop. 1-3 with proofs,"Napoli, Biblioteca Nazionale V A 13, f.30v-31, in.",,
-ms_338,Boethius tradition,Manuscripts of the Corpus agrimensorum,1500,1600,folkerts,,"Paris, Bibliothèque Nationale Lat. 8679A, f.19-21, (copy of Wolfenbüttel, HAB Cod. Guelf. 105 Gud. lat.)",,
-ms_339,Boethius tradition,Manuscripts of the Corpus agrimensorum,1100,1200,folkerts,only I def. 19-23,"Vaticano, Ottob. lat. 1862, f.26",,
-ms_340,Boethius tradition,Manuscripts of the Corpus agrimensorum,800,900,folkerts,,"Vaticano, Palat. lat. 1564, f.79-82",,
-ms_341,Boethius tradition,Manuscripts of the Corpus agrimensorum,800,900,folkerts,,"Wolfenbüttel, Herzog August Bibliothek Cod. Guelf. 105 Gud. lat., f.43-45v",,
-ms_342,Boethius tradition,"Pseudo-Boethius, Geometry I",900,1000,folkerts,,"Bamberg, Staatliche Bibliothek Class. 55 (olim H.J. IV 22), f.1v-16, in.",,
-ms_343,Boethius tradition,"Pseudo-Boethius, Geometry I",1004,1004,folkerts,,"Bern, Bürgerbibliothek 87, f.1v-8v",,
-ms_344,Boethius tradition,"Pseudo-Boethius, Geometry I",1000,1100,folkerts,,"Bern, Bürgerbibliothek 299, f.1-14",,
-ms_345,Boethius tradition,"Pseudo-Boethius, Geometry I",900,1000,folkerts,,"Cambridge, Trinity College R.15.14 (939), f.4-43v",,
-ms_346,Boethius tradition,"Pseudo-Boethius, Geometry I",1400,1500,folkerts,,"Cesena, Biblioteca Malatestiana Plut.sin. XXVI.1, f.221-249",,
-ms_347,Boethius tradition,"Pseudo-Boethius, Geometry I",1100,1200,folkerts,excerpts; no Euclid texts,"Chartres, Bibliothèque de la Ville 498, f.141v-143",,
-ms_348,Boethius tradition,"Pseudo-Boethius, Geometry I",900,1100,folkerts,,"Einsiedeln, Stiftsbibliothek 298, p.1-22",,
-ms_349,Boethius tradition,"Pseudo-Boethius, Geometry I",1200,1300,folkerts,,"Firenze, Biblioteca Medicea Laurenziana Plut. 29.19, f.1-27",,
-ms_350,Boethius tradition,"Pseudo-Boethius, Geometry I",1100,1200,folkerts,,"London, British Library Addit. 47679, f.74-101v",,
-ms_351,Boethius tradition,"Pseudo-Boethius, Geometry I",1100,1200,folkerts,,"Madrid, Biblioteca Nacional 9088 (olim Aa 53), f.130-147v",,
-ms_352,Boethius tradition,"Pseudo-Boethius, Geometry I",1200,1300,folkerts,,"München, Bayerische Staatsbibliothek CLM 4024a, f.3-9v, (fragmentary)",,
-ms_353,Boethius tradition,"Pseudo-Boethius, Geometry I",900,1000,folkerts,,"Napoli, Biblioteca Nazionale V A 13, f.1-15, in.",,
-ms_354,Boethius tradition,"Pseudo-Boethius, Geometry I",1500,1600,folkerts,,"New York, Columbia University Plimpton 164, f.2-16v, (copy of Napoli, BN V A 13)",,
-ms_355,Boethius tradition,"Pseudo-Boethius, Geometry I",1000,1100,folkerts,,"Oxford, Bodleian Library Douce 125, p.1-67",,
-ms_356,Boethius tradition,"Pseudo-Boethius, Geometry I",800,900,folkerts,,"Paris, Bibliothèque Nationale Lat. 13020, f.59v-83",,
-ms_357,Boethius tradition,"Pseudo-Boethius, Geometry I",900,1000,folkerts,,"Praha, Universitnì Knihovna IX.C.6 (= 1717), f.47-63v",,
-ms_358,Boethius tradition,"Pseudo-Boethius, Geometry I",1200,1300,folkerts,,"Rostock, Universitätsbibliothek Phil. 18 (olim IV 111,4), p.1-17",,
-ms_359,Boethius tradition,"Pseudo-Boethius, Geometry I",1100,1200,folkerts,,"Vaticano, Barb. lat. 92, f.19v-22v, 38v-44",,
-ms_360,Boethius tradition,"Pseudo-Boethius, Geometry I",1100,1200,folkerts,,"Vaticano, Ottob. lat. 1862, f.37-44v",,
-ms_361,Boethius tradition,"Pseudo-Boethius, Geometry I",1000,1100,folkerts,,"Wien, Österreichische Nationalbibliothek 55, f.1-14v, 22-22v, 15-21v",,
-ms_362,Boethius tradition,"Pseudo-Boethius, Geometry I",1200,1300,folkerts,,"Wien, Österreichische Nationalbibliothek 2269, f.220-223",,
-ms_363,Boethius tradition,"Pseudo-Boethius, Geometry I",1400,1500,folkerts,,"Wroclaw, Biblioteka Uniwersytecka Rehdig. 55, f.2-26, (copied from Rostock Phil. 18)",,
-ms_364,Boethius tradition,"Pseudo-Boethius, Geometry II",1100,1200,folkerts,excerpts; no Euclid text,"Berlin, Staatsbibliothek Preussischer Kulturbesitz Lat. oct. 162, f.69-70, 71v-76",,
-ms_365,Boethius tradition,"Pseudo-Boethius, Geometry II",1100,1200,folkerts,excerpts; no Euclid text,"Bruxelles, Bibliothèque Royale 4499-4503, f.28-28v, in.",,
-ms_366,Boethius tradition,"Pseudo-Boethius, Geometry II",1400,1500,folkerts,,"Cesena, Biblioteca Malatestiana Plut.sin. XXVI.1, f.201-220",,
-ms_367,Boethius tradition,"Pseudo-Boethius, Geometry II",1100,1200,folkerts,,"Chartres, Bibliothèque de la Ville 498, f.155-166, 1 +olim",,
-ms_368,Boethius tradition,"Pseudo-Boethius, Geometry II",1100,1200,folkerts,,"Cheltenham, Phillipps 7017, Present location unknown.",,It seems that this is a Geometry II (not a Geometry I) manuscript
-ms_369,Boethius tradition,"Pseudo-Boethius, Geometry II",1000,1100,folkerts,,"Erlangen, Universitätsbibliothek 379, f.1v-76",,
-ms_370,Boethius tradition,"Pseudo-Boethius, Geometry II",1500,1600,folkerts,excerpts,"Groningen, Bibliotheek der Rijksuniversiteit 103, f.207v-216, in.",,
-ms_371,Boethius tradition,"Pseudo-Boethius, Geometry II",1100,1200,folkerts,excerpts; no Euclid text,"London, British Library Addit. 47679, f.146-147",,
-ms_372,Boethius tradition,"Pseudo-Boethius, Geometry II",1200,1300,folkerts,,"London, British Library Arundel 339, f.49-59",,
-ms_373,Boethius tradition,"Pseudo-Boethius, Geometry II",1400,1500,folkerts,,"London, British Library Lansdowne 842B, f.51-65v",,
-ms_374,Boethius tradition,"Pseudo-Boethius, Geometry II",1200,1300,folkerts,,"München, Bayerische Staatsbibliothek CLM 4024a, f.1v-2v, (fragment)",,
-ms_375,Boethius tradition,"Pseudo-Boethius, Geometry II",1100,1300,folkerts,,"München, Bayerische Staatsbibliothek CLM 23511, f.30-51v",,
-ms_376,Boethius tradition,"Pseudo-Boethius, Geometry II",1000,1100,folkerts,,"Paris, Bibliothèque Nationale Lat. 7377C, f.18v-24, 25v-34v, ex.",,
-ms_377,Boethius tradition,"Pseudo-Boethius, Geometry II",1200,1300,folkerts,,"Rostock, Universitätsbibliothek Phil. 18 (olim IV 111,4), p.29-30, (fragment)",,
-ms_378,Boethius tradition,"Pseudo-Boethius, Geometry II",1100,1200,folkerts,,"Vaticano, Lat. 3123, f.65v-84",,
-ms_379,Boethius tradition,"Pseudo-Boethius, Geometry II",1100,1200,folkerts,,"Vaticano, Barb. lat. 92, f.3-16v",,
-ms_380,Boethius tradition,"Pseudo-Boethius, Geometry II",1100,1200,folkerts,,"Vaticano, Ottob. lat. 1862, f.26v-33v",,
-ms_381,Boethius tradition,"Pseudo-Boethius, Geometry II",1100,1500,folkerts,,"Vaticano, Regin. lat. 1071, f.56-58v, Wroclaw, Biblioteka Uniwersytecka Rehdig. 55, f.38-39, (fragment; copied from Rostock, Phil. 18)",,
-ms_382,Verona palimpsest,,,6,folkerts,,"Verona, Biblioteca Capitolare XL (38), f.331v-331, 326v-326, 341-341v, 338-338v, 336-336v, 343-343v",,
-ms_383,Munich fragment,,800,900,folkerts,,"München, Universitätsbibliothek 2o 757, f.1-2v, in.",,
-ms_384,Greek-Latin translation (twelfth century),,1200,1300,folkerts,,"Paris, Bibliothèque Nationale Lat. 7373, f.2-175v",,"f.2-2v has definitions, postulates, and common notions of book I in the Campanus version, s.XIV"
-ms_385,Greek-Latin translation (twelfth century),,1300,1400,folkerts,incomplete; ends within X 48,"Firenze, Biblioteca Nazionale Centrale Conv.soppr. C I 448, f.1-104v",,
-ms_386,Greek-Latin translation (twelfth century),,1400,1500,folkerts,I def. 1-20,"Venezia, Biblioteca Nazionale Marciana fondo antico 271 (= 1642), f.1-1v",,
-ms_387,Liber ysagogarum Alchorismi,,1300,1400,folkerts,,"Admont, Stiftsbibliothek, fragment 4, 1f.",,
-ms_388,Liber ysagogarum Alchorismi,,1400,1500,folkerts,,"Genoa, Biblioteca Universitaria E.III.28, f.231-232v",,
-ms_389,Liber ysagogarum Alchorismi,,1100,1200,folkerts,interpolated version,"Milano, Biblioteca Ambrosiana A 3 sup., f.1-20",,
-ms_390,Liber ysagogarum Alchorismi,,1100,1200,folkerts,,"München, Bayerische Staatsbibliothek CLM 13021, f.27-31v",,
-ms_391,Liber ysagogarum Alchorismi,,1200,1300,folkerts,,"München, Bayerische Staatsbibliothek CLM 18927, f.31-33",,
-ms_392,Liber ysagogarum Alchorismi,,1300,1400,folkerts,interpolated version,"Oxford, Bodleian Library Lyell 52, f.21-34",,
-ms_393,Liber ysagogarum Alchorismi,,1100,1200,folkerts,interpolated version,"Paris, Bibliothèque Nationale Lat. 16208, f.67-71",,
-ms_394,Liber ysagogarum Alchorismi,1143,1143,folkerts,summary,"Wien, Österreichische Nationalbibliothek 275, f.27",,
-ms_395,Early Arabian Manuscripts,Hajjaj text,,,folkerts,XI-XIII,"København, Kongelige Biblioteket",,
-ms_396,Early Arabian Manuscripts,Hajjaj text,,,folkerts,I - VII beginning,"Leiden, Bibliotheek der Rijksuniversiteit Or. 399/",,
-ms_397,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,I def.19 - XV,"Cambridge, University Library Addit. 1075, 233ff.",,
-ms_398,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,I 39 - XV,"Dublin, Chester Beatty Library 3035, A.H. 669, 126ff.",,
-ms_399,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,I-XV,"Dunedin, Otago Museum a.873 H. El Escorial ar. 907, 184ff., s.7 H.",,
-ms_400,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,IV 14 - XV,"Istanbul, Fatih 3439, f.2r-65v, A.H.",,
-ms_401,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,,"Kabul, Kitabkhane-i Wizarat-i Ma'arif, 297, 241ff.",,
-ms_402,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,I-XV; I-XV,"Kastamonu 607, ca. 200 ff., s.8 H. Købnhavn, Kongelige Biblioteket 81, 214ff.",,
-ms_403,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,,"Leningrad, Institut vostokovedenija C 2145, 280ff., A.H.",,
-ms_404,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,I 13 - XV,"Oxford, Bodleian Library Huntington 435, 217ff.",,
-ms_405,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,I-XV,"Oxford, Bodleian Library Thurston 11, 212ff., A.H.",,
-ms_406,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,,"Paris, Bibliothèque Nationale Arab. 2500, A.H.",,
-ms_407,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,I-XV,"Rabat, al-Malik 1101, ca. 200ff., A.H.",,
-ms_408,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,I-VIII,"Rabat, al-Malik 5317, 63ff., A.H.",,
-ms_409,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,I-XV; I-XV,"Rampur, Raza Library Arshi 200, 214ff. Uppsala, Universitetsbibliotek O.Vet. 20, 202ff., A.H.",,
-ms_410,Early Arabian Manuscripts,Ishaq-Thabit text,954,954,folkerts,part of VII,"Teheran, Danishgah 2120, 6ff., A.H. 343 = A.D.954/55 (!)",,"part of the same manuscript as Teheran, Malik 3586"
-ms_411,Early Arabian Manuscripts,Ishaq-Thabit text,,,folkerts,I-XV,"Teheran, Majlis Shura 200, 226ff., s.9 H.",,
-ms_412,Early Arabian Manuscripts,Ishaq-Thabit text,954,954,folkerts,I-XV,"Teheran, Malik 3586, 240ff., A.H. 343 = A.D.954/55 (!)",,"the missing part of book VII is Teheran, Danishgah 2120"
-ms_413,Adelard I,,1200,1300,folkerts,I - VIII 25,"Bruges, Stadsbibliotheek 529, f.1-48v",,
-ms_414,Adelard I,,1200,1400,folkerts,X 36 - XV 2,"Oxford, Bodleian Library D'Orville 70, f.39-71v",,
-ms_415,Adelard I,,1100,1200,folkerts,I - VIII 22,"Oxford, Trinity College 47, f.171-180v, 163-170v, 155-162v, 147-154v, 139-146v",,
-ms_416,Adelard I,,1200,1300,folkerts,"X 24, X 17","Vaticano, Regin. lat. 1137, f.73v-74",,
-ms_417,Adelard I,,1300,1400,folkerts,X 36-49,"Wien, Österreichische Nationalbibliothek 83, f.64-65v",,
-ms_418,Hermann of Carinthia,,1200,1300,folkerts,XI 1-4,"Oxford, Bodleian Library Digby 174, f.160-160v",,going back to a Hermann version
-ms_419,Hermann of Carinthia,,1300,1400,folkerts,XI 1-4,"Vaticano, Regin. lat. 1268, f.113r-113v, in.",,in agreement with Digby 174
-ms_420,Gerard of Gremona,,1300,1400,folkerts,I-XV; scholia I-XIX,"Boulogne-sur-Mer, Bibliothèque de la Ville 196, f.1-144, 144-147v",,
-ms_421,Gerard of Gremona,,1300,1400,folkerts,I-XV; scholia I-XVII,"Bruges, Stadsbibliotheek 521, f.1-109v, 109v-113v",,
-ms_422,Gerard of Gremona,,1300,1400,folkerts,"scholia IV-XVII, XX-XXII","Firenze, Biblioteca Nazionale Centrale Conv.soppr. J V 30, f.55-57v",,
-ms_423,Gerard of Gremona,,1300,1400,folkerts,I - X 101,"Madrid, Biblioteca de la Universidad 102 (117-z-6), f.137-196v",,
-ms_424,Gerard of Gremona,,1400,1500,folkerts,"I - X 109, XIII 11 - XV 5; scholia I-XVII","Milano, Biblioteca Ambrosiana D 186 inf., f.1-107v, 107v-112",,
-ms_425,Gerard of Gremona,,1200,1300,folkerts,XI 5 - XIV 1,"Oxford, Bodleian Library Digby 174, f.160v-173v",,
-ms_426,Gerard of Gremona,,1400,1500,folkerts,"III def., III 1 porism, III 2-7 enunciations","Oxford, Bodleian Library Canon. misc. 145, f.307",,
-ms_427,Gerard of Gremona,,1300,1400,folkerts,I - X 17,"Palermo, Biblioteca Comunale 2 Qq E 98, f.1-83v",,
-ms_428,Gerard of Gremona,,1300,1400,folkerts,I - I 5,"Roma, Biblioteca Vallicelliana F.86, f.49-54",,
-ms_429,Gerard of Gremona,,1300,1400,folkerts,I-XV; scholia I-XVII,"Vaticano, Lat. 7299, f.1r-136, 136-141",,
-ms_430,Gerard of Gremona,,1300,1400,folkerts,XI 5 - XV; scholia I-III,"Vaticano, Regin. lat. 1268, f.113v-142v, 142v-143",,
-ms_431,Gerard of Gremona,,1400,1600,folkerts,"XV 1-5, XIII 16","Vaticano, Regin. lat. 1904, f.86-90",,
-ms_432,Gerard of Gremona,,1300,1400,folkerts,I-XV; scholia I-XVII,"Vaticano, Rossiano 579, f.1-126v, 126v-130v",,
-ms_433,Adelard II,,1200,1300,folkerts,"I - III 7, V - VIII 5","Wolfenbüttel, Herzog August Bibliothek Guelf. 51.9 Aug. 4to, f.53-60v, 61-68",,
-ms_434,Adelard II,,1300,1400,folkerts,I - I 20,"Worcester, Chapter Library Q 89, f.1-3",,
-ms_435,Adelard II,,1200,1300,folkerts,I-XV,"Wroclaw, Biblioteka Uniwersytecka Mil. II.10, f.1-115v",,
-ms_436,Texts in the Adelard II tradition,Adelard III,1200,1300,folkerts,X 91 - XI 37,"London, British Library Royal 15 B IV, f.158-167v",,
-ms_437,Texts in the Adelard II tradition,Adelard III,1100,1200,folkerts,I - XV 3,"Oxford, Balliol College 257, f.2-98v, ex",,
-ms_438,Texts in the Adelard II tradition,Adelard III,1100,1200,folkerts,I-XI; repetition of 125-132v; I - V 2; VI 11 - X,"Oxford, Bodleian Library Digby 174, f.99-132v, f.139-145 , f.146-153, f.154-159v",,
-ms_439,Texts in the Adelard II tradition,Adelard III,1200,1300,folkerts,VII 7 - X 36,"Oxford, Bodleian Library D'Orville 70, f.23v-38",,
-ms_440,Texts in the Adelard II tradition,Adelard III,1200,1300,folkerts,I-VI def.,"Oxford, Bodleian Library Savile 19, f.1-37",,the so-called Version IIIB
-ms_441,Texts in the Adelard II tradition,Adelard III,1200,1300,folkerts,I-XV,"Venezie, Biblioteca Nazionale Marciana fondo antico 332 (= 1647), f.86-233",,together with Adelard II
-ms_442,Texts in the Adelard II tradition,Adelard III,1300,1400,folkerts,VII 7 - X 36,"Wien, Österreichische Nationalbibliothek 83, f.53-63v",,
-ms_443,Texts in the Adelard II tradition,Thirteenth century commentary,1200,1300,folkerts,I - VII 6,"Oxford, Bodleian Library D'Orville 70, f.1-23v",,
-ms_444,Texts in the Adelard II tradition,Thirteenth century commentary,1300,1400,folkerts,I - VII 6,"Wien, Österreichische Nationalbibliothek 83, f.39-53",,
-ms_445,Texts in the Adelard II tradition,Campanus of Novara,1400,1500,folkerts,"excerpts from books I, II, III, VII, VIII, X; IX","Vaticano, Palat. lat. 1354, f.98v-99v, 120-120v",,
-ms_446,Texts in the Adelard II tradition,Campanus of Novara,1400,1500,folkerts,I - XV,"Vaticano, Regin. lat. 1186, f.5-158",,the proofs in book I in a different version
-ms_447,Texts in the Adelard II tradition,Campanus of Novara,1300,1400,folkerts,I-XV,"Vaticano, Regin. lat. 1261, f.61-197v",,
-ms_448,Texts in the Adelard II tradition,Campanus of Novara,1300,1400,folkerts,I - VII 3,"Vaticano, Regin. lat. 1267, f.1-56v",,
-ms_449,Texts in the Adelard II tradition,Campanus of Novara,1300,1500,folkerts,I - XV,"Vaticano, Urb. lat. 506, f.2-159v, Vaticano, Urb. lat. 507, f.1-143, (I - X 3 beg., X-XV",,
-ms_450,Texts in the Adelard II tradition,Campanus of Novara,1400,1500,folkerts,"I-XV, enunciations only","Venezie, Biblioteca Nazionale Marciana fondo antico 329 (= 1843), f.12-34",,
-ms_451,Texts in the Adelard II tradition,Campanus of Novara,1300,1400,folkerts,I - XV,"Venezie, Biblioteca Nazionale Marciana Lat. VIII 39 (= 3271), f.1-135",,
-ms_452,Texts in the Adelard II tradition,Campanus of Novara,1400,1500,folkerts,I 24 end - VII 30 beg.; X 20 end - XV,"Venezie, Biblioteca Nazionale Marciana Lat. VIII 77 (= 3223), f.20-98",,
-ms_453,Texts in the Adelard II tradition,Campanus of Novara,1300,1400,folkerts,I-VI,"Wien, Österreichische Nationalbibliothek 2367, f.198-247v",,
-ms_454,Texts in the Adelard II tradition,Campanus of Novara,1300,1400,folkerts,I - XV,"Wien, Österreichische Nationalbibliothek 2465, f.1-142, in.",,
-ms_455,Texts in the Adelard II tradition,Campanus of Novara,1300,1400,folkerts,I - I 37,"Wien, Österreichische Nationalbibliothek 4770, f.45-50v.",,The text of the first proofs differs from the usual Campanus text
-ms_456,Texts in the Adelard II tradition,Campanus of Novara,1400,1500,folkerts,I,"Wien, Österreichische Nationalbibliothek 4953, f.126-143v",,
-ms_457,Texts in the Adelard II tradition,Campanus of Novara,,,folkerts,"XV 7-13, enunciations only","Wien, Österreichische Nationalbibliothek 5304, f.",,
-ms_458,Texts in the Adelard II tradition,Campanus of Novara,1300,1500,folkerts,I - II 12,"Wien, Österreichische Nationalbibliothek 5417, f.56-74v",,
-ms_459,Texts in the Adelard II tradition,Campanus of Novara,1457,1457,folkerts,I-XV,"Wien, Österreichische Nationalbibliothek 5507, f.1-82",,
-ms_460,Texts in the Adelard II tradition,Campanus of Novara,1400,1500,folkerts,I - VI,"Wolfenbüttel, Herzog August Bibliothek Guelf. 65. Aug. fol., f.9-75v",,
-ms_461,Texts in the Adelard II tradition,"Reworking Paris, BN Lat. 7374",1200,1300,folkerts,,"Paris, Bibliothèque Nationale Lat. 7374, f.13v-109v, 1: I 47 - IX",,
-ms_462,Texts in the Adelard II tradition,"Reworking London, Sloane 285",1200,1300,folkerts,I - VI 4,"London, British Library Sloane 285, f.1-14v",,
-ms_463,Reworking Vat. Reg. lat. 1268,,1300,1400,folkerts,"V-VI; X, XI def. - XI 4","Vaticano, Regin. lat. 1268, f.72-91v, f.92-112v, 113-113v",,
-ms_464,an-Nayrizi's commentary on books I-X,,1300,1400,folkerts,pp.7-51,"Krakòw, Biblioteka Jagiellonska 569, f.1-23",,
-ms_465,an-Nayrizi's commentary on books I-X,,1300,1400,folkerts,abridgement,"Oxford, Bodleian Library Digby 168, f.124-125",,
-ms_466,an-Nayrizi's commentary on books I-X,,1300,1400,folkerts,,"Vaticano, Regin. lat. 1268, f.144-183v, 206r-207v, in.",,
-ms_467,"Muhammad ibn `Abd al-Baqi, Commentary on book X",,1300,1400,folkerts,,"Cambridge, University Library Mm. 2.18, f.49v-65",,
-ms_468,"Muhammad ibn `Abd al-Baqi, Commentary on book X",,1300,1400,folkerts,,"Krakòw, Biblioteka Jagiellonska 569, f.23-37v (pp.51-80",,
-ms_469,"Muhammad ibn `Abd al-Baqi, Commentary on book X",,1200,1400,folkerts,,"Madrid, Biblioteca Nacional 10010, f.36v-49v",,
-ms_470,"Muhammad ibn `Abd al-Baqi, Commentary on book X",,1200,1300,folkerts,,"Paris, Bibliothèque Nationale Lat. 9335, f.92v-110v",,
-ms_471,"Muhammad ibn `Abd al-Baqi, Commentary on book X",,1300,1400,folkerts,,"Paris, Bibliothèque Nationale Lat. 7377A, f.1-33v",,
-ms_472,Commentary on book X by Pappus,,1200,1300,folkerts,,"Paris, Bibliothèque Nationale Lat. 7377A, f.68-70v, (fragment)",,
-ms_473,Commentary of Albertus Magnus (?),,1300,1400,folkerts,I-IV,"Wien, Dominikanerkloster 80/45, f.105-145",,
-ms_474,Commentary ascribed to Roger Bacon,,1400,1500,folkerts,,"Firenze, Biblioteca Nazionale Centrale Conv.soppr. J IX 26, f.46-55",,
-ms_475,"Nicole Oresme, Quaestiones super geometriam Euclidis",,1300,1400,folkerts,,"Seville, Biblioteca Colombina 7-7-13, f.102v-112",,
-ms_476,"Nicole Oresme, Quaestiones super geometriam Euclidis",,1400,1500,folkerts,,"Vaticano, Lat. 2225, f.90-98v",,
-ms_477,"Nicole Oresme, Quaestiones super geometriam Euclidis",,1300,1400,folkerts,,"Vaticano, Chigi F IV 66, f.22v-40",,
-ms_478,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,1400,1500,folkerts,"I - VI, diagrams only","Paris, Bibliothèque Nationale Lat. 7219, f.1-26v",,
-ms_479,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,1400,1500,folkerts,,"Perugia, Biblioteca Comunale 322",,Brani d'... Euclide
-ms_480,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,1400,1500,folkerts,XIV - XV,"Piacenza, Biblioteca Comunale Pallastrelli 211, f.1-32v, ex.",,"G. Valla, with dedication letter to Petrus Barocius"
-ms_481,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,1300,1400,folkerts,,"Praha, Knihovna Metropolitnì Kapituli 1459, f.21-48",,"M 100; Quaestiones about Euclid, book I. On f.49v-50, 52v-53 there are notes, commentaries and small extracts from Euclid"
-ms_482,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,1400,1500,folkerts,Commentary to I-VI,"Praha, Knihovna Metropolitnì Kapituli 1585 (O 1), f.166-174v, 176-178",,"as it seems, from the university lecture"
-ms_483,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,1500,1600,folkerts,"I-VIII, Enunciations only","Torino, Biblioteca Nazionale H.VII.46, f.1-134v",,Zamberti
-ms_484,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,1300,1400,folkerts,,"Vaticano, Lat. 2114, f.257v-258",,
-ms_485,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,1500,1600,folkerts,,"Vaticano, Barb. lat. 3, p.1-355, (I-VI, Campanus and Zamberti texts",,
-ms_486,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,1500,1600,folkerts,,"Vaticano, Barb. lat. 304, : Annotationes in 7. Euclidis",,
-ms_487,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,1500,1600,folkerts,XIV-XV,"Vaticano, Ottob. lat. 2273, f.1-49v",,G. Valla with dedication letter to princeps Albertus pius Carpensis
-ms_488,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,1500,1600,folkerts,commentary to book X,"Vaticano, Regin. lat. 1208, f.1-32",,Michael Stifel
-ms_489,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,1400,1500,folkerts,I 2 - XIII 10,"Wien, Österreichische Nationalbibliothek 5268, f.98-98v",,"enunciations only, in the Campanus version. Only those enunciations are givenwhich are necessary for the proofs in the treatise De sinibus et cordis ac eorum arcubus. See London, Add. 24071"
+key,class,subclass,elements_books
+ms_1,Greek manuscripts,Greek Cardinal Manuscripts,
+ms_2,Greek manuscripts,Greek Cardinal Manuscripts,
+ms_3,Greek manuscripts,Greek Cardinal Manuscripts,
+ms_4,Greek manuscripts,Greek Cardinal Manuscripts,
+ms_5,Greek manuscripts,Greek Cardinal Manuscripts,
+ms_6,Greek manuscripts,Greek Cardinal Manuscripts,
+ms_7,Greek manuscripts,Greek Cardinal Manuscripts,
+ms_8,Greek manuscripts,Greek Secondary manuscripts,
+ms_9,Greek manuscripts,Greek Secondary manuscripts,
+ms_10,Greek manuscripts,Greek Secondary manuscripts,
+ms_11,Greek manuscripts,Greek Secondary manuscripts,
+ms_12,Greek manuscripts,Greek Secondary manuscripts,
+ms_13,Greek manuscripts,Greek Secondary manuscripts,
+ms_14,Greek manuscripts,Greek Secondary manuscripts,
+ms_15,Greek manuscripts,Greek Secondary manuscripts,
+ms_16,Greek manuscripts,Greek Secondary manuscripts,
+ms_17,Greek manuscripts,Greek Secondary manuscripts,
+ms_18,Greek manuscripts,Greek Secondary manuscripts,
+ms_19,Greek manuscripts,Greek Secondary manuscripts,
+ms_20,Greek manuscripts,Greek Secondary manuscripts,
+ms_21,Greek manuscripts,Greek Secondary manuscripts,
+ms_22,Greek manuscripts,Greek Secondary manuscripts,
+ms_23,Greek manuscripts,Greek Secondary manuscripts,
+ms_24,Greek manuscripts,Greek Secondary manuscripts,
+ms_25,Greek manuscripts,Greek Secondary manuscripts,
+ms_26,Greek manuscripts,Greek Secondary manuscripts,
+ms_27,Greek manuscripts,Greek Secondary manuscripts,
+ms_28,Greek manuscripts,Greek Secondary manuscripts,
+ms_29,Greek manuscripts,Greek Secondary manuscripts,
+ms_30,Greek manuscripts,Greek Secondary manuscripts,
+ms_31,Greek manuscripts,Greek Secondary manuscripts,
+ms_32,Greek manuscripts,Greek Secondary manuscripts,
+ms_33,Greek manuscripts,Greek Secondary manuscripts,
+ms_34,Greek manuscripts,Greek Secondary manuscripts,
+ms_35,Greek manuscripts,Greek Secondary manuscripts,
+ms_36,Arabic manuscripts,Ishāq-Thābit text,
+ms_37,Arabic manuscripts,Ishāq-Thābit text,I.39-XV
+ms_38,Arabic manuscripts,Ishāq-Thābit text,I-XV
+ms_39,Arabic manuscripts,Ishāq-Thābit text,I.13-XV
+ms_40,Arabic manuscripts,Ishāq-Thābit text,I-XV
+ms_41,Arabic manuscripts,Ishāq-Thābit text,I-V
+ms_42,Arabic manuscripts,Ishāq-Thābit text,
+ms_43,Arabic manuscripts,Ishāq-Thābit text,I-XV
+ms_44,Arabic manuscripts,Ishāq-Thābit text,
+ms_45,Arabic manuscripts,Ishāq-Thābit text,
+ms_46,Latin Boethius manuscripts,Ma,excerpts of the Institutiones II.5-6 and extracts of Euclid [II.def.2; V.deff.]
+ms_47,Latin Boethius manuscripts,Ma,
+ms_48,Latin Boethius manuscripts,Ma,excerpts of the Institutiones II.5-6 and extracts of Euclid
+ms_49,Latin Boethius manuscripts,Ma,
+ms_50,Latin Boethius manuscripts,Ma,
+ms_51,Latin Boethius manuscripts,Ma,
+ms_52,Latin Boethius manuscripts,Ma,
+ms_53,Latin Boethius manuscripts,Mb,"only I def. 19-23, post. 1-5, ax. 1.3.2.7"
+ms_54,Latin Boethius manuscripts,Mb,
+ms_55,Latin Boethius manuscripts,Mb,
+ms_56,Latin Boethius manuscripts,Mc,
+ms_57,Latin Boethius manuscripts,Mc,
+ms_58,Latin Boethius manuscripts,Mc,
+ms_59,Latin Boethius manuscripts,Mc,
+ms_60,Latin Boethius manuscripts,Mc,copy of Naples V A 13
+ms_61,Latin Boethius manuscripts,Mc,
+ms_62,Latin Boethius manuscripts,Mc,
+ms_63,Latin Boethius manuscripts,Mc,
+ms_64,Latin Boethius manuscripts,Mc,
+ms_65,Latin Boethius manuscripts,Mc,incomplete
+ms_66,Latin Boethius manuscripts,Mc,fragment
+ms_67,Latin Boethius manuscripts,Mc,fragment
+ms_68,Latin Boethius manuscripts,Mc,
+ms_69,Latin Boethius manuscripts,Md,Md
+ms_70,Latin Boethius manuscripts,Md,
+ms_71,Latin Boethius manuscripts,Md,
+ms_72,Latin Boethius manuscripts,Md,
+ms_73,Latin Boethius manuscripts,Md,
+ms_74,Latin manuscripts,Early texts based upon the Greek,XI.24-25; XII.2-3.8; XIII.2-3.7.
+ms_75,Latin manuscripts,Early texts based upon the Greek,
+ms_76,Latin manuscripts,Greek-Latin Translation from the twelfth century,"I-XIII, XV; abbreviated version of books 14 and 15"
+ms_77,Latin manuscripts,Greek-Latin Translation from the twelfth century,incomplete; ends within X.48
+ms_78,Latin manuscripts,An-Nayrizi's Commentary on Books I-X,
+ms_79,Latin manuscripts,Version I (Adelard of Bath),I-VIII.25
+ms_80,Latin manuscripts,Version I (Adelard of Bath),VII.3-VIII.25
+ms_81,Latin manuscripts,Version I (Adelard of Bath),I-VIII.22
+ms_82,Latin manuscripts,Version I (Adelard of Bath),I-VIII.22
+ms_83,Latin manuscripts,Hermann of Carinthia,I-XII
+ms_84,Latin manuscripts,Hermann of Carinthia,XI-XI.4; XI.5-XIV.1
+ms_85,Latin manuscripts,Gerard of Cremona,I-XV; scholia I-XIX
+ms_86,Latin manuscripts,Gerard of Cremona,I-XV; scholia I-XVII
+ms_87,Latin manuscripts,Gerard of Cremona,I-XV; scholia XVIII-XIX
+ms_88,Latin manuscripts,Gerard of Cremona,scholia I-XVII; scholium XVII twice: at the end and after scholium III
+ms_89,Latin manuscripts,Gerard of Cremona,"scholia IV-XVII, XX-XXII"
+ms_90,Latin manuscripts,Gerard of Cremona,I-XV; scholia I-XVII
+ms_91,Latin manuscripts,Gerard of Cremona,XI.5-XV; scholia I-III
+ms_92,Latin manuscripts,Gerard of Cremona,I-XV; scholia I-XVII
+ms_93,Latin manuscripts,Version II (Robert of Chester),
+ms_94,Latin manuscripts,Version II (Robert of Chester),VI.5-XV.5
+ms_95,Latin manuscripts,Version II (Robert of Chester),
+ms_96,Latin manuscripts,Version II (Robert of Chester),I-XI; proofs only up to IV.1
+ms_97,Latin manuscripts,Version II (Robert of Chester),I-XV
+ms_98,Latin manuscripts,Version II (Robert of Chester),I-XV
+ms_99,Latin manuscripts,Version II (Robert of Chester),I.1-I.46; intro to book 10
+ms_100,Latin manuscripts,Version II (Robert of Chester),X.def.-XV end
+ms_101,Latin manuscripts,Mélanges of the Robert and the Boethius Texts,I-XV; I-III
+ms_102,Latin manuscripts,Version III (Johannes de Tinemue),VII.7-X.36
+ms_103,Latin manuscripts,Version III (Johannes de Tinemue),X-XV
+ms_104,Latin manuscripts,Commentary from the early thirteenth century,I-XV
+ms_105,Latin manuscripts,Commentary from the early thirteenth century,I-II.13
+ms_106,Latin manuscripts,Commentary from the early thirteenth century,I-V; VI-XV
+ms_107,Latin manuscripts,Campanus of Novara,I-XV
+ms_108,Latin manuscripts,Campanus of Novara,"I-II.4, enunciations only"
+ms_109,Latin manuscripts,Campanus of Novara,I-XV
+ms_110,Latin manuscripts,Campanus of Novara,I-XV
+ms_111,Latin manuscripts,Campanus of Novara,I-XII
+ms_112,Latin manuscripts,Campanus of Novara,I-XV
+ms_113,Latin manuscripts,Campanus of Novara,I-VI.32
+ms_114,Latin manuscripts,Campanus of Novara,I-XV
+ms_115,Latin manuscripts,Campanus of Novara,I-XV
+ms_116,Latin manuscripts,Campanus of Novara,I
+ms_117,Latin manuscripts,Campanus of Novara,II.3 end – II.7 beginning
+ms_118,Latin manuscripts,Campanus of Novara,"I-III.29 beginning, III.8 end – V.12"
+ms_119,Latin manuscripts,Campanus of Novara,I-XV
+ms_120,Latin manuscripts,Campanus of Novara,I-XV
+ms_121,Latin manuscripts,Campanus of Novara,I-VI
+ms_122,Latin manuscripts,Campanus of Novara,I-XV
+ms_123,Latin manuscripts,Campanus of Novara,I-VI.2
+ms_124,Latin manuscripts,Campanus of Novara,I-XV
+ms_125,Latin manuscripts,Campanus of Novara,I-XV
+ms_126,Latin manuscripts,Campanus of Novara,I.3 end – XV
+ms_127,Latin manuscripts,Campanus of Novara,I-XV
+ms_128,Latin manuscripts,Campanus of Novara,"I-X.3 beg., X-XV"
+ms_129,Latin manuscripts,Campanus of Novara,I-III
+ms_130,Latin manuscripts,Campanus of Novara,I-XV
+ms_131,Latin manuscripts,Campanus of Novara,I-XV
+ms_132,Latin manuscripts,Campanus of Novara,I-XI.30
+ms_133,Latin manuscripts,Campanus of Novara,I-III
+ms_134,Latin manuscripts,An-Nayrizi's Commentary on Books I-X,
+ms_135,Greek manuscripts,Recentiores,
+ms_136,Greek manuscripts,Novelli,
+ms_137,Greek manuscripts,Novelli,
+ms_138,Greek manuscripts,Novelli,
+ms_139,Greek manuscripts,Novelli,
+ms_140,Greek manuscripts,Epitomes,
+ms_141,Greek manuscripts,Secondary,
+ms_143,,,
+ms_144,,,
+ms_145,,,
+ms_147,,,
+ms_148,,,
+ms_149,,,
+ms_150,,,
+ms_151,,Adelard II,
+ms_152,,Adelard II,
+ms_153,,Adelard II,
+ms_154,,Adelard II,I-XII
+ms_155,,Adelard II,
+ms_156,,1300,I-XXV.2
+ms_157,Al-Khazini's Epitome of his Zij as-Sanjari,,
+ms_158,Al-Khazini's Epitome of his Zij as-Sanjari,,
+ms_327,Galileo,,
+ms_328,Boethius tradition,"Cassiodorus, Institutiones, third recension",
+ms_329,Boethius tradition,"Cassiodorus, Institutiones, third recension",
+ms_330,Boethius tradition,"Cassiodorus, Institutiones, third recension",
+ms_331,Boethius tradition,"Cassiodorus, Institutiones, third recension",only II def. 2; V def. 1-8.11.9.10.13.12.14-16.18.17
+ms_332,Boethius tradition,"Cassiodorus, Institutiones, third recension",
+ms_333,Boethius tradition,Manuscripts of the Corpus agrimensorum,only I prop. 1-3 with proofs
+ms_334,Boethius tradition,Manuscripts of the Corpus agrimensorum,only I def. 19-23
+ms_335,Boethius tradition,Manuscripts of the Corpus agrimensorum,
+ms_336,Boethius tradition,Manuscripts of the Corpus agrimensorum,only I def. 19-23
+ms_337,Boethius tradition,Manuscripts of the Corpus agrimensorum,only I prop. 1-3 with proofs
+ms_338,Boethius tradition,Manuscripts of the Corpus agrimensorum,
+ms_339,Boethius tradition,Manuscripts of the Corpus agrimensorum,only I def. 19-23
+ms_340,Boethius tradition,Manuscripts of the Corpus agrimensorum,
+ms_341,Boethius tradition,Manuscripts of the Corpus agrimensorum,
+ms_342,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_343,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_344,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_345,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_346,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_347,Boethius tradition,"Pseudo-Boethius, Geometry I",excerpts; no Euclid texts
+ms_348,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_349,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_350,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_351,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_352,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_353,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_354,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_355,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_356,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_357,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_358,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_359,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_360,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_361,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_362,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_363,Boethius tradition,"Pseudo-Boethius, Geometry I",
+ms_364,Boethius tradition,"Pseudo-Boethius, Geometry II",excerpts; no Euclid text
+ms_365,Boethius tradition,"Pseudo-Boethius, Geometry II",excerpts; no Euclid text
+ms_366,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_367,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_368,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_369,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_370,Boethius tradition,"Pseudo-Boethius, Geometry II",excerpts
+ms_371,Boethius tradition,"Pseudo-Boethius, Geometry II",excerpts; no Euclid text
+ms_372,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_373,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_374,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_375,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_376,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_377,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_378,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_379,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_380,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_381,Boethius tradition,"Pseudo-Boethius, Geometry II",
+ms_382,Verona palimpsest,,
+ms_383,Munich fragment,,
+ms_384,Greek-Latin translation (twelfth century),,
+ms_385,Greek-Latin translation (twelfth century),,incomplete; ends within X 48
+ms_386,Greek-Latin translation (twelfth century),,I def. 1-20
+ms_387,Liber ysagogarum Alchorismi,,
+ms_388,Liber ysagogarum Alchorismi,,
+ms_389,Liber ysagogarum Alchorismi,,interpolated version
+ms_390,Liber ysagogarum Alchorismi,,
+ms_391,Liber ysagogarum Alchorismi,,
+ms_392,Liber ysagogarum Alchorismi,,interpolated version
+ms_393,Liber ysagogarum Alchorismi,,interpolated version
+ms_394,Liber ysagogarum Alchorismi,1143,"Wien, Österreichische Nationalbibliothek 275, f.27"
+ms_395,Early Arabian Manuscripts,Hajjaj text,XI-XIII
+ms_396,Early Arabian Manuscripts,Hajjaj text,I - VII beginning
+ms_397,Early Arabian Manuscripts,Ishaq-Thabit text,I def.19 - XV
+ms_398,Early Arabian Manuscripts,Ishaq-Thabit text,I 39 - XV
+ms_399,Early Arabian Manuscripts,Ishaq-Thabit text,I-XV
+ms_400,Early Arabian Manuscripts,Ishaq-Thabit text,IV 14 - XV
+ms_401,Early Arabian Manuscripts,Ishaq-Thabit text,
+ms_402,Early Arabian Manuscripts,Ishaq-Thabit text,I-XV; I-XV
+ms_403,Early Arabian Manuscripts,Ishaq-Thabit text,
+ms_404,Early Arabian Manuscripts,Ishaq-Thabit text,I 13 - XV
+ms_405,Early Arabian Manuscripts,Ishaq-Thabit text,I-XV
+ms_406,Early Arabian Manuscripts,Ishaq-Thabit text,
+ms_407,Early Arabian Manuscripts,Ishaq-Thabit text,I-XV
+ms_408,Early Arabian Manuscripts,Ishaq-Thabit text,I-VIII
+ms_409,Early Arabian Manuscripts,Ishaq-Thabit text,I-XV; I-XV
+ms_410,Early Arabian Manuscripts,Ishaq-Thabit text,part of VII
+ms_411,Early Arabian Manuscripts,Ishaq-Thabit text,I-XV
+ms_412,Early Arabian Manuscripts,Ishaq-Thabit text,I-XV
+ms_413,Adelard I,,I - VIII 25
+ms_414,Adelard I,,X 36 - XV 2
+ms_415,Adelard I,,I - VIII 22
+ms_416,Adelard I,,"X 24, X 17"
+ms_417,Adelard I,,X 36-49
+ms_418,Hermann of Carinthia,,XI 1-4
+ms_419,Hermann of Carinthia,,XI 1-4
+ms_420,Gerard of Gremona,,I-XV; scholia I-XIX
+ms_421,Gerard of Gremona,,I-XV; scholia I-XVII
+ms_422,Gerard of Gremona,,"scholia IV-XVII, XX-XXII"
+ms_423,Gerard of Gremona,,I - X 101
+ms_424,Gerard of Gremona,,"I - X 109, XIII 11 - XV 5; scholia I-XVII"
+ms_425,Gerard of Gremona,,XI 5 - XIV 1
+ms_426,Gerard of Gremona,,"III def., III 1 porism, III 2-7 enunciations"
+ms_427,Gerard of Gremona,,I - X 17
+ms_428,Gerard of Gremona,,I - I 5
+ms_429,Gerard of Gremona,,I-XV; scholia I-XVII
+ms_430,Gerard of Gremona,,XI 5 - XV; scholia I-III
+ms_431,Gerard of Gremona,,"XV 1-5, XIII 16"
+ms_432,Gerard of Gremona,,I-XV; scholia I-XVII
+ms_433,Adelard II,,"I - III 7, V - VIII 5"
+ms_434,Adelard II,,I - I 20
+ms_435,Adelard II,,I-XV
+ms_436,Texts in the Adelard II tradition,Adelard III,X 91 - XI 37
+ms_437,Texts in the Adelard II tradition,Adelard III,I - XV 3
+ms_438,Texts in the Adelard II tradition,Adelard III,I-XI; repetition of 125-132v; I - V 2; VI 11 - X
+ms_439,Texts in the Adelard II tradition,Adelard III,VII 7 - X 36
+ms_440,Texts in the Adelard II tradition,Adelard III,I-VI def.
+ms_441,Texts in the Adelard II tradition,Adelard III,I-XV
+ms_442,Texts in the Adelard II tradition,Adelard III,VII 7 - X 36
+ms_443,Texts in the Adelard II tradition,Thirteenth century commentary,I - VII 6
+ms_444,Texts in the Adelard II tradition,Thirteenth century commentary,I - VII 6
+ms_445,Texts in the Adelard II tradition,Campanus of Novara,"excerpts from books I, II, III, VII, VIII, X; IX"
+ms_446,Texts in the Adelard II tradition,Campanus of Novara,I - XV
+ms_447,Texts in the Adelard II tradition,Campanus of Novara,I-XV
+ms_448,Texts in the Adelard II tradition,Campanus of Novara,I - VII 3
+ms_449,Texts in the Adelard II tradition,Campanus of Novara,I - XV
+ms_450,Texts in the Adelard II tradition,Campanus of Novara,"I-XV, enunciations only"
+ms_451,Texts in the Adelard II tradition,Campanus of Novara,I - XV
+ms_452,Texts in the Adelard II tradition,Campanus of Novara,I 24 end - VII 30 beg.; X 20 end - XV
+ms_453,Texts in the Adelard II tradition,Campanus of Novara,I-VI
+ms_454,Texts in the Adelard II tradition,Campanus of Novara,I - XV
+ms_455,Texts in the Adelard II tradition,Campanus of Novara,I - I 37
+ms_456,Texts in the Adelard II tradition,Campanus of Novara,I
+ms_457,Texts in the Adelard II tradition,Campanus of Novara,"XV 7-13, enunciations only"
+ms_458,Texts in the Adelard II tradition,Campanus of Novara,I - II 12
+ms_459,Texts in the Adelard II tradition,Campanus of Novara,I-XV
+ms_460,Texts in the Adelard II tradition,Campanus of Novara,I - VI
+ms_461,Texts in the Adelard II tradition,"Reworking Paris, BN Lat. 7374",
+ms_462,Texts in the Adelard II tradition,"Reworking London, Sloane 285",I - VI 4
+ms_463,Reworking Vat. Reg. lat. 1268,,"V-VI; X, XI def. - XI 4"
+ms_464,an-Nayrizi's commentary on books I-X,,pp.7-51
+ms_465,an-Nayrizi's commentary on books I-X,,abridgement
+ms_466,an-Nayrizi's commentary on books I-X,,
+ms_467,"Muhammad ibn `Abd al-Baqi, Commentary on book X",,
+ms_468,"Muhammad ibn `Abd al-Baqi, Commentary on book X",,
+ms_469,"Muhammad ibn `Abd al-Baqi, Commentary on book X",,
+ms_470,"Muhammad ibn `Abd al-Baqi, Commentary on book X",,
+ms_471,"Muhammad ibn `Abd al-Baqi, Commentary on book X",,
+ms_472,Commentary on book X by Pappus,,
+ms_473,Commentary of Albertus Magnus (?),,I-IV
+ms_474,Commentary ascribed to Roger Bacon,,
+ms_475,"Nicole Oresme, Quaestiones super geometriam Euclidis",,
+ms_476,"Nicole Oresme, Quaestiones super geometriam Euclidis",,
+ms_477,"Nicole Oresme, Quaestiones super geometriam Euclidis",,
+ms_478,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,"I - VI, diagrams only"
+ms_479,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,
+ms_480,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,XIV - XV
+ms_481,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,
+ms_482,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,Commentary to I-VI
+ms_483,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,"I-VIII, Enunciations only"
+ms_484,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,
+ms_485,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,
+ms_486,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,
+ms_487,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,XIV-XV
+ms_488,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,commentary to book X
+ms_489,"Translations, reworkings and commentaries from the fifteenth century; texts not identified",,I 2 - XIII 10
