@@ -1,7 +1,12 @@
 import { Feature } from "../types";
 
-export const CSV_PATH_ELEMENTS = "/docs/EiP.csv";
-export const CSV_PATH_SECONDARY = "/docs/EiP-secondary.csv";
+export const CSV_PATH_ITEMS_PRINT = "/docs/items_print.csv";
+export const CSV_PATH_MD_PRINT = "/docs/metadata_elements_print.csv";
+export const CSV_PATH_TRANSCRIPTIONS = "/docs/paratext_transcriptions.csv";
+export const CSV_PATH_CORPUSES = "/docs/corpuses.csv";
+export const CSV_PATH_TITLE_PAGE_FEATURES = "/docs/title_page.csv";
+export const CSV_PATH_TRANSLATIONS = "/docs/translations.csv";
+export const CSV_PATH_SHELFMARKS = "/docs/shelfmarks.csv";
 export const CSV_PATH_CITIES = "/docs/cities.csv";
 export const CSV_PATH_DOTTED_LINES = "/docs/dotted_lines.csv";
 export const CSV_PATH_COPIES = "/docs/copies.csv";
@@ -41,10 +46,7 @@ export const FeatureToColumnName: Record<Feature, string[]> = {
   "Publishing Privileges": ["printing_privilege"],
   "Euclid References": ["references_to_Euclid"],
   "Other Educational Authorities": ["educational_authorities_references"],
-  "Explicit Language References": [
-    "origin_language",
-    "destination_language",
-  ],
+  "Explicit Language References": ["origin_language", "destination_language"],
   "Euclid Description": ["description_of_Euclid"],
   Verbs: ["action_verbs"],
   "Intended Audience": ["audience"],
