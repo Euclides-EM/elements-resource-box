@@ -26,18 +26,10 @@ def main():
                     new_row = {}
 
                     new_row['key'] = row.get('key', '')
-                    if not row['books'] and not row['wClass']:
+                    if not row['books'] and not row.get('wClass'):
                         continue
                     books_content = row.get('books', '')
-                    new_row["elements_books"] = books_content.replace("Elements ", '').split(";")[0]
-
-                    # Handle additional content - if there's a semicolon, take everything after the first one
-                    if ';' in books_content:
-                        new_row["additional_content"] = ", ".join(books_content.split(";", 1)[1:]).strip()
-                    else:
-                        new_row["additional_content"] = ''
-                    new_row["wardhaugh_classification"] = row.get('wClass', '')
-
+                    new_row["additional_content"] = books_content
                     writer.writerow(new_row)
                     counter += 1
 
