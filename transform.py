@@ -3,7 +3,7 @@ import csv
 
 def main():
     input_file = 'public/docs/EiP-secondary.csv'
-    output_file = 'public/docs/translations.csv'
+    output_file = 'public/docs/metadata_elements_print.csv'
     write_header = False
 
     try:
@@ -13,7 +13,7 @@ def main():
 
             # Define output columns according to mapping
             output_columns = [
-                'key', 'field', 'en', 'source'
+                'key','elements_books','additional_content','wardhaugh_classification'
             ]
 
             with open(output_file, 'a', encoding='utf-8', newline='') as outfile:
@@ -26,25 +26,20 @@ def main():
                     new_row = {}
 
                     new_row['key'] = row.get('key', '')
-                    for pair in [
-                        ('title', 'title_EN'),
-                        ('imprint', 'imprint_EN'),
-                        ('colophon', 'colophon_EN'),
-                        ('frontispiece', 'frontispiece_text_EN')
-                    ]:
-                        title, field = pair
-                        new_row['field'] = title
-                        value = row.get(field, '').strip()
-                        if not value:
-                            if title == 'frontispiece':
-                                value = row.get('frontispiece_url', '').strip()
-                            if not value:
-                                continue
-                        new_row['en'] = value
-                        new_row["source"] = "summer_2025"
+                    if not row['books'] and not row['wClass']:
+                        continue
+                    books_content = row.get('books', '')
+                    new_row["elements_books"] = books_content.replace("Elements ", '').split(";")[0]
 
-                        writer.writerow(new_row)
-                        counter += 1
+                    # Handle additional content - if there's a semicolon, take everything after the first one
+                    if ';' in books_content:
+                        new_row["additional_content"] = ", ".join(books_content.split(";", 1)[1:]).strip()
+                    else:
+                        new_row["additional_content"] = ''
+                    new_row["wardhaugh_classification"] = row.get('wClass', '')
+
+                    writer.writerow(new_row)
+                    counter += 1
 
         print(f"Successfully transformed {input_file} to {output_file} - with {counter} records.")
 
