@@ -92,22 +92,19 @@ const MultiSelect = ({
         ...base,
         zIndex: 9999,
       }),
-      ...(colors
-        ? {
-            option: (styles, { data }) => {
-              return {
-                ...styles,
-                backgroundColor: colors[data.value],
-              };
-            },
-            multiValue: (styles, { data }) => {
-              return {
-                ...styles,
-                backgroundColor: colors[data.value],
-              };
-            },
-          }
-        : {}),
+      option: (base, { data }) => ({
+        ...base,
+        color: 'black',
+        backgroundColor: colors?.[data.value] || base.backgroundColor,
+      }),
+      multiValue: (base, { data }) => ({
+        ...base,
+        backgroundColor: colors?.[data.value] || base.backgroundColor,
+      }),
+      multiValueLabel: (base) => ({
+        ...base,
+        color: 'black',
+      }),
     }}
     menuPortalTarget={document.body}
   />

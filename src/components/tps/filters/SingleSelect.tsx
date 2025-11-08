@@ -35,6 +35,14 @@ const SingleSelect = ({
         ...base,
         zIndex: 9999,
       }),
+      option: (base) => ({
+        ...base,
+        color: 'black',
+      }),
+      singleValue: (base) => ({
+        ...base,
+        color: 'black',
+      }),
     }}
     menuPortalTarget={document.body}
   />

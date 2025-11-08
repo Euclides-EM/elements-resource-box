@@ -34,6 +34,7 @@ import { parseBooks } from "../utils/normalizeNames.ts";
 import { uniq } from "lodash";
 import MultiSelect from "../components/tps/filters/MultiSelect.tsx";
 import SingleSelect from "../components/tps/filters/SingleSelect.tsx";
+import { Row } from "../components/common.ts";
 
 const SHORT_TITLE_SOURCES = [
   "Specified in source",
@@ -105,7 +106,7 @@ const Title = styled.h1`
 const FormGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 1rem;
+  gap: 1.5rem;
   margin-bottom: 1rem;
 `;
 
@@ -119,10 +120,11 @@ const FormField = styled.div`
   }
 `;
 
-const Label = styled.label`
-  font-size: 0.875rem;
+const Label = styled.label<{ title?: boolean; muted?: boolean }>`
+  font-size: ${(props) =>
+    props.title ? "1" : props.muted ? "0.75" : "0.875"}rem;
   font-weight: 500;
-  color: #666;
+  color: ${(props) => (props.title ? "#555" : props.muted ? "#777" : "#666")};
 
   &.required::after {
     content: " *";
@@ -146,6 +148,14 @@ const Input = styled.input`
 
   &:invalid {
     border-color: #fd79a8;
+  }
+
+  &:disabled {
+    background-color: #f0f0f0;
+  }
+
+  &[type="checkbox"] {
+    width: fit-content;
   }
 `;
 
@@ -507,15 +517,6 @@ export const UpsertEdition = () => {
       .finally(() => setListsLoading(false));
   }, []);
 
-  if (!token) {
-    return (
-      <PageContainer>
-        <Title>Authentication Required</Title>
-        <p>Please log in to access this page.</p>
-      </PageContainer>
-    );
-  }
-
   return (
     <PageContainer>
       <FormContainer>
@@ -532,7 +533,7 @@ export const UpsertEdition = () => {
           >
             <FormGrid>
               <FormField className="full-width">
-                <Label>Key</Label>
+                <Label className="required">Key</Label>
                 <form.Field name="key">
                   {(field) => (
                     <Input type="text" value={field.state.value} disabled />
@@ -541,7 +542,7 @@ export const UpsertEdition = () => {
               </FormField>
 
               <FormField>
-                <Label>Short Title</Label>
+                <Label className="required">Short Title</Label>
                 <form.Field
                   name="shortTitle"
                   validators={{
@@ -564,7 +565,7 @@ export const UpsertEdition = () => {
               </FormField>
 
               <FormField>
-                <Label>Short Title Source</Label>
+                <Label className="required">Short Title Source</Label>
                 <form.Field
                   name="shortTitleSource"
                   validators={{
@@ -597,37 +598,32 @@ export const UpsertEdition = () => {
               <FormField />
 
               <FormField>
-                <Label className="required">Manuscript or Edition</Label>
+                <Label className="required">Item Type</Label>
                 <form.Field name="isManuscript">
                   {(field) => (
-                    <RadioGroup>
-                      <RadioOption>
-                        <input
-                          type="radio"
-                          name="isManuscript"
-                          value="false"
-                          checked={field.state.value === false}
-                          onChange={() => field.handleChange(false)}
-                        />
-                        Printed Edition
-                      </RadioOption>
-                      <RadioOption>
-                        <input
-                          type="radio"
-                          name="isManuscript"
-                          value="true"
-                          checked={field.state.value === true}
-                          onChange={() => field.handleChange(true)}
-                        />
-                        Manuscript
-                      </RadioOption>
-                    </RadioGroup>
+                    <SingleSelect
+                      name="isManuscript"
+                      options={[
+                        { value: "false", label: "Printed Edition" },
+                        { value: "true", label: "Manuscript" },
+                      ]}
+                      value={field.state.value ? "true" : "false"}
+                      onChange={(value) => field.handleChange(value === "true")}
+                      placeholder="Select type..."
+                    />
                   )}
                 </form.Field>
               </FormField>
 
+              <FormField />
+              <FormField />
+
               {isManuscript && (
                 <>
+                  <FormField className="full-width">
+                    <Label title>Manuscript Properties</Label>
+                  </FormField>
+
                   <FormField>
                     <Label>Year (lower range)</Label>
                     <form.Field
@@ -690,7 +686,7 @@ export const UpsertEdition = () => {
                   </FormField>
 
                   <FormField>
-                    <Label>Manuscript Class</Label>
+                    <Label className="required">Manuscript Class</Label>
                     <form.Field
                       name="manuscriptClass"
                       validators={{
@@ -717,8 +713,12 @@ export const UpsertEdition = () => {
 
               {!isManuscript && (
                 <>
+                  <FormField className="full-width">
+                    <Label title>Printed Edition Properties</Label>
+                  </FormField>
+
                   <FormField>
-                    <Label>Year</Label>
+                    <Label className="required">Year</Label>
                     <form.Field
                       name="year"
                       validators={{
@@ -778,7 +778,7 @@ export const UpsertEdition = () => {
                   </FormField>
 
                   <FormField>
-                    <Label>Languages</Label>
+                    <Label className="required">Languages</Label>
                     <form.Field
                       name="languages"
                       validators={{
@@ -810,7 +810,7 @@ export const UpsertEdition = () => {
                   </FormField>
 
                   <FormField>
-                    <Label>Editors</Label>
+                    <Label className="required">Editors</Label>
                     <form.Field
                       name="editor"
                       validators={{
@@ -890,7 +890,7 @@ export const UpsertEdition = () => {
                   </FormField>
 
                   <FormField>
-                    <Label>Number of Volumes</Label>
+                    <Label className="required">Number of Volumes</Label>
                     <form.Field
                       name="volumes"
                       validators={{
@@ -948,6 +948,8 @@ export const UpsertEdition = () => {
                     </form.Field>
                   </FormField>
 
+                  <FormField />
+
                   <FormField>
                     <Label>Title</Label>
                     <form.Field name="title">
@@ -975,6 +977,8 @@ export const UpsertEdition = () => {
                       )}
                     </form.Field>
                   </FormField>
+
+                  <FormField />
 
                   <FormField>
                     <Label>Title (English)</Label>
@@ -1004,6 +1008,8 @@ export const UpsertEdition = () => {
                     </form.Field>
                   </FormField>
 
+                  <FormField />
+
                   <FormField>
                     <Label>Colophon</Label>
                     <form.Field name="colophon">
@@ -1031,6 +1037,8 @@ export const UpsertEdition = () => {
                       )}
                     </form.Field>
                   </FormField>
+
+                  <FormField />
 
                   <FormField>
                     <Label>Frontispiece Text</Label>
@@ -1062,6 +1070,7 @@ export const UpsertEdition = () => {
                 </>
               )}
 
+              <FormField />
               <FormField>
                 <Label>Is Elements</Label>
                 <form.Field name="isElements">
@@ -1082,20 +1091,8 @@ export const UpsertEdition = () => {
 
               {isElements && (
                 <>
-                  <FormField>
-                    <Label>Additional Content</Label>
-                    <form.Field name="additionalContent">
-                      {(field) => (
-                        <MultiSelect
-                          name="additionalContent"
-                          options={lists?.additionalContents || []}
-                          value={field.state.value}
-                          onChange={(values) => field.handleChange(values)}
-                          isCreatable={true}
-                          placeholder="Choose or add additional content types..."
-                        />
-                      )}
-                    </form.Field>
+                  <FormField className="full-width">
+                    <Label title>Elements Metadata</Label>
                   </FormField>
 
                   <FormField>
@@ -1112,6 +1109,22 @@ export const UpsertEdition = () => {
                             field.handleChange(values.map(Number))
                           }
                           placeholder="Select which books of Elements are included..."
+                        />
+                      )}
+                    </form.Field>
+                  </FormField>
+
+                  <FormField>
+                    <Label>Additional Content</Label>
+                    <form.Field name="additionalContent">
+                      {(field) => (
+                        <MultiSelect
+                          name="additionalContent"
+                          options={lists?.additionalContents || []}
+                          value={field.state.value}
+                          onChange={(values) => field.handleChange(values)}
+                          isCreatable={true}
+                          placeholder="Choose or add additional content types..."
                         />
                       )}
                     </form.Field>
@@ -1138,181 +1151,17 @@ export const UpsertEdition = () => {
                 </form.Field>
               </FormField>
 
-              <FormField>
-                <Label>Sources</Label>
-
-                <form.Field name="shelfmarks">
-                  {(field) => (
-                    <>
-                      {field.state.value.map((_, i) => (
-                        <Fragment key={i}>
-                          <FormField>
-                            <Label>Volume</Label>
-                            <form.Field name={`shelfmarks[${i}].volume`}>
-                              {(f) => (
-                                <Input
-                                  type="number"
-                                  value={f.state.value || ""}
-                                  onChange={(e) =>
-                                    f.handleChange(
-                                      e.target.valueAsNumber || null,
-                                    )
-                                  }
-                                  placeholder="Volume"
-                                />
-                              )}
-                            </form.Field>
-                          </FormField>
-                          <FormField>
-                            <Label>Facsimile URL</Label>
-                            <form.Field name={`shelfmarks[${i}].scan`}>
-                              {(f) => (
-                                <Input
-                                  type="text"
-                                  value={f.state.value || ""}
-                                  onChange={(e) =>
-                                    f.handleChange(e.target.value || null)
-                                  }
-                                  placeholder="Facsimile URL"
-                                />
-                              )}
-                            </form.Field>
-                          </FormField>
-
-                          <FormField>
-                            <Label>Shelfmark</Label>
-                            <form.Field name={`shelfmarks[${i}].shelfmark`}>
-                              {(f) => (
-                                <Input
-                                  type="text"
-                                  value={f.state.value || ""}
-                                  onChange={(e) =>
-                                    f.handleChange(e.target.value || null)
-                                  }
-                                  placeholder="Shelfmark"
-                                />
-                              )}
-                            </form.Field>
-                          </FormField>
-
-                          <FormField>
-                            <Label>Title Page Image</Label>
-                            <form.Field
-                              name={`shelfmarks[${i}].title_page_img`}
-                            >
-                              {(f) => (
-                                <>
-                                  <FileInput
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                      if (!e.target.files?.[0]) {
-                                        f.handleChange(null);
-                                      } else {
-                                        const id = uniqueId();
-                                        setImages((m) => ({
-                                          ...m,
-                                          [id]: e.target.files![0],
-                                        }));
-                                        f.handleChange(id);
-                                      }
-                                    }}
-                                  />
-                                  {f.state.value && (
-                                    <SelectedImage>
-                                      {images[f.state.value]
-                                        ? `Selected: ${images[f.state.value].name}`
-                                        : "Image is set"}
-                                    </SelectedImage>
-                                  )}
-                                </>
-                              )}
-                            </form.Field>
-                          </FormField>
-
-                          <FormField>
-                            <Label>Frontispiece Image</Label>
-                            <form.Field
-                              name={`shelfmarks[${i}].frontispiece_img`}
-                            >
-                              {(f) => (
-                                <>
-                                  <FileInput
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                      if (!e.target.files?.[0]) {
-                                        f.handleChange(null);
-                                      } else {
-                                        const id = uniqueId();
-                                        setImages((m) => ({
-                                          ...m,
-                                          [id]: e.target.files![0],
-                                        }));
-                                        f.handleChange(id);
-                                      }
-                                    }}
-                                  />
-                                  {f.state.value && (
-                                    <SelectedImage>
-                                      {images[f.state.value]
-                                        ? `Selected: ${images[f.state.value].name}`
-                                        : "Image is set"}
-                                    </SelectedImage>
-                                  )}
-                                </>
-                              )}
-                            </form.Field>
-                          </FormField>
-
-                          <FormField>
-                            <Label>Annotations</Label>
-                            <form.Field name={`shelfmarks[${i}].annotations`}>
-                              {(f) => (
-                                <SingleSelect
-                                  name="annotations"
-                                  options={ANNOTATIONS.map((annotation) => ({
-                                    value: annotation,
-                                    label: startCase(annotation),
-                                  }))}
-                                  value={
-                                    f.state.value ||
-                                    ANNOTATIONS[ANNOTATIONS.length - 1]
-                                  }
-                                  onChange={(value) =>
-                                    f.handleChange(value as string | null)
-                                  }
-                                  placeholder="Select annotation level..."
-                                />
-                              )}
-                            </form.Field>
-                          </FormField>
-                          <FormField>
-                            <Label>Copyright</Label>
-                            <form.Field name={`shelfmarks[${i}].copyright`}>
-                              {(f) => (
-                                <Input
-                                  type="text"
-                                  value={f.state.value || ""}
-                                  onChange={(e) =>
-                                    f.handleChange(e.target.value || null)
-                                  }
-                                  placeholder="Copyright"
-                                />
-                              )}
-                            </form.Field>
-                          </FormField>
-
-                          <RemoveButton
-                            type="button"
-                            onClick={() => field.removeValue(i)}
-                          >
-                            Remove Source
-                          </RemoveButton>
-                        </Fragment>
-                      ))}
-
+              <form.Field name="shelfmarks">
+                {(field) => (
+                  <>
+                    <FormField className="full-width">
+                      <Label title>Sources</Label>
                       <button
+                        style={{
+                          padding: 4,
+                          width: "fit-content",
+                          cursor: "pointer",
+                        }}
                         type="button"
                         onClick={() =>
                           field.pushValue({
@@ -1332,12 +1181,175 @@ export const UpsertEdition = () => {
                       {!field.state.meta.isValid && (
                         <em>{field.state.meta.errors.join(", ")}</em>
                       )}
-                    </>
-                  )}
-                </form.Field>
-              </FormField>
+                    </FormField>
+                    {field.state.value.map((_, i) => (
+                      <FormField key={i}>
+                        <FormField>
+                          <Label>Volume</Label>
+                          <form.Field name={`shelfmarks[${i}].volume`}>
+                            {(f) => (
+                              <Input
+                                type="number"
+                                value={f.state.value || ""}
+                                onChange={(e) =>
+                                  f.handleChange(e.target.valueAsNumber || null)
+                                }
+                                placeholder="Volume"
+                              />
+                            )}
+                          </form.Field>
+                        </FormField>
+                        <FormField>
+                          <Label>Facsimile URL</Label>
+                          <form.Field name={`shelfmarks[${i}].scan`}>
+                            {(f) => (
+                              <Input
+                                type="text"
+                                value={f.state.value || ""}
+                                onChange={(e) =>
+                                  f.handleChange(e.target.value || null)
+                                }
+                                placeholder="Facsimile URL"
+                              />
+                            )}
+                          </form.Field>
+                        </FormField>
 
-              <FormField>
+                        <FormField>
+                          <Label>Shelfmark</Label>
+                          <form.Field name={`shelfmarks[${i}].shelfmark`}>
+                            {(f) => (
+                              <Input
+                                type="text"
+                                value={f.state.value || ""}
+                                onChange={(e) =>
+                                  f.handleChange(e.target.value || null)
+                                }
+                                placeholder="Shelfmark"
+                              />
+                            )}
+                          </form.Field>
+                        </FormField>
+
+                        <FormField>
+                          <Label>Title Page Image</Label>
+                          <form.Field name={`shelfmarks[${i}].title_page_img`}>
+                            {(f) => (
+                              <>
+                                <FileInput
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    if (!e.target.files?.[0]) {
+                                      f.handleChange(null);
+                                    } else {
+                                      const id = uniqueId();
+                                      setImages((m) => ({
+                                        ...m,
+                                        [id]: e.target.files![0],
+                                      }));
+                                      f.handleChange(id);
+                                    }
+                                  }}
+                                />
+                                {f.state.value && (
+                                  <SelectedImage>
+                                    {images[f.state.value]
+                                      ? `Selected: ${images[f.state.value].name}`
+                                      : "Image is set"}
+                                  </SelectedImage>
+                                )}
+                              </>
+                            )}
+                          </form.Field>
+                        </FormField>
+
+                        <FormField>
+                          <Label>Frontispiece Image</Label>
+                          <form.Field
+                            name={`shelfmarks[${i}].frontispiece_img`}
+                          >
+                            {(f) => (
+                              <>
+                                <FileInput
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    if (!e.target.files?.[0]) {
+                                      f.handleChange(null);
+                                    } else {
+                                      const id = uniqueId();
+                                      setImages((m) => ({
+                                        ...m,
+                                        [id]: e.target.files![0],
+                                      }));
+                                      f.handleChange(id);
+                                    }
+                                  }}
+                                />
+                                {f.state.value && (
+                                  <SelectedImage>
+                                    {images[f.state.value]
+                                      ? `Selected: ${images[f.state.value].name}`
+                                      : "Image is set"}
+                                  </SelectedImage>
+                                )}
+                              </>
+                            )}
+                          </form.Field>
+                        </FormField>
+
+                        <FormField>
+                          <Label>Annotations</Label>
+                          <form.Field name={`shelfmarks[${i}].annotations`}>
+                            {(f) => (
+                              <SingleSelect
+                                name="annotations"
+                                options={ANNOTATIONS.map((annotation) => ({
+                                  value: annotation,
+                                  label: startCase(annotation),
+                                }))}
+                                value={
+                                  f.state.value ||
+                                  ANNOTATIONS[ANNOTATIONS.length - 1]
+                                }
+                                onChange={(value) =>
+                                  f.handleChange(value as string | null)
+                                }
+                                placeholder="Select annotation level..."
+                              />
+                            )}
+                          </form.Field>
+                        </FormField>
+                        <FormField>
+                          <Label>Copyright</Label>
+                          <form.Field name={`shelfmarks[${i}].copyright`}>
+                            {(f) => (
+                              <Input
+                                type="text"
+                                value={f.state.value || ""}
+                                onChange={(e) =>
+                                  f.handleChange(e.target.value || null)
+                                }
+                                placeholder="Copyright"
+                              />
+                            )}
+                          </form.Field>
+                        </FormField>
+
+                        <RemoveButton
+                          type="button"
+                          onClick={() => field.removeValue(i)}
+                        >
+                          Remove Source
+                        </RemoveButton>
+                      </FormField>
+                    ))}
+                  </>
+                )}
+              </form.Field>
+
+              <FormField className="full-width">
                 <Label>Notes</Label>
                 <form.Field name="notes">
                   {(field) => (
@@ -1351,16 +1363,25 @@ export const UpsertEdition = () => {
 
               <FormField>
                 <Label>Verified</Label>
-                <div>Only check this option if you verified the entry.</div>
-                <form.Field name="verified">
-                  {(field) => (
-                    <Input
-                      type="checkbox"
-                      checked={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.checked)}
-                    />
-                  )}
-                </form.Field>
+                <Row justifyStart gap={1}>
+                  <form.Field name="verified">
+                    {(field) => (
+                      <>
+                        <Input
+                          type="checkbox"
+                          checked={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.checked)}
+                        />
+                        <Label
+                          muted
+                          onClick={() => field.handleChange(!field.state.value)}
+                        >
+                          Only check this option if you verified the entry.
+                        </Label>
+                      </>
+                    )}
+                  </form.Field>
+                </Row>
               </FormField>
             </FormGrid>
 
