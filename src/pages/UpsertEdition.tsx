@@ -95,6 +95,12 @@ const FormContainer = styled.div`
   max-height: 80vh;
   overflow-y: auto;
   overflow-x: hidden;
+  color: black;
+
+  em {
+    font-size: 0.875rem;
+    color: darkred;
+  }
 `;
 
 const Title = styled.h1`
@@ -1386,7 +1392,10 @@ export const UpsertEdition = () => {
             </FormGrid>
 
             <ButtonContainer>
-              <SubmitButton type="submit" disabled={form.state.isSubmitting}>
+              <SubmitButton
+                type="submit"
+                disabled={form.state.isSubmitting || !form.state.isValid}
+              >
                 {form.state.isSubmitting
                   ? key
                     ? "Updating..."
