@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import {  Item } from "../types";
+import { Item } from "../types";
 import { FilterValue } from "../components/map/Filter";
 import { useLocalStorage } from "usehooks-ts";
 import { isArray, isEmpty, isNil } from "lodash";
@@ -148,7 +148,7 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
       data.filter((t) =>
         filterRecord(t, range, filters, filtersInclude, includeUndated),
       ),
-    [data, range, filters, filtersInclude, includeUndated, maxYear],
+    [data, range, filters, filtersInclude, includeUndated],
   );
 
   const value = {
