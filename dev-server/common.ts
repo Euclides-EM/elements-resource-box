@@ -3,11 +3,16 @@ import Papa from "papaparse";
 import path from "path";
 import type { IncomingMessage, ServerResponse } from "http";
 
-export const getCsvFilePath = (type: string): string => {
-  return type === "Elements" || type === "elements"
-    ? "public/docs/EiP.csv"
-    : "public/docs/EiP-secondary.csv";
-};
+export const CSV_PATH_ITEMS_PRINT = "public/docs/items_print.csv";
+export const CSV_PATH_MD_PRINT = "public/docs/metadata_elements_print.csv";
+export const CSV_PATH_TRANSCRIPTIONS =
+  "public/docs/paratext_transcriptions.csv";
+export const CSV_PATH_CORPUSES = "public/docs/corpuses.csv";
+export const CSV_PATH_TITLE_PAGE_FEATURES = "public/docs/title_page.csv";
+export const CSV_PATH_TRANSLATIONS = "public/docs/translations.csv";
+export const CSV_PATH_SHELFMARKS = "public/docs/shelfmarks.csv";
+export const CSV_PATH_CITIES = "public/docs/cities.csv";
+export const CSV_PATH_DOTTED_LINES = "public/docs/dotted_lines.csv";
 
 export const loadCsvData = (
   filePath: string,

@@ -1,6 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "http";
 import {
-  getCsvFilePath,
   loadCsvData,
   saveCsvData,
   parseRequestBody,
@@ -10,25 +9,56 @@ import {
 
 const EDITION_API_PATH = "/api/edition";
 
-interface EditionRequestBody {
-  key?: string;
-  year?: string;
-  city?: string;
-  language?: string;
-  "author (normalized)"?: string;
-  title?: string;
-  title_EN?: string;
-  type?: "elements" | "secondary";
-  "publisher (normalized)"?: string;
-  imprint?: string;
-  imprint_EN?: string;
-  ustc_id?: string;
-  scan_url?: string;
-  tp_url?: string;
-  notes?: string;
-}
+type EditionRequestBody = {
+  key: string | null;
+  shortTitle: string;
+  shortTitleSource: string;
+  notes: string;
+  corpus: string | null;
+  urlByVolume: Record<string, string>;
+  shelfmark: string | null;
+  title_page_img: string[];
+  frontispiece_img: string[];
+  annotations: string | null;
+  copyright: string | null;
+  verified: boolean;
+} & (
+  | {
+      isManuscript: true;
+      manuscriptYearFrom: number;
+      manuscriptYearTo: number;
+    }
+  | {
+      isManuscript: false;
+      year: string;
+      languages: string[];
+      editor: string[];
+      publisher: string[];
+      format: number | null;
+      volumes: number | null;
+      ustcId: string | null;
+      title: string | null;
+      title_EN: string | null;
+      imprint: string | null;
+      imprint_EN: string | null;
+      colophon: string | null;
+      colophon_EN: string | null;
+      frontispiece: string | null;
+      frontispiece_EN: string | null;
+    }
+) &
+  (
+    | { isElements: false }
+    | {
+        isElements: true;
+        books: number[];
+        additionalContent: string[];
+      }
+  );
 
-const addEditionToCsv = (edition: EditionRequestBody): void => {
+const upsertEdition = (edition: EditionRequestBody): void => {
+  edition.key =
+    edition.key || Math.random().toString(36).slice(2, 8).toUpperCase();
   const csvFile = getCsvFilePath(edition.type || "secondary");
   const parsed = loadCsvData(csvFile);
 
@@ -73,17 +103,7 @@ export const handleEditionRequest = async (
 ): Promise<void> => {
   try {
     const edition = await parseRequestBody<EditionRequestBody>(req);
-
-    if (edition.type && !["elements", "secondary"].includes(edition.type)) {
-      sendErrorResponse(
-        res,
-        400,
-        'Invalid type field. Must be "elements" or "secondary"',
-      );
-      return;
-    }
-
-    addEditionToCsv(edition);
+    upsertEdition(edition);
     sendJsonResponse(res, 201, { success: true, key: edition.key || "" });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

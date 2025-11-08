@@ -1,6 +1,5 @@
 export interface SaveNoteRequest {
   note: string;
-  type: string;
 }
 
 export interface SaveNoteResponse {

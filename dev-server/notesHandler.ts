@@ -1,23 +1,21 @@
 import type { IncomingMessage, ServerResponse } from "http";
 import {
-  getCsvFilePath,
   loadCsvData,
   saveCsvData,
   parseRequestBody,
   sendJsonResponse,
   sendErrorResponse,
+  CSV_PATH_ITEMS_PRINT,
 } from "./common";
 
 const NOTES_API_PATH = "/api/notes/";
 
 interface NotesRequestBody {
   note: string;
-  type: string;
 }
 
-const updateNotesInCsv = (key: string, note: string, type: string): void => {
-  const csvFile = getCsvFilePath(type);
-  const parsed = loadCsvData(csvFile);
+const updateNotesInCsv = (key: string, note: string): void => {
+  const parsed = loadCsvData(CSV_PATH_ITEMS_PRINT);
 
   const rowIndex = parsed.data.findIndex((row) => row.key === key);
   if (rowIndex === -1) {
@@ -25,7 +23,7 @@ const updateNotesInCsv = (key: string, note: string, type: string): void => {
   }
 
   parsed.data[rowIndex].notes = note || "";
-  saveCsvData(csvFile, parsed.data);
+  saveCsvData(CSV_PATH_ITEMS_PRINT, parsed.data);
 };
 
 export const isNotesRequest = (req: IncomingMessage): boolean => {
@@ -44,8 +42,8 @@ export const handleNotesRequest = async (
       return;
     }
 
-    const { note, type } = await parseRequestBody<NotesRequestBody>(req);
-    updateNotesInCsv(key, note, type);
+    const { note } = await parseRequestBody<NotesRequestBody>(req);
+    updateNotesInCsv(key, note);
     sendJsonResponse(res, 200, { success: true, key, note });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

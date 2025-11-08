@@ -25,8 +25,15 @@ import Catalogue from "./pages/Catalogue.tsx";
 import Trends from "./pages/Trends.tsx";
 import Presentation from "./pages/Presentation.tsx";
 import Diagrams from "./pages/Diagrams.tsx";
+import { useLocalStorage } from "usehooks-ts";
+import { AuthContext } from "./contexts/Auth.ts";
 
 function App() {
+  const [authToken, setAuthToken] = useLocalStorage<string | null>(
+    "resource-box-auth",
+    null,
+  );
+
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<Layout />}>
@@ -59,7 +66,16 @@ function App() {
     ),
   );
 
-  return <RouterProvider router={router} />;
+  return (
+    <AuthContext.Provider
+      value={{
+        token: authToken,
+        setToken: setAuthToken,
+      }}
+    >
+      <RouterProvider router={router} />
+    </AuthContext.Provider>
+  );
 }
 
 export default App;
