@@ -112,7 +112,7 @@ function TitlePage() {
         item.languages.some((lang) =>
           lang.toLowerCase().includes(searchLower),
         ) ||
-        item.year.toLowerCase().includes(searchLower)
+        item.year?.toLowerCase().includes(searchLower)
       );
     });
   }, [filteredItems, searchText, titlePagesModeOn]);

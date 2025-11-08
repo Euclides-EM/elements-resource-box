@@ -1,3 +1,5 @@
+import { NO_CITY } from "../constants";
+
 export type Mode = "texts" | "images";
 
 export type Feature =
@@ -42,19 +44,25 @@ export type Range = {
 
 type YesNoBool = "Yes" | "No";
 
+export const FLOATING_CITY_ENTRY: City = {
+  city: NO_CITY,
+  lon: -16,
+  lat: 42,
+};
+
 export type Item = {
   key: string;
-  year: string;
+  year: string | null;
   cities: string[];
   languages: string[];
   authors: string[];
   imageUrl: string | null;
   hasTitle: string;
-  title: string;
+  title: string | null;
   titleEn: string | null;
   imprint: string | null;
   imprintEn: string | null;
-  scanUrl: string[] | null;
+  scanUrl: string[];
   features: Partial<Record<Feature, string[]>>;
   type: string;
   format: string | null;
@@ -126,16 +134,55 @@ export type DottedLine = {
   quality: string;
 };
 
-export type EditionCopy = {
+export type PrintDetails = {
   key: string;
-  scan_url: string;
-  annotation: string;
-  vol: string;
+  short_title: string | null;
+  short_title_source: string | null;
+  year: string | null;
+  city: string | null;
+  language: string;
+  author_or_editor: string | null;
+  publisher: string | null;
+  format: string | null;
+  volumes: string | null;
+  ustc_id: string | null;
+  notes: string | null;
 };
 
-export const FLOATING_CITY = "s.l.";
-export const FLOATING_CITY_ENTRY: City = {
-  city: FLOATING_CITY,
-  lon: -16,
-  lat: 42,
+export type ParatextTranscriptions = {
+  key: string;
+  title: string | null;
+  imprint: string | null;
+  colophon: string | null;
+  frontispiece: string | null;
+};
+
+export type ParatextTranslations = {
+  key: string;
+  field: "title" | "imprint" | "colophon" | "frontispiece";
+  en: string;
+  source: string;
+};
+
+export type Shelfmarks = {
+  key: string;
+  volume: string | null;
+  scan: string | null;
+  title_page_img: string | null;
+  frontispiece_img: string | null;
+  annotations: string | null;
+  shelf_mark: string | null;
+  copyright: string | null;
+};
+
+export type PrintElementsMetadata = {
+  key: string;
+  elements_books: string | null;
+  additional_content: string | null;
+  wardhaugh_classification: string | null;
+};
+
+export type StudyCorpuses = {
+  key: string;
+  study: string;
 };

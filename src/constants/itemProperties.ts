@@ -1,32 +1,6 @@
-import { FilterGroup, FLOATING_CITY, Range } from "../types";
+import { FilterGroup, Range } from "../types";
 import { compareBookStatementRef } from "../types/book_statement_ref.ts";
-
-const formatCompare = (a: string, b: string): number => {
-  const order = [
-    "folio",
-    "quarto",
-    "sexto",
-    "octavo",
-    "duodecimo",
-    "sextodecimo",
-    "octodecimo",
-    "vincesimo-quarto",
-    "uncategorized",
-  ];
-  a = a.toLocaleLowerCase();
-  b = b.toLocaleLowerCase();
-  const aIndex = order.indexOf(a);
-  const bIndex = order.indexOf(b);
-  if (aIndex === -1 && bIndex === -1) {
-    return a.localeCompare(b);
-  } else if (aIndex === -1) {
-    return 1;
-  } else if (bIndex === -1) {
-    return -1;
-  } else {
-    return aIndex - bIndex;
-  }
-};
+import { NO_CITY } from "./index.ts";
 
 export type ItemProperty = {
   displayName: string;
@@ -69,8 +43,12 @@ export const itemProperties: {
     displayName: "Cities",
     isArray: true,
     customCompareFn: ((a: string, b: string) => {
-      if (a === FLOATING_CITY) return -1;
-      if (b === FLOATING_CITY) return 1;
+      if (a === NO_CITY) {
+        return -1;
+      }
+      if (b === NO_CITY) {
+        return 1;
+      }
       return a.localeCompare(b, undefined, { sensitivity: "base" });
     }) as (a: unknown, b: unknown) => number,
     groupByJoinArray: true,
@@ -163,7 +141,6 @@ export const itemProperties: {
   format: {
     displayName: "Edition Format",
     filterGroup: "Material",
-    customCompareFn: formatCompare as (a: unknown, b: unknown) => number,
   },
   volumesCount: {
     displayName: "Number of Volumes",

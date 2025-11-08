@@ -6,13 +6,13 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { FLOATING_CITY, Item } from "../types";
+import {  Item } from "../types";
 import { FilterValue } from "../components/map/Filter";
 import { useLocalStorage } from "usehooks-ts";
 import { isArray, isEmpty, isNil } from "lodash";
 import { loadCitiesAsync, loadEditionsData } from "../utils/dataUtils";
 import { Point } from "react-simple-maps";
-import { MAX_YEAR, MIN_YEAR } from "../constants";
+import { MAX_YEAR, MIN_YEAR, NO_CITY } from "../constants";
 
 type FilterContextType = {
   data: Item[];
@@ -64,7 +64,7 @@ const filterRecord = (
   }
   const fields = Object.keys(filters) as (keyof Item)[];
   return fields.every((field) => {
-    if (field === "year" && t.cities.includes(FLOATING_CITY)) {
+    if (field === "year" && t.cities.includes(NO_CITY)) {
       return false;
     }
     const filterValues = filters[field]?.map((v) => v.value);

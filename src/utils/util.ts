@@ -1,6 +1,6 @@
 import { reduce } from "lodash";
 
-export const groupByMap = <TFrom, TKey extends string, TValue>(
+export const groupByMap = <TFrom, TKey extends string, TValue = TFrom>(
   data: TFrom[],
   keyBy: (entry: TFrom) => TKey,
   valueBy: ((entry: TFrom) => TValue) | undefined = undefined,
