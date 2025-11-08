@@ -1,5 +1,5 @@
 import { useForm, useStore } from "@tanstack/react-form";
-import { Fragment, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "@emotion/styled";
 import { upsertEdition } from "../api/editionApi";
@@ -249,6 +249,7 @@ const SelectedImage = styled.div`
   font-size: 0.875rem;
   color: #666;
   margin-top: 0.25rem;
+  background-color: #d1e8ff;
 `;
 
 const getSuggestedKey = (): string => {
@@ -508,6 +509,9 @@ export const UpsertEdition = () => {
       .finally(() => setListsLoading(false));
   }, []);
 
+  const formErrorMap = useStore(form.store, (state) => state.errorMap);
+  console.error(formErrorMap);
+
   return (
     <PageContainer>
       <FormContainer>
@@ -521,7 +525,7 @@ export const UpsertEdition = () => {
               e.stopPropagation();
               form
                 .handleSubmit()
-                .then((v) => window.scrollTo({ top: 0, behavior: "smooth" }));
+                .then(() => window.scrollTo({ top: 0, behavior: "smooth" }));
             }}
           >
             <FormGrid>
@@ -635,7 +639,6 @@ export const UpsertEdition = () => {
                             value={field.state.value}
                             min={0}
                             max={2000}
-                            step={100}
                             onChange={(e) =>
                               field.handleChange(e.target.valueAsNumber)
                             }
@@ -665,7 +668,6 @@ export const UpsertEdition = () => {
                             value={field.state.value}
                             min={0}
                             max={2000}
-                            step={100}
                             onChange={(e) =>
                               field.handleChange(e.target.valueAsNumber)
                             }
@@ -727,7 +729,6 @@ export const UpsertEdition = () => {
                             type="number"
                             min={1400}
                             max={2000}
-                            step={10}
                             value={field.state.value || ""}
                             onChange={(e) => field.handleChange(e.target.value)}
                           />
@@ -899,7 +900,6 @@ export const UpsertEdition = () => {
                             type="number"
                             min={1}
                             max={50}
-                            step={1}
                             value={field.state.value || ""}
                             onChange={(e) =>
                               field.handleChange(e.target.valueAsNumber)

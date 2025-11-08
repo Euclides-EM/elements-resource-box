@@ -14,6 +14,9 @@ export const upsertEdition = async (
     const shelfmark = data.shelfmarks[i];
     if (shelfmark.title_page_img) {
       const file = images[shelfmark.title_page_img];
+      if (!file) {
+        continue;
+      }
       uploads.push(
         (async () => {
           shelfmark.title_page_img = await uploadImage(
@@ -27,6 +30,9 @@ export const upsertEdition = async (
     }
     if (shelfmark.frontispiece_img) {
       const file = images[shelfmark.frontispiece_img];
+      if (!file) {
+        continue;
+      }
       uploads.push(
         (async () => {
           shelfmark.frontispiece_img = await uploadImage(
