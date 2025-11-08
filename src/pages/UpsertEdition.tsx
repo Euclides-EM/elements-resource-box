@@ -1,5 +1,5 @@
 import { useForm, useStore } from "@tanstack/react-form";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "@emotion/styled";
 import { upsertEdition } from "../api/editionApi";
@@ -115,10 +115,13 @@ const FormGrid = styled.div`
   margin-bottom: 1rem;
 `;
 
-const FormField = styled.div`
+const FormField = styled.div<{ gap?: number; bgColor?: string }>`
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: ${(props) => props.gap || 0.25}rem;
+  background-color: ${(props) => props.bgColor || "unset"};
+  padding: ${(props) => (props.bgColor ? 0.25 : 0)}rem;
+  border-radius: 4px;
 
   &.full-width {
     grid-column: span 3;
@@ -127,9 +130,12 @@ const FormField = styled.div`
 
 const Label = styled.label<{ isTitle?: boolean; muted?: boolean }>`
   font-size: ${(props) =>
-    props.title ? "1" : props.muted ? "0.75" : "0.875"}rem;
+    props.isTitle ? "1" : props.muted ? "0.75" : "0.875"}rem;
   font-weight: 500;
-  color: ${(props) => (props.title ? "#555" : props.muted ? "#777" : "#666")};
+  color: ${(props) => (props.isTitle ? "#555" : props.muted ? "#777" : "#666")};
+  background-color: ${(props) => (props.isTitle ? "#D8ECFC" : "unset")};
+  padding: ${(props) => (props.isTitle ? 0.25 : 0)}rem;
+  border-radius: 4px;
 
   &.required::after {
     content: " *";
@@ -245,11 +251,52 @@ const FileInput = styled.input`
   }
 `;
 
-const SelectedImage = styled.div`
+const SelectedImage = styled.span`
   font-size: 0.875rem;
   color: #666;
   margin-top: 0.25rem;
   background-color: #d1e8ff;
+  padding: 4px;
+  border-radius: 4px;
+`;
+
+const LoadingOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+`;
+
+const LoadingSpinner = styled.div`
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const LoadingText = styled.div`
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
 `;
 
 const getSuggestedKey = (): string => {
@@ -437,6 +484,7 @@ export const UpsertEdition = () => {
     additionalContents: string[];
     cities: string[];
   }>();
+  const formContainerRef = useRef<HTMLDivElement>(null);
 
   const form = useForm({
     defaultValues: values,
@@ -509,12 +557,20 @@ export const UpsertEdition = () => {
       .finally(() => setListsLoading(false));
   }, []);
 
-  const formErrorMap = useStore(form.store, (state) => state.errorMap);
-  console.error(formErrorMap);
+  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
+  const formIsValid = useStore(form.store, (state) => state.isValid);
 
   return (
     <PageContainer>
-      <FormContainer>
+      {isSubmitting && (
+        <LoadingOverlay>
+          <LoadingSpinner />
+          <LoadingText>
+            {key ? "Updating record..." : "Adding record..."}
+          </LoadingText>
+        </LoadingOverlay>
+      )}
+      <FormContainer ref={formContainerRef}>
         <Title>{key ? "Update a record" : "Add a record"}</Title>
         {itemLoading || listsLoading ? (
           <div>Loading...</div>
@@ -523,9 +579,14 @@ export const UpsertEdition = () => {
             onSubmit={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              form
-                .handleSubmit()
-                .then(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+              form.handleSubmit().then(() => {
+                if (formContainerRef.current) {
+                  formContainerRef.current.scrollTo({
+                    top: 0,
+                    behavior: "smooth",
+                  });
+                }
+              });
             }}
           >
             <FormGrid>
@@ -552,6 +613,7 @@ export const UpsertEdition = () => {
                         type="text"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
                       />
                       {!field.state.meta.isValid && (
                         <em>{field.state.meta.errors.join(",")}</em>
@@ -579,6 +641,7 @@ export const UpsertEdition = () => {
                           label: item,
                         }))}
                         value={field.state.value}
+                        onBlur={field.handleBlur}
                         onChange={(value) =>
                           field.handleChange((value as string) || "")
                         }
@@ -605,6 +668,7 @@ export const UpsertEdition = () => {
                         { value: "true", label: "Manuscript" },
                       ]}
                       value={field.state.value ? "true" : "false"}
+                      onBlur={field.handleBlur}
                       onChange={(value) => field.handleChange(value === "true")}
                       placeholder="Select type..."
                     />
@@ -642,6 +706,7 @@ export const UpsertEdition = () => {
                             onChange={(e) =>
                               field.handleChange(e.target.valueAsNumber)
                             }
+                            onBlur={field.handleBlur}
                           />
                           {!field.state.meta.isValid && (
                             <em>{field.state.meta.errors.join(",")}</em>
@@ -671,6 +736,7 @@ export const UpsertEdition = () => {
                             onChange={(e) =>
                               field.handleChange(e.target.valueAsNumber)
                             }
+                            onBlur={field.handleBlur}
                           />
                           {!field.state.meta.isValid && (
                             <em>{field.state.meta.errors.join(",")}</em>
@@ -695,6 +761,7 @@ export const UpsertEdition = () => {
                             type="text"
                             value={field.state.value}
                             onChange={(e) => field.handleChange(e.target.value)}
+                            onBlur={field.handleBlur}
                           />
                           {!field.state.meta.isValid && (
                             <em>{field.state.meta.errors.join(",")}</em>
@@ -731,6 +798,7 @@ export const UpsertEdition = () => {
                             max={2000}
                             value={field.state.value || ""}
                             onChange={(e) => field.handleChange(e.target.value)}
+                            onBlur={field.handleBlur}
                           />
                           {!field.state.meta.isValid && (
                             <em>{field.state.meta.errors.join(",")}</em>
@@ -874,6 +942,7 @@ export const UpsertEdition = () => {
                             label: item,
                           }))}
                           value={field.state.value}
+                          onBlur={field.handleBlur}
                           onChange={(value) =>
                             field.handleChange(value as number | null)
                           }
@@ -904,6 +973,7 @@ export const UpsertEdition = () => {
                             onChange={(e) =>
                               field.handleChange(e.target.valueAsNumber)
                             }
+                            onBlur={field.handleBlur}
                           />
                           {!field.state.meta.isValid && (
                             <em>{field.state.meta.errors.join(",")}</em>
@@ -932,6 +1002,7 @@ export const UpsertEdition = () => {
                             onChange={(e) =>
                               field.handleChange(e.target.value || null)
                             }
+                            onBlur={field.handleBlur}
                           />
                           {!field.state.meta.isValid && (
                             <em>{field.state.meta.errors.join(",")}</em>
@@ -952,6 +1023,7 @@ export const UpsertEdition = () => {
                           onChange={(e) =>
                             field.handleChange(e.target.value || null)
                           }
+                          onBlur={field.handleBlur}
                         />
                       )}
                     </form.Field>
@@ -966,6 +1038,7 @@ export const UpsertEdition = () => {
                           onChange={(e) =>
                             field.handleChange(e.target.value || null)
                           }
+                          onBlur={field.handleBlur}
                         />
                       )}
                     </form.Field>
@@ -982,6 +1055,7 @@ export const UpsertEdition = () => {
                           onChange={(e) =>
                             field.handleChange(e.target.value || null)
                           }
+                          onBlur={field.handleBlur}
                         />
                       )}
                     </form.Field>
@@ -996,6 +1070,7 @@ export const UpsertEdition = () => {
                           onChange={(e) =>
                             field.handleChange(e.target.value || null)
                           }
+                          onBlur={field.handleBlur}
                         />
                       )}
                     </form.Field>
@@ -1012,6 +1087,7 @@ export const UpsertEdition = () => {
                           onChange={(e) =>
                             field.handleChange(e.target.value || null)
                           }
+                          onBlur={field.handleBlur}
                         />
                       )}
                     </form.Field>
@@ -1026,6 +1102,7 @@ export const UpsertEdition = () => {
                           onChange={(e) =>
                             field.handleChange(e.target.value || null)
                           }
+                          onBlur={field.handleBlur}
                         />
                       )}
                     </form.Field>
@@ -1042,6 +1119,7 @@ export const UpsertEdition = () => {
                           onChange={(e) =>
                             field.handleChange(e.target.value || null)
                           }
+                          onBlur={field.handleBlur}
                         />
                       )}
                     </form.Field>
@@ -1056,6 +1134,7 @@ export const UpsertEdition = () => {
                           onChange={(e) =>
                             field.handleChange(e.target.value || null)
                           }
+                          onBlur={field.handleBlur}
                         />
                       )}
                     </form.Field>
@@ -1063,7 +1142,7 @@ export const UpsertEdition = () => {
                 </>
               )}
 
-              <FormField />
+              <FormField className="full-width" />
               <FormField>
                 <Label>Is Elements</Label>
                 <form.Field name="isElements">
@@ -1075,6 +1154,7 @@ export const UpsertEdition = () => {
                         { value: "true", label: "Yes" },
                       ]}
                       value={field.state.value ? "true" : "false"}
+                      onBlur={field.handleBlur}
                       onChange={(value) => field.handleChange(value === "true")}
                       placeholder="Does this edition contain Elements?"
                     />
@@ -1124,6 +1204,8 @@ export const UpsertEdition = () => {
                   </FormField>
                 </>
               )}
+
+              <FormField className="full-width" />
 
               <FormField>
                 <Label>Corpus</Label>
@@ -1176,7 +1258,7 @@ export const UpsertEdition = () => {
                       )}
                     </FormField>
                     {field.state.value.map((_, i) => (
-                      <FormField key={i}>
+                      <FormField key={i} gap={0.5} bgColor="#D8ECFC">
                         <FormField>
                           <Label>Volume</Label>
                           <form.Field name={`shelfmarks[${i}].volume`}>
@@ -1187,6 +1269,7 @@ export const UpsertEdition = () => {
                                 onChange={(e) =>
                                   f.handleChange(e.target.valueAsNumber || null)
                                 }
+                                onBlur={f.handleBlur}
                                 placeholder="Volume"
                               />
                             )}
@@ -1202,6 +1285,7 @@ export const UpsertEdition = () => {
                                 onChange={(e) =>
                                   f.handleChange(e.target.value || null)
                                 }
+                                onBlur={f.handleBlur}
                                 placeholder="Facsimile URL"
                               />
                             )}
@@ -1218,6 +1302,7 @@ export const UpsertEdition = () => {
                                 onChange={(e) =>
                                   f.handleChange(e.target.value || null)
                                 }
+                                onBlur={f.handleBlur}
                                 placeholder="Shelfmark"
                               />
                             )}
@@ -1225,10 +1310,15 @@ export const UpsertEdition = () => {
                         </FormField>
 
                         <FormField>
-                          <Label>Title Page Image</Label>
                           <form.Field name={`shelfmarks[${i}].title_page_img`}>
                             {(f) => (
                               <>
+                                <Label>
+                                  Title Page Image{" "}
+                                  <SelectedImage>
+                                    {f.state.value && "Image is set"}
+                                  </SelectedImage>
+                                </Label>
                                 <FileInput
                                   type="file"
                                   accept="image/*"
@@ -1245,12 +1335,12 @@ export const UpsertEdition = () => {
                                     }
                                   }}
                                 />
-                                {f.state.value && (
-                                  <SelectedImage>
-                                    {images[f.state.value]
-                                      ? `Selected: ${images[f.state.value].name}`
-                                      : "Image is set"}
-                                  </SelectedImage>
+                                {f.state.value && images[f.state.value] && (
+                                  <div>
+                                    <SelectedImage>
+                                      Selected: {images[f.state.value].name}
+                                    </SelectedImage>
+                                  </div>
                                 )}
                               </>
                             )}
@@ -1306,6 +1396,7 @@ export const UpsertEdition = () => {
                                   f.state.value ||
                                   ANNOTATIONS[ANNOTATIONS.length - 1]
                                 }
+                                onBlur={field.handleBlur}
                                 onChange={(value) =>
                                   f.handleChange(value as string | null)
                                 }
@@ -1324,6 +1415,7 @@ export const UpsertEdition = () => {
                                 onChange={(e) =>
                                   f.handleChange(e.target.value || null)
                                 }
+                                onBlur={f.handleBlur}
                                 placeholder="Copyright"
                               />
                             )}
@@ -1349,6 +1441,7 @@ export const UpsertEdition = () => {
                     <TextArea
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
                     />
                   )}
                 </form.Field>
@@ -1364,6 +1457,7 @@ export const UpsertEdition = () => {
                           type="checkbox"
                           checked={field.state.value}
                           onChange={(e) => field.handleChange(e.target.checked)}
+                          onBlur={field.handleBlur}
                         />
                         <Label
                           muted
@@ -1379,8 +1473,11 @@ export const UpsertEdition = () => {
             </FormGrid>
 
             <ButtonContainer>
-              <SubmitButton type="submit" disabled={form.state.isSubmitting}>
-                {form.state.isSubmitting
+              <SubmitButton
+                type="submit"
+                disabled={isSubmitting || !formIsValid}
+              >
+                {isSubmitting
                   ? key
                     ? "Updating..."
                     : "Adding..."
