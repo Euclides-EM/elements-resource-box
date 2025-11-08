@@ -1,20 +1,6 @@
+import { Feature, FLOATING_CITY_ENTRY, Item } from "../types";
 import {
   City,
-  DottedLine,
-  Feature,
-  FLOATING_CITY_ENTRY,
-  Item,
-  ParatextTranscriptions,
-  ParatextTranslations,
-  PrintDetails,
-  PrintElementsMetadata,
-  Shelfmarks,
-  StudyCorpuses,
-} from "../types";
-import { groupBy, isEmpty, startCase, uniq } from "lodash";
-import Papa from "papaparse";
-import { Dispatch, SetStateAction } from "react";
-import {
   CSV_PATH_CITIES,
   CSV_PATH_CORPUSES,
   CSV_PATH_DOTTED_LINES,
@@ -24,10 +10,18 @@ import {
   CSV_PATH_TITLE_PAGE_FEATURES,
   CSV_PATH_TRANSCRIPTIONS,
   CSV_PATH_TRANSLATIONS,
-  FeaturesToSplit,
-  FeatureToColumnName,
-  ItemTypes,
-} from "../constants";
+  DottedLine,
+  ParatextTranscriptions,
+  ParatextTranslations,
+  PrintDetails,
+  PrintElementsMetadata,
+  Shelfmarks,
+  StudyCorpuses,
+} from "../../common/csv.ts";
+import { groupBy, isEmpty, startCase, uniq } from "lodash";
+import Papa from "papaparse";
+import { Dispatch, SetStateAction } from "react";
+import { FeaturesToSplit, FeatureToColumnName, ItemTypes } from "../constants";
 import { Point } from "react-simple-maps";
 import {
   BookStatementRef,

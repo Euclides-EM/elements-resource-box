@@ -1,15 +1,5 @@
 import { Feature } from "../types";
 
-export const CSV_PATH_ITEMS_PRINT = "/docs/items_print.csv";
-export const CSV_PATH_MD_PRINT = "/docs/metadata_elements_print.csv";
-export const CSV_PATH_TRANSCRIPTIONS = "/docs/paratext_transcriptions.csv";
-export const CSV_PATH_CORPUSES = "/docs/corpuses.csv";
-export const CSV_PATH_TITLE_PAGE_FEATURES = "/docs/title_page.csv";
-export const CSV_PATH_TRANSLATIONS = "/docs/translations.csv";
-export const CSV_PATH_SHELFMARKS = "/docs/shelfmarks.csv";
-export const CSV_PATH_CITIES = "/docs/cities.csv";
-export const CSV_PATH_DOTTED_LINES = "/docs/dotted_lines.csv";
-
 export const TILE_HEIGHT = 400;
 export const TILE_WIDTH = 400;
 

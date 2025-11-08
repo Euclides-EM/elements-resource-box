@@ -5,7 +5,7 @@ import {
   parseMultipartFormData,
   sendJsonResponse,
   sendErrorResponse,
-} from "./common";
+} from "../util-request";
 
 const IMAGE_UPLOAD_API_PATH = "/api/upload-image";
 

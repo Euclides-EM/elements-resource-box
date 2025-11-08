@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styled from "@emotion/styled";
 import { FaSave, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { Item } from "../../../types";
 import { LAND_COLOR } from "../../../utils/colors.ts";
 import { saveNote } from "../../../api/notesApi.ts";
+import { AuthContext } from "../../../contexts/Auth.ts";
 
 const NotesSection = styled.div`
   margin-top: 1rem;
@@ -92,13 +93,16 @@ export const NotesEditor = ({ item }: NotesEditorProps) => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const { token } = useContext(AuthContext);
 
   const handleSave = async () => {
+    if (!token) {
+      return;
+    }
     setSaving(true);
     try {
-      await saveNote(item.key, {
+      await saveNote(token, item.key, {
         note: notes,
-        type: item.type,
       });
 
       setSaved(true);
@@ -109,6 +113,10 @@ export const NotesEditor = ({ item }: NotesEditorProps) => {
       setSaving(false);
     }
   };
+
+  if (!token) {
+    return null;
+  }
 
   return (
     <NotesSection>

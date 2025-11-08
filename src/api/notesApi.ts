@@ -1,20 +1,14 @@
-export interface SaveNoteRequest {
-  note: string;
-}
-
-export interface SaveNoteResponse {
-  success: boolean;
-  key: string;
-  note: string;
-}
+import { NOTES_API_PATH, NotesRequestBody } from "../../common/api.ts";
 
 export const saveNote = async (
   key: string,
-  data: SaveNoteRequest,
-): Promise<SaveNoteResponse> => {
-  const response = await fetch(`/api/notes/${key}`, {
+  authToken: string,
+  data: NotesRequestBody,
+): Promise<void> => {
+  const response = await fetch(`${NOTES_API_PATH}/${key}`, {
     method: "POST",
     headers: {
+      Authorization: authToken,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),

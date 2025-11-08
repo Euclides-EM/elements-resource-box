@@ -1,4 +1,5 @@
 import { NO_CITY } from "../constants";
+import { City } from "../../common/csv.ts";
 
 export type Mode = "texts" | "images";
 
@@ -114,75 +115,4 @@ export type ItemProps = {
   width: number;
   mode: Mode;
   features: Feature[] | null;
-};
-
-export type City = {
-  city: string;
-  lon: number;
-  lat: number;
-};
-
-export type DottedLine = {
-  key: string;
-  type: string;
-  has_diagrams: string;
-  uc_b79_token: string;
-  uc_b10: string;
-  uc_b2: string;
-  uc_geo_dotted: string;
-  uc_other: string;
-  quality: string;
-};
-
-export type PrintDetails = {
-  key: string;
-  short_title: string | null;
-  short_title_source: string | null;
-  year: string | null;
-  city: string | null;
-  language: string;
-  author_or_editor: string | null;
-  publisher: string | null;
-  format: string | null;
-  volumes: string | null;
-  ustc_id: string | null;
-  notes: string | null;
-};
-
-export type ParatextTranscriptions = {
-  key: string;
-  title: string | null;
-  imprint: string | null;
-  colophon: string | null;
-  frontispiece: string | null;
-};
-
-export type ParatextTranslations = {
-  key: string;
-  field: "title" | "imprint" | "colophon" | "frontispiece";
-  en: string;
-  source: string;
-};
-
-export type Shelfmarks = {
-  key: string;
-  volume: string | null;
-  scan: string | null;
-  title_page_img: string | null;
-  frontispiece_img: string | null;
-  annotations: string | null;
-  shelf_mark: string | null;
-  copyright: string | null;
-};
-
-export type PrintElementsMetadata = {
-  key: string;
-  elements_books: string | null;
-  additional_content: string | null;
-  wardhaugh_classification: string | null;
-};
-
-export type StudyCorpuses = {
-  key: string;
-  study: string;
 };

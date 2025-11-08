@@ -1,40 +1,4 @@
-import fs from "fs";
-import Papa from "papaparse";
-import path from "path";
 import type { IncomingMessage, ServerResponse } from "http";
-
-export const CSV_PATH_ITEMS_PRINT = "public/docs/items_print.csv";
-export const CSV_PATH_MD_PRINT = "public/docs/metadata_elements_print.csv";
-export const CSV_PATH_TRANSCRIPTIONS =
-  "public/docs/paratext_transcriptions.csv";
-export const CSV_PATH_CORPUSES = "public/docs/corpuses.csv";
-export const CSV_PATH_TITLE_PAGE_FEATURES = "public/docs/title_page.csv";
-export const CSV_PATH_TRANSLATIONS = "public/docs/translations.csv";
-export const CSV_PATH_SHELFMARKS = "public/docs/shelfmarks.csv";
-export const CSV_PATH_CITIES = "public/docs/cities.csv";
-export const CSV_PATH_DOTTED_LINES = "public/docs/dotted_lines.csv";
-
-export const loadCsvData = (
-  filePath: string,
-): Papa.ParseResult<Record<string, string>> => {
-  const csvPath = path.resolve(filePath);
-
-  if (!fs.existsSync(csvPath)) {
-    throw new Error(`CSV file not found: ${filePath}`);
-  }
-
-  const csvContent = fs.readFileSync(csvPath, "utf-8");
-  return Papa.parse<Record<string, string>>(csvContent, { header: true });
-};
-
-export const saveCsvData = (
-  filePath: string,
-  data: Record<string, string>[],
-): void => {
-  const csvPath = path.resolve(filePath);
-  const updatedCsv = Papa.unparse(data);
-  fs.writeFileSync(csvPath, updatedCsv);
-};
 
 export const parseRequestBody = <T>(req: IncomingMessage): Promise<T> => {
   return new Promise((resolve, reject) => {

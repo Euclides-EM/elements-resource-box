@@ -1,29 +1,23 @@
 import type { IncomingMessage, ServerResponse } from "http";
+import { loadCsvData, saveCsvData } from "../util-csv";
+import { CSV_PATH_ITEMS_PRINT, PrintDetails } from "../../common/csv";
+import { NOTES_API_PATH, NotesRequestBody } from "../../common/api";
 import {
-  loadCsvData,
-  saveCsvData,
   parseRequestBody,
-  sendJsonResponse,
   sendErrorResponse,
-  CSV_PATH_ITEMS_PRINT,
-} from "./common";
-
-const NOTES_API_PATH = "/api/notes/";
-
-interface NotesRequestBody {
-  note: string;
-}
+  sendJsonResponse,
+} from "../util-request";
 
 const updateNotesInCsv = (key: string, note: string): void => {
-  const parsed = loadCsvData(CSV_PATH_ITEMS_PRINT);
+  const items = loadCsvData<PrintDetails>(CSV_PATH_ITEMS_PRINT);
 
-  const rowIndex = parsed.data.findIndex((row) => row.key === key);
+  const rowIndex = items.findIndex((row) => row.key === key);
   if (rowIndex === -1) {
     throw new Error(`Item with key ${key} not found`);
   }
 
-  parsed.data[rowIndex].notes = note || "";
-  saveCsvData(CSV_PATH_ITEMS_PRINT, parsed.data);
+  items[rowIndex].notes = note || "";
+  saveCsvData(CSV_PATH_ITEMS_PRINT, items);
 };
 
 export const isNotesRequest = (req: IncomingMessage): boolean => {
