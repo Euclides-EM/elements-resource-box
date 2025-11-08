@@ -2,7 +2,9 @@ import fs from "fs";
 import Papa from "papaparse";
 import path from "path";
 
-export const loadCsvData = <T>(filePath: string): T[] => {
+export const loadCsvData = <T extends Record<string, unknown>>(
+  filePath: string,
+): T[] => {
   const csvPath = path.resolve(`public/${filePath}`);
 
   if (!fs.existsSync(csvPath)) {
@@ -11,7 +13,11 @@ export const loadCsvData = <T>(filePath: string): T[] => {
 
   const csvContent = fs.readFileSync(csvPath, "utf-8");
   const parsed = Papa.parse<T>(csvContent, { header: true }).data;
-  return parsed.filter(row => Object.values(row).some(value => value !== null && value !== undefined && value !== ""));
+  return parsed.filter((row) =>
+    Object.values(row).some(
+      (value) => value !== null && value !== undefined && value !== "",
+    ),
+  );
 };
 
 export const saveCsvData = <T>(filePath: string, data: T[]): void => {
@@ -44,8 +50,20 @@ export const upsertCsvRow = <T extends Record<string, string | null>>(
   saveCsvData(filePath, parsed);
 };
 
-export const appendCsvRow = <T>(filePath: string, rowData: T): void => {
-  const parsed = loadCsvData(filePath);
-  parsed.push(rowData);
-  saveCsvData(filePath, parsed);
+export const batchUpsertCsvRows = <T extends Record<string, string | null>>(
+  filePath: string,
+  rowsData: T[],
+  keyField: string = "key",
+): void => {
+  if (rowsData.length === 0) return;
+
+  const parsed = loadCsvData<T>(filePath);
+  const keysToDelete = new Set(
+    rowsData.map((row) => row[keyField]).filter(Boolean),
+  );
+
+  const filteredData = parsed.filter((row) => !keysToDelete.has(row[keyField]));
+  filteredData.push(...rowsData);
+
+  saveCsvData(filePath, filteredData);
 };

@@ -23,7 +23,7 @@ import {
   sendErrorResponse,
   sendJsonResponse,
 } from "../util-request";
-import { appendCsvRow, upsertCsvRow } from "../util-csv";
+import { batchUpsertCsvRows, upsertCsvRow } from "../util-csv";
 import { EDITION_API_PATH, EditionRequestBody } from "../../common/api";
 
 function compressRanges(numbers: number[]): string[] {
@@ -138,19 +138,17 @@ const updatePrintCsvs = (edition: EditionRequestBody): void => {
 };
 
 const updateShelfmarks = (edition: EditionRequestBody): void => {
-  edition.shelfmarks.forEach((shelfmark) => {
-    const shelfmarkData: Shelfmarks = {
-      key: edition.key,
-      volume: shelfmark.volume ? shelfmark.volume.toString() : null,
-      scan: shelfmark.scan,
-      title_page_img: shelfmark.title_page_img,
-      frontispiece_img: shelfmark.frontispiece_img,
-      annotations: shelfmark.annotations,
-      shelf_mark: shelfmark.shelfmark,
-      copyright: shelfmark.copyright,
-    };
-    appendCsvRow(CSV_PATH_SHELFMARKS, shelfmarkData);
-  });
+  const shelfmarkRows: Shelfmarks[] = edition.shelfmarks.map((shelfmark) => ({
+    key: edition.key,
+    volume: shelfmark.volume ? shelfmark.volume.toString() : null,
+    scan: shelfmark.scan,
+    title_page_img: shelfmark.title_page_img,
+    frontispiece_img: shelfmark.frontispiece_img,
+    annotations: shelfmark.annotations,
+    shelf_mark: shelfmark.shelfmark,
+    copyright: shelfmark.copyright,
+  }));
+  batchUpsertCsvRows(CSV_PATH_SHELFMARKS, shelfmarkRows);
 };
 
 const updateTranslations = (edition: EditionRequestBody): void => {
@@ -165,16 +163,18 @@ const updateTranslations = (edition: EditionRequestBody): void => {
     { field: "frontispiece", value: edition.frontispiece_EN },
   ];
 
-  translationFields.forEach(({ field, value }) => {
-    if (value) {
-      const translationData = {
-        field,
-        en: value,
-        source: edition.shortTitleSource,
-      };
-      appendCsvRow(CSV_PATH_TRANSLATIONS, translationData);
-    }
-  });
+  const translationRows = translationFields
+    .filter(({ value }) => value)
+    .map(({ field, value }) => ({
+      key: edition.key,
+      field,
+      en: value,
+      source: edition.shortTitleSource,
+    }));
+
+  if (translationRows.length > 0) {
+    batchUpsertCsvRows(CSV_PATH_TRANSLATIONS, translationRows);
+  }
 };
 
 const updateCorpuses = (edition: EditionRequestBody): void => {
