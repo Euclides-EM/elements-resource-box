@@ -14,7 +14,7 @@ export type EditionRequestBody = {
   shortTitleSource: string;
   cities: string[];
   notes: string;
-  corpus: string | null;
+  corpus: string[];
   shelfmarks: {
     volume: number | null;
     scan: string | null;
@@ -35,7 +35,7 @@ export type EditionRequestBody = {
     }
   | {
       isManuscript: false;
-      year: string;
+      year: string | null;
       languages: string[];
       editor: string[];
       publisher: string[];

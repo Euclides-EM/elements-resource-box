@@ -1,4 +1,5 @@
 import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
 import { TOOLTIP_FEATURES_HIGHLIGHT } from "../../map/MapTooltips.tsx";
 
 type OptionLabelProps = {
@@ -25,6 +26,8 @@ type MultiSelectProps = {
   labelFn?: (opt: string) => string;
   value?: string[];
   className?: string;
+  isCreatable?: boolean;
+  placeholder?: string;
 };
 
 const MultiSelect = ({
@@ -37,8 +40,13 @@ const MultiSelect = ({
   labelFn,
   value,
   className,
-}: MultiSelectProps) => (
-  <Select
+  isCreatable = false,
+  placeholder,
+}: MultiSelectProps) => {
+  const SelectComponent = isCreatable ? CreatableSelect : Select;
+
+  return (
+  <SelectComponent
     isMulti
     name={name}
     value={value?.map((v) => ({
@@ -74,9 +82,17 @@ const MultiSelect = ({
     className={`basic-multi-select ${className}`}
     classNamePrefix="select"
     onChange={(selected) => onChange(selected.map((option) => option.value))}
-    placeholder={`Select ${name}`}
-    styles={
-      colors
+    placeholder={placeholder || `Select ${name}`}
+    styles={{
+      menu: (base) => ({
+        ...base,
+        zIndex: 9999,
+      }),
+      menuPortal: (base) => ({
+        ...base,
+        zIndex: 9999,
+      }),
+      ...(colors
         ? {
             option: (styles, { data }) => {
               return {
@@ -91,9 +107,11 @@ const MultiSelect = ({
               };
             },
           }
-        : undefined
-    }
+        : {}),
+    }}
+    menuPortalTarget={document.body}
   />
-);
+  );
+};
 
 export default MultiSelect;

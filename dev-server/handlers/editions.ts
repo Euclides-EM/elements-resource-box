@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "http";
 import {
+  CSV_PATH_CORPUSES,
   CSV_PATH_ITEMS_MANUSCRIPT,
   CSV_PATH_ITEMS_PRINT,
   CSV_PATH_MD_MANUSCRIPT,
@@ -15,6 +16,7 @@ import {
   PrintElementsMetadata,
   Review,
   Shelfmarks,
+  StudyCorpuses,
 } from "../../common/csv";
 import {
   parseRequestBody,
@@ -54,6 +56,7 @@ const upsertEdition = (edition: EditionRequestBody, user: string): void => {
 
   updateShelfmarks(edition);
   updateTranslations(edition);
+  updateCorpuses(edition);
 
   if (edition.verified) {
     upsertCsvRow(CSV_PATH_REVIEWS, edition.key, {
@@ -172,6 +175,13 @@ const updateTranslations = (edition: EditionRequestBody): void => {
       appendCsvRow(CSV_PATH_TRANSLATIONS, translationData);
     }
   });
+};
+
+const updateCorpuses = (edition: EditionRequestBody): void => {
+  appendCsvRow(CSV_PATH_CORPUSES, {
+    key: edition.key,
+    study: edition.corpus.join(", "),
+  } satisfies StudyCorpuses);
 };
 
 export const isEditionRequest = (req: IncomingMessage): boolean => {

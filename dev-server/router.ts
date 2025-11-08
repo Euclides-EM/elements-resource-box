@@ -13,23 +13,36 @@ export const router = async (
   res: ServerResponse,
   next: Connect.NextFunction,
 ) => {
-  const authHeader = req.headers["authorization"];
-  if (!authHeader) {
-    res.statusCode = 401;
-    res.end("Unauthorized: Missing Authorization header");
-    return;
-  }
-  const user = await validateAuthToken(authHeader);
-  if (!user) {
-    res.statusCode = 403;
-    res.end("Forbidden :(");
-    return;
-  }
+  const authorize = async () => {
+    const authHeader = req.headers["authorization"];
+    if (!authHeader) {
+      res.statusCode = 401;
+      res.end("Unauthorized: Missing Authorization header");
+      return null;
+    }
+    const user = await validateAuthToken(authHeader);
+    if (!user) {
+      res.statusCode = 403;
+      res.end("Forbidden :(");
+    }
+    return user;
+  };
+
   if (isNotesRequest(req)) {
+    if (!(await authorize())) {
+      return;
+    }
     await handleNotesRequest(req, res);
   } else if (isImageUploadRequest(req)) {
+    if (!(await authorize())) {
+      return;
+    }
     await handleImageUploadRequest(req, res);
   } else if (isEditionRequest(req)) {
+    const user = await authorize();
+    if (!user) {
+      return;
+    }
     await handleEditionRequest(user, req, res);
   } else {
     next();

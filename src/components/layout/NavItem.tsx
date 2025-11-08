@@ -8,10 +8,9 @@ import {
   MAP_ROUTE,
   TITLE_PAGES_ROUTE,
   TRENDS_ROUTE,
+  ITEM_EDIT_ROUTE,
 } from "./routes.ts";
 import { MACTUTOR_URL } from "../../constants";
-import { useState } from "react";
-import { AddEditionModal } from "../tps/modal/AddEditionModal.tsx";
 import { ActionsMenu } from "./ActionsMenu.tsx";
 
 const StyledNavItem = styled.li<{ active: boolean; mobile: boolean }>`
@@ -101,7 +100,6 @@ const NavList = styled.ul<{ mobile: boolean }>`
 
 export const NavItems = ({ mobile }: { mobile: boolean }) => {
   const location = useLocation();
-  const [showCreateModal, setShowCreateModal] = useState(false);
 
   return (
     <>
@@ -148,14 +146,11 @@ export const NavItems = ({ mobile }: { mobile: boolean }) => {
           <DevNavItem mobile={mobile}>
             <ActionsMenu
               mobile={mobile}
-              onShowCreateModal={() => setShowCreateModal(true)}
+              onShowCreateModal={() => window.location.href = ITEM_EDIT_ROUTE}
             />
           </DevNavItem>
         )}
       </NavList>
-      {showCreateModal && (
-        <AddEditionModal onClose={() => setShowCreateModal(false)} />
-      )}
     </>
   );
 };

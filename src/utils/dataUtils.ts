@@ -19,7 +19,6 @@ import {
   StudyCorpuses,
 } from "../../common/csv.ts";
 import { groupBy, isEmpty, startCase, uniq } from "lodash";
-import Papa from "papaparse";
 import { Dispatch, SetStateAction } from "react";
 import { FeaturesToSplit, FeatureToColumnName, ItemTypes } from "../constants";
 import { Point } from "react-simple-maps";
@@ -37,6 +36,7 @@ import {
   parseInstitutions,
   parseOtherNames,
 } from "./normalizeNames.ts";
+import { loadAndParseCsv } from "./csv.ts";
 
 const ifEmpty = <T>(arr: T[], defaultValue: T[]): T[] =>
   arr.length === 0 ? defaultValue : arr;
@@ -76,25 +76,6 @@ function parseStudyCorpora(
   }
   return studyCorpora;
 }
-
-const loadAndParseCsv = async <
-  T extends { key: string } & Record<string, string | null> = {
-    key: string;
-  } & Record<string, string | null>,
->(
-  csvUrl: string,
-): Promise<T[]> => {
-  const response = await fetch(csvUrl);
-  const data = await response.text();
-  return parseCsv<T>(data);
-};
-
-const parseCsv = <T>(csvText: string): T[] => {
-  return Papa.parse<T>(csvText, {
-    header: true,
-    skipEmptyLines: true,
-  }).data;
-};
 
 const groupByKey = <T extends { key: string }>(raw: T[]): Record<string, T> => {
   return groupByMap(raw, (item) => item["key"] as string);
@@ -194,6 +175,11 @@ export const loadEditionsData = (
               type,
               format: printDetails.format,
               ...parseBooks(metadata.elements_books),
+              additionalContent:
+                metadata.additional_content
+                  ?.split(", ")
+                  .map((s) => s.trim())
+                  .filter(Boolean) || [],
               volumesCount: printDetails.volumes
                 ? parseInt(printDetails.volumes)
                 : null,

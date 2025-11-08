@@ -5,6 +5,8 @@ export const saveNote = async (
   authToken: string,
   data: NotesRequestBody,
 ): Promise<void> => {
+  console.log("Saving note", { key, ...data });
+
   const response = await fetch(`${NOTES_API_PATH}/${key}`, {
     method: "POST",
     headers: {

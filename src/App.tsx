@@ -12,12 +12,14 @@ import { TourProvider } from "@reactour/tour";
 import { tourSteps } from "./components/map/Tour.tsx";
 import { PANE_COLOR_ALT } from "./utils/colors.ts";
 import Map from "./pages/Map.tsx";
+import { UpsertEdition } from "./pages/UpsertEdition.tsx";
 import {
   HOME_ROUTE,
   MAP_ROUTE,
   TITLE_PAGES_ROUTE,
   CATALOGUE_ROUTE,
   TRENDS_ROUTE,
+  ITEM_EDIT_ROUTE,
   PRESENTATION_ROUTE,
   DIAGRAMS_ROUTE,
 } from "./components/layout/routes.ts";
@@ -43,6 +45,7 @@ function App() {
         <Route path={TRENDS_ROUTE} element={<Trends />} />
         <Route path={PRESENTATION_ROUTE} element={<Presentation />} />
         <Route path={DIAGRAMS_ROUTE} element={<Diagrams />} />
+        <Route path={ITEM_EDIT_ROUTE} element={<UpsertEdition />} />
         <Route
           path={MAP_ROUTE}
           element={

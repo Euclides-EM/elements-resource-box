@@ -19,8 +19,8 @@ export const ModalContent = styled.div<{ hasImage: boolean }>`
   ${ScrollbarStyle};
   background-color: aliceblue;
   min-height: 24rem;
-  max-height: 60vh;
-  min-width: 32rem;
+  max-height: 80vh;
+  min-width: 90vw;
   max-width: ${({ hasImage }) => (hasImage ? "90vw" : "60vw")};
   color: black;
   border-radius: 1rem;
@@ -30,6 +30,7 @@ export const ModalContent = styled.div<{ hasImage: boolean }>`
   flex-direction: column;
   position: relative;
   justify-content: center;
+  align-content: center;
 `;
 
 export const ModalClose = styled.div`

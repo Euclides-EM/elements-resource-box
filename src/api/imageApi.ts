@@ -6,6 +6,8 @@ export const uploadImage = async (
   type: string,
   authToken: string,
 ) => {
+  console.log("Uploading image...", file.name);
+
   const uploadFormData = new FormData();
   uploadFormData.append("file", file);
   uploadFormData.append("key", key);
