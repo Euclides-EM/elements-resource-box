@@ -452,7 +452,7 @@ export const UpsertEdition = () => {
       }
     },
     validators: {
-      onSubmit: ({ value }) => {
+      onBlur: ({ value }) => {
         return {
           fields: {
             manuscriptYearTo:
@@ -511,7 +511,7 @@ export const UpsertEdition = () => {
   return (
     <PageContainer>
       <FormContainer>
-        <isTitle>{key ? "Update a record" : "Add a record"}</isTitle>
+        <Title>{key ? "Update a record" : "Add a record"}</Title>
         {itemLoading || listsLoading ? (
           <div>Loading...</div>
         ) : (
@@ -519,7 +519,9 @@ export const UpsertEdition = () => {
             onSubmit={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              form.handleSubmit();
+              form
+                .handleSubmit()
+                .then((v) => window.scrollTo({ top: 0, behavior: "smooth" }));
             }}
           >
             <FormGrid>
@@ -537,8 +539,7 @@ export const UpsertEdition = () => {
                 <form.Field
                   name="shortTitle"
                   validators={{
-                    onSubmit: ({ value }) =>
-                      !value && "Short title is required",
+                    onBlur: ({ value }) => !value && "Short title is required",
                   }}
                 >
                   {(field) => (
@@ -561,7 +562,7 @@ export const UpsertEdition = () => {
                 <form.Field
                   name="shortTitleSource"
                   validators={{
-                    onSubmit: ({ value }) =>
+                    onBlur: ({ value }) =>
                       !value && "Short title source is required",
                   }}
                 >
@@ -621,7 +622,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="manuscriptYearFrom"
                       validators={{
-                        onSubmit: ({ value }) =>
+                        onBlur: ({ value }) =>
                           value > 2000 || value < 0
                             ? "Year must be between 0 and 2000"
                             : undefined,
@@ -651,7 +652,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="manuscriptYearTo"
                       validators={{
-                        onSubmit: ({ value }) =>
+                        onBlur: ({ value }) =>
                           value > 2000 || value < 0
                             ? "Year must be between 0 and 2000"
                             : undefined,
@@ -682,7 +683,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="manuscriptClass"
                       validators={{
-                        onSubmit: ({ value }) =>
+                        onBlur: ({ value }) =>
                           !value && "Manuscript class is required",
                       }}
                     >
@@ -714,7 +715,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="year"
                       validators={{
-                        onSubmit: ({ value }) =>
+                        onBlur: ({ value }) =>
                           !value || Number(value) < 1400 || Number(value) > 2000
                             ? "Year is required and must be between 1400 and 2000"
                             : undefined,
@@ -743,7 +744,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="cities"
                       validators={{
-                        onSubmit: ({ value }) =>
+                        onBlur: ({ value }) =>
                           value && value.length !== uniq(value).length
                             ? "Cities must be unique"
                             : value && value.some((v) => !v)
@@ -774,7 +775,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="languages"
                       validators={{
-                        onSubmit: ({ value }) =>
+                        onBlur: ({ value }) =>
                           !value || value.length < 1
                             ? "At least one language is required"
                             : value.length !== uniq(value).length
@@ -806,7 +807,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="editor"
                       validators={{
-                        onSubmit: ({ value }) =>
+                        onBlur: ({ value }) =>
                           !value || value.length < 1
                             ? "At least one editor is required"
                             : value.length !== uniq(value).length
@@ -837,7 +838,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="publisher"
                       validators={{
-                        onSubmit: ({ value }) =>
+                        onBlur: ({ value }) =>
                           value && value.length !== uniq(value).length
                             ? "Publishers must be unique"
                             : undefined,
@@ -886,7 +887,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="volumes"
                       validators={{
-                        onSubmit: ({ value }) =>
+                        onBlur: ({ value }) =>
                           !value || Number(value) < 1 || Number(value) > 50
                             ? "Number of volumes is required and must be between 1 and 50"
                             : undefined,
@@ -917,7 +918,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="ustcId"
                       validators={{
-                        onSubmit: ({ value }) =>
+                        onBlur: ({ value }) =>
                           value && isNaN(Number(value))
                             ? "USTC ID must be a number"
                             : undefined,
@@ -1378,10 +1379,7 @@ export const UpsertEdition = () => {
             </FormGrid>
 
             <ButtonContainer>
-              <SubmitButton
-                type="submit"
-                disabled={form.state.isSubmitting || !form.state.isValid}
-              >
+              <SubmitButton type="submit" disabled={form.state.isSubmitting}>
                 {form.state.isSubmitting
                   ? key
                     ? "Updating..."

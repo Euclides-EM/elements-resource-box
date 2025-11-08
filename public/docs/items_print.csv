@@ -625,7 +625,7 @@ bib-144,,,1668,Paris,LATIN,Girolamo Vitali,Ludovic Billaine,,,,
 bib-145,,,1678,Madrid,SPANISH,José Zaragoza,Antonio Francisco de Zafra,,,5056363,
 bib-146,,,1671,Valencia,SPANISH,José Zaragoza,Geronimo Villagrassa,,,5056364,
 bib-147,,,1555,Venice,ITALIAN,Giacomo Lanteri,"Vincenzo Valgrisi, Baldessar Costantini",,,,
-bib-148,,,1598,Paris,FRENCH,Ambroise Bachot, Ambroise Bachot,,,,
+bib-148,,,1598,Paris,FRENCH,Ambroise Bachot," Ambroise Bachot",,,,
 bib-149,,,1606,Milan,"ITALIAN, LATIN",Luigi Colliado,"Girolamo Bordoni, Pietromartire Locarni",,,,
 bib-150,,,1598,London,ENGLISH,Robert Barret,William Ponsonby,,,513584,
 bib-151,,,1567,Brescia,ITALIAN,Girolamo Cataneo,Thomaso Bozola,,,,
@@ -727,7 +727,7 @@ bib-239,,,1521,Nuremberg,GERMAN,Heinrich Schreiber,Johann Stuchs,,,614997,Mia: (
 bib-240,,,1623,Nuremberg,GERMAN,Andreas Albrecht,,,,,
 bib-241,,,1634,Nuremberg,GERMAN,Andreas Albrecht,Simon Halbmayer,,,,
 bib-242,,,1670,Nuremberg,GERMAN,Andreas Albrecht,Paulus Fürst,,,,
-bib-246,,,1494,Venice,ITALIAN, Lucas de Burgo S. Sepulchri,Paganinus de Paganinis,,,993495,
+bib-246,,,1494,Venice,ITALIAN," Lucas de Burgo S. Sepulchri",Paganinus de Paganinis,,,993495,
 bib-247,,,1484,Venice,ITALIAN,Pietro Borghi,Erhard Ratdolt,,,,"from:
 https://ilovetypography.com/2019/03/14/the-first-printed-math-books/
 Considered the second oldest math textbook; best-seller - 17 editions ; by Pietro Borghi. ; 1st ed. Printed Erhard Ratdolt in Venice"
@@ -777,3 +777,4 @@ bib-282,,,1563,Paris,FRENCH,Claude de Boissière,Guillaume Cavellat,,,,
 bib-283,,,1603,London,ENGLISH,Humfrey Baker,Thomas Purfoot,,,,
 bib-284,,,1687,London,ENGLISH,"Humfrey Baker, Henry Phillippes","J. Richardson, William Thackery",,,,
 bib-285,,,1564,London,ENGLISH,Humfrey Baker,"Henry Denham, James Rowbothum",,,,
+P6AH0B,test,Specified in source,1500,Alcala,"CHINESE, FRENCH",A. Kuypers,,,13,,

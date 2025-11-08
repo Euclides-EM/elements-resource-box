@@ -178,7 +178,7 @@ const updateTranslations = (edition: EditionRequestBody): void => {
 };
 
 const updateCorpuses = (edition: EditionRequestBody): void => {
-  appendCsvRow(CSV_PATH_CORPUSES, {
+  upsertCsvRow(CSV_PATH_CORPUSES, edition.key, {
     key: edition.key,
     study: edition.corpus.join(", "),
   } satisfies StudyCorpuses);
@@ -198,8 +198,8 @@ export const handleEditionRequest = async (
     upsertEdition(edition, user);
     sendJsonResponse(res, 201, { success: true, key: edition.key });
   } catch (error) {
+    console.error(error);
     const message = error instanceof Error ? error.message : String(error);
-
     if (message.includes("already exists")) {
       sendErrorResponse(res, 409, message);
     } else if (message.includes("not found")) {

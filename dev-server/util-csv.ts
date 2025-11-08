@@ -3,18 +3,19 @@ import Papa from "papaparse";
 import path from "path";
 
 export const loadCsvData = <T>(filePath: string): T[] => {
-  const csvPath = path.resolve(filePath);
+  const csvPath = path.resolve(`public/${filePath}`);
 
   if (!fs.existsSync(csvPath)) {
     throw new Error(`CSV file not found: ${filePath}`);
   }
 
   const csvContent = fs.readFileSync(csvPath, "utf-8");
-  return Papa.parse<T>(csvContent, { header: true }).data;
+  const parsed = Papa.parse<T>(csvContent, { header: true }).data;
+  return parsed.filter(row => Object.values(row).some(value => value !== null && value !== undefined && value !== ""));
 };
 
 export const saveCsvData = <T>(filePath: string, data: T[]): void => {
-  const csvPath = path.resolve(filePath);
+  const csvPath = path.resolve(`public/${filePath}`);
   const updatedCsv = Papa.unparse(data);
   fs.writeFileSync(csvPath, updatedCsv);
 };

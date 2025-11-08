@@ -26,7 +26,7 @@ export const validateAuthToken = async (
   const user = (await userResp.json()) as {
     login: string;
   };
-  console.info("User", user);
+  console.info("User", user?.login);
   return user && user.login && allowList.includes(user.login.toLowerCase())
     ? user.login
     : null;
