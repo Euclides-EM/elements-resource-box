@@ -146,7 +146,7 @@ export const NavItems = ({ mobile }: { mobile: boolean }) => {
           <DevNavItem mobile={mobile}>
             <ActionsMenu
               mobile={mobile}
-              onShowCreateModal={() => window.location.href = ITEM_EDIT_ROUTE}
+              onShowCreateModal={() => (window.location.href = ITEM_EDIT_ROUTE)}
             />
           </DevNavItem>
         )}

@@ -13,7 +13,9 @@ export interface RepoPrResponse {
   prNumber: number;
 }
 
-export const pullRepo = async (authToken: string): Promise<RepoPullResponse> => {
+export const pullRepo = async (
+  authToken: string,
+): Promise<RepoPullResponse> => {
   console.log("Pulling repository");
 
   const response = await fetch(REPO_PULL_API_PATH, {
@@ -34,7 +36,9 @@ export const pullRepo = async (authToken: string): Promise<RepoPullResponse> => 
   return response.json();
 };
 
-export const createPullRequest = async (authToken: string): Promise<RepoPrResponse> => {
+export const createPullRequest = async (
+  authToken: string,
+): Promise<RepoPrResponse> => {
   console.log("Creating pull request");
 
   const response = await fetch(REPO_PR_API_PATH, {

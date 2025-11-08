@@ -46,68 +46,68 @@ const MultiSelect = ({
   const SelectComponent = isCreatable ? CreatableSelect : Select;
 
   return (
-  <SelectComponent
-    isMulti
-    name={name}
-    value={value?.map((v) => ({
-      value: v,
-      label: tooltips ? (
-        <OptionLabel option={v} tooltip={tooltips[v]} />
-      ) : labelFn ? (
-        labelFn(v)
-      ) : (
-        v
-      ),
-    }))}
-    defaultValue={defaultValues?.map((v) => ({
-      value: v,
-      label: tooltips ? (
-        <OptionLabel option={v} tooltip={tooltips[v]} />
-      ) : labelFn ? (
-        labelFn(v)
-      ) : (
-        v
-      ),
-    }))}
-    options={options.map((option) => ({
-      value: option,
-      label: tooltips ? (
-        <OptionLabel option={option} tooltip={tooltips[option]} />
-      ) : labelFn ? (
-        labelFn(option)
-      ) : (
-        option
-      ),
-    }))}
-    className={`basic-multi-select ${className}`}
-    classNamePrefix="select"
-    onChange={(selected) => onChange(selected.map((option) => option.value))}
-    placeholder={placeholder || `Select ${name}`}
-    styles={{
-      menu: (base) => ({
-        ...base,
-        zIndex: 9999,
-      }),
-      menuPortal: (base) => ({
-        ...base,
-        zIndex: 9999,
-      }),
-      option: (base, { data }) => ({
-        ...base,
-        color: 'black',
-        backgroundColor: colors?.[data.value] || base.backgroundColor,
-      }),
-      multiValue: (base, { data }) => ({
-        ...base,
-        backgroundColor: colors?.[data.value] || base.backgroundColor,
-      }),
-      multiValueLabel: (base) => ({
-        ...base,
-        color: 'black',
-      }),
-    }}
-    menuPortalTarget={document.body}
-  />
+    <SelectComponent
+      isMulti
+      name={name}
+      value={value?.map((v) => ({
+        value: v,
+        label: tooltips ? (
+          <OptionLabel option={v} tooltip={tooltips[v]} />
+        ) : labelFn ? (
+          labelFn(v)
+        ) : (
+          v
+        ),
+      }))}
+      defaultValue={defaultValues?.map((v) => ({
+        value: v,
+        label: tooltips ? (
+          <OptionLabel option={v} tooltip={tooltips[v]} />
+        ) : labelFn ? (
+          labelFn(v)
+        ) : (
+          v
+        ),
+      }))}
+      options={options.map((option) => ({
+        value: option,
+        label: tooltips ? (
+          <OptionLabel option={option} tooltip={tooltips[option]} />
+        ) : labelFn ? (
+          labelFn(option)
+        ) : (
+          option
+        ),
+      }))}
+      className={`basic-multi-select ${className}`}
+      classNamePrefix="select"
+      onChange={(selected) => onChange(selected.map((option) => option.value))}
+      placeholder={placeholder || `Select ${name}`}
+      styles={{
+        menu: (base) => ({
+          ...base,
+          zIndex: 9999,
+        }),
+        menuPortal: (base) => ({
+          ...base,
+          zIndex: 9999,
+        }),
+        option: (base, { data }) => ({
+          ...base,
+          color: "black",
+          backgroundColor: colors?.[data.value] || base.backgroundColor,
+        }),
+        multiValue: (base, { data }) => ({
+          ...base,
+          backgroundColor: colors?.[data.value] || base.backgroundColor,
+        }),
+        multiValueLabel: (base) => ({
+          ...base,
+          color: "black",
+        }),
+      }}
+      menuPortalTarget={document.body}
+    />
   );
 };
 
