@@ -1,10 +1,11 @@
 import { useContext, useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
-import { FaPlus, FaChevronDown } from "react-icons/fa";
+import { FaPlus, FaChevronDown, FaDownload, FaUpload } from "react-icons/fa";
 import { MdLockPerson, MdLogout } from "react-icons/md";
 import { css } from "@emotion/react";
 import { AuthContext } from "../../contexts/Auth.ts";
 import { AiFillEdit } from "react-icons/ai";
+import { pullRepo, createPullRequest } from "../../api/repoApi.ts";
 
 const DevButton = styled.button<{ mobile: boolean }>`
   background: #7f8c8d;
@@ -68,8 +69,13 @@ const PopoverMenuItem = styled.button<{ mobile: boolean }>`
   gap: 0.5rem;
   font-size: 0.875rem;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: #f5f5f5;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   &:first-of-type {
@@ -88,7 +94,7 @@ const PopoverMenuItem = styled.button<{ mobile: boolean }>`
       border-radius: 4px;
       margin-bottom: 0.5rem;
 
-      &:hover {
+      &:hover:not(:disabled) {
         background: #6c7b7d;
       }
 
@@ -113,6 +119,7 @@ export const ActionsMenu = ({
   onShowCreateModal,
 }: ActionsMenuProps) => {
   const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [actionInProgress, setActionInProgress] = useState(false);
   const { token, setToken } = useContext(AuthContext);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -134,6 +141,46 @@ export const ActionsMenu = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showActionsMenu]);
+
+  const handlePull = async () => {
+    if (!token) return;
+
+    setActionInProgress(true);
+    try {
+      const result = await pullRepo(token);
+      console.log("Pull successful:", result);
+      alert(`Pull successful!\n\nOutput: ${result.stdout || "No output"}`);
+    } catch (error) {
+      console.error("Pull failed:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      alert(`Pull failed: ${errorMessage}`);
+    } finally {
+      setActionInProgress(false);
+      setShowActionsMenu(false);
+    }
+  };
+
+  const handlePush = async () => {
+    if (!token) return;
+
+    setActionInProgress(true);
+    try {
+      const result = await createPullRequest(token);
+      console.log("Push/PR creation successful:", result);
+      alert(
+        `Pull Request created successfully!\n\nBranch: ${result.branchName}\nPR: ${result.prUrl}`,
+      );
+    } catch (error) {
+      console.error("Push/PR creation failed:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      alert(`Push failed: ${errorMessage}`);
+    } finally {
+      setActionInProgress(false);
+      setShowActionsMenu(false);
+    }
+  };
 
   return (
     <ActionsContainer ref={popoverRef}>
@@ -158,6 +205,22 @@ export const ActionsMenu = ({
               >
                 <FaPlus />
                 Add Edition
+              </PopoverMenuItem>
+              <PopoverMenuItem
+                mobile={mobile}
+                onClick={handlePull}
+                disabled={actionInProgress}
+              >
+                <FaDownload />
+                {actionInProgress ? "Pulling..." : "Pull"}
+              </PopoverMenuItem>
+              <PopoverMenuItem
+                mobile={mobile}
+                onClick={handlePush}
+                disabled={actionInProgress}
+              >
+                <FaUpload />
+                {actionInProgress ? "Pushing..." : "Push"}
               </PopoverMenuItem>
               <PopoverMenuItem mobile={mobile} onClick={() => setToken(null)}>
                 <MdLogout />

@@ -7,6 +7,7 @@ import {
   isImageUploadRequest,
 } from "./handlers/imageUpload";
 import { handleEditionRequest, isEditionRequest } from "./handlers/editions";
+import { handleRepoRequest, isRepoRequest } from "./handlers/repo";
 
 export const router = async (
   req: IncomingMessage,
@@ -44,6 +45,11 @@ export const router = async (
       return;
     }
     await handleEditionRequest(user, req, res);
+  } else if (isRepoRequest(req)) {
+    if (!(await authorize())) {
+      return;
+    }
+    await handleRepoRequest(req, res);
   } else {
     next();
   }
