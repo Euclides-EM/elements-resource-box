@@ -6,7 +6,7 @@ import { upsertEdition } from "../api/editionApi";
 import { EditionRequestBody } from "../../common/api.ts";
 import { AuthContext } from "../contexts/Auth.ts";
 import { CATALOGUE_ROUTE } from "../components/layout/routes.ts";
-import { startCase, uniqueId } from "lodash";
+import { startCase, uniq, uniqueId } from "lodash";
 import {
   City,
   CSV_PATH_CITIES,
@@ -31,7 +31,6 @@ import {
 } from "../../common/csv.ts";
 import { loadAndParseCsv } from "../utils/csv.ts";
 import { parseBooks } from "../utils/normalizeNames.ts";
-import { uniq } from "lodash";
 import MultiSelect from "../components/tps/filters/MultiSelect.tsx";
 import SingleSelect from "../components/tps/filters/SingleSelect.tsx";
 import { Row } from "../components/common.ts";
@@ -126,7 +125,7 @@ const FormField = styled.div`
   }
 `;
 
-const Label = styled.label<{ title?: boolean; muted?: boolean }>`
+const Label = styled.label<{ isTitle?: boolean; muted?: boolean }>`
   font-size: ${(props) =>
     props.title ? "1" : props.muted ? "0.75" : "0.875"}rem;
   font-weight: 500;
@@ -229,20 +228,6 @@ const RemoveButton = styled.button`
   &:hover {
     opacity: 0.8;
   }
-`;
-
-const RadioGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
-`;
-
-const RadioOption = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-  cursor: pointer;
 `;
 
 const FileInput = styled.input`
@@ -467,7 +452,7 @@ export const UpsertEdition = () => {
       }
     },
     validators: {
-      onBlur: ({ value }) => {
+      onSubmit: ({ value }) => {
         return {
           fields: {
             manuscriptYearTo:
@@ -526,7 +511,7 @@ export const UpsertEdition = () => {
   return (
     <PageContainer>
       <FormContainer>
-        <Title>{key ? "Update a record" : "Add a record"}</Title>
+        <isTitle>{key ? "Update a record" : "Add a record"}</isTitle>
         {itemLoading || listsLoading ? (
           <div>Loading...</div>
         ) : (
@@ -552,7 +537,8 @@ export const UpsertEdition = () => {
                 <form.Field
                   name="shortTitle"
                   validators={{
-                    onBlur: ({ value }) => !value && "Short title is required",
+                    onSubmit: ({ value }) =>
+                      !value && "Short title is required",
                   }}
                 >
                   {(field) => (
@@ -575,7 +561,7 @@ export const UpsertEdition = () => {
                 <form.Field
                   name="shortTitleSource"
                   validators={{
-                    onBlur: ({ value }) =>
+                    onSubmit: ({ value }) =>
                       !value && "Short title source is required",
                   }}
                 >
@@ -627,7 +613,7 @@ export const UpsertEdition = () => {
               {isManuscript && (
                 <>
                   <FormField className="full-width">
-                    <Label title>Manuscript Properties</Label>
+                    <Label isTitle>Manuscript Properties</Label>
                   </FormField>
 
                   <FormField>
@@ -635,7 +621,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="manuscriptYearFrom"
                       validators={{
-                        onBlur: ({ value }) =>
+                        onSubmit: ({ value }) =>
                           value > 2000 || value < 0
                             ? "Year must be between 0 and 2000"
                             : undefined,
@@ -665,7 +651,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="manuscriptYearTo"
                       validators={{
-                        onBlur: ({ value }) =>
+                        onSubmit: ({ value }) =>
                           value > 2000 || value < 0
                             ? "Year must be between 0 and 2000"
                             : undefined,
@@ -696,7 +682,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="manuscriptClass"
                       validators={{
-                        onBlur: ({ value }) =>
+                        onSubmit: ({ value }) =>
                           !value && "Manuscript class is required",
                       }}
                     >
@@ -720,7 +706,7 @@ export const UpsertEdition = () => {
               {!isManuscript && (
                 <>
                   <FormField className="full-width">
-                    <Label title>Printed Edition Properties</Label>
+                    <Label isTitle>Printed Edition Properties</Label>
                   </FormField>
 
                   <FormField>
@@ -728,7 +714,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="year"
                       validators={{
-                        onBlur: ({ value }) =>
+                        onSubmit: ({ value }) =>
                           !value || Number(value) < 1400 || Number(value) > 2000
                             ? "Year is required and must be between 1400 and 2000"
                             : undefined,
@@ -757,7 +743,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="cities"
                       validators={{
-                        onBlur: ({ value }) =>
+                        onSubmit: ({ value }) =>
                           value && value.length !== uniq(value).length
                             ? "Cities must be unique"
                             : value && value.some((v) => !v)
@@ -788,7 +774,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="languages"
                       validators={{
-                        onBlur: ({ value }) =>
+                        onSubmit: ({ value }) =>
                           !value || value.length < 1
                             ? "At least one language is required"
                             : value.length !== uniq(value).length
@@ -820,7 +806,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="editor"
                       validators={{
-                        onBlur: ({ value }) =>
+                        onSubmit: ({ value }) =>
                           !value || value.length < 1
                             ? "At least one editor is required"
                             : value.length !== uniq(value).length
@@ -851,7 +837,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="publisher"
                       validators={{
-                        onBlur: ({ value }) =>
+                        onSubmit: ({ value }) =>
                           value && value.length !== uniq(value).length
                             ? "Publishers must be unique"
                             : undefined,
@@ -900,7 +886,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="volumes"
                       validators={{
-                        onBlur: ({ value }) =>
+                        onSubmit: ({ value }) =>
                           !value || Number(value) < 1 || Number(value) > 50
                             ? "Number of volumes is required and must be between 1 and 50"
                             : undefined,
@@ -931,7 +917,7 @@ export const UpsertEdition = () => {
                     <form.Field
                       name="ustcId"
                       validators={{
-                        onBlur: ({ value }) =>
+                        onSubmit: ({ value }) =>
                           value && isNaN(Number(value))
                             ? "USTC ID must be a number"
                             : undefined,
@@ -1098,7 +1084,7 @@ export const UpsertEdition = () => {
               {isElements && (
                 <>
                   <FormField className="full-width">
-                    <Label title>Elements Metadata</Label>
+                    <Label isTitle>Elements Metadata</Label>
                   </FormField>
 
                   <FormField>
@@ -1161,7 +1147,7 @@ export const UpsertEdition = () => {
                 {(field) => (
                   <>
                     <FormField className="full-width">
-                      <Label title>Sources</Label>
+                      <Label isTitle>Sources</Label>
                       <button
                         style={{
                           padding: 4,
