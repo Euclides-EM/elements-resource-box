@@ -6,8 +6,7 @@ import {
   sendJsonResponse,
   sendErrorResponse,
 } from "../util-request";
-
-const IMAGE_UPLOAD_API_PATH = "/api/upload-image";
+import { IMAGE_UPLOAD_API_PATH } from "../../common/api";
 
 const saveImageFile = (imageData: Buffer, filename: string): void => {
   const publicDir = path.resolve("public/tps");
@@ -36,6 +35,12 @@ export const handleImageUploadRequest = async (
       return;
     }
 
+    const type = fields.type;
+    if (!type) {
+      sendErrorResponse(res, 400, "Type is required for image upload");
+      return;
+    }
+
     if (!files.file) {
       sendErrorResponse(res, 400, "No file provided");
       return;
@@ -43,7 +48,7 @@ export const handleImageUploadRequest = async (
 
     const fileExtension =
       files.file.name.split(".").pop()?.toLowerCase() || "png";
-    const filename = `${key}_tp.${fileExtension}`;
+    const filename = `${key}_${type}.${fileExtension}`;
 
     saveImageFile(files.file.data, filename);
 

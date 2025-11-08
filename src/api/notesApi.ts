@@ -19,6 +19,4 @@ export const saveNote = async (
       `Failed to save note: ${response.status} ${response.statusText}`,
     );
   }
-
-  return response.json();
 };

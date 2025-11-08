@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { Modal, ModalClose, ModalContent } from "./ModalComponents";
-import { addEdition, AddEditionRequest } from "../../../api/editionApi";
+import { addEdition } from "../../../api/editionApi";
+import { uploadImage } from "../../../api/imageApi.ts";
+import { EditionRequestBody } from "../../../../common/api.ts";
 
 const FormContainer = styled.div`
   padding: 1.5rem;
@@ -182,24 +184,8 @@ const FileInput = styled.input`
   }
 `;
 
-const LAST_KEY_STORAGE_KEY = "addEditionModal_lastKey";
-
 const getSuggestedKey = (): string => {
-  const lastKey = localStorage.getItem(LAST_KEY_STORAGE_KEY);
-  if (!lastKey) return "";
-
-  const match = lastKey.match(/^(.+)-(\d+)$/);
-  if (match) {
-    const [, text, counter] = match;
-    const newCounter = parseInt(counter, 10) + 1;
-    return `${text}-${newCounter}`;
-  }
-
-  return lastKey;
-};
-
-const saveLastKey = (key: string): void => {
-  localStorage.setItem(LAST_KEY_STORAGE_KEY, key);
+  return Math.random().toString(36).slice(2, 8).toUpperCase();
 };
 
 interface AddEditionModalProps {
@@ -207,7 +193,7 @@ interface AddEditionModalProps {
 }
 
 export const AddEditionModal = ({ onClose }: AddEditionModalProps) => {
-  const [formData, setFormData] = useState<AddEditionRequest>({
+  const [formData, setFormData] = useState<EditionRequestBody>({
     key: "",
     year: "",
     city: "",
@@ -292,23 +278,11 @@ export const AddEditionModal = ({ onClose }: AddEditionModalProps) => {
       const finalFormData = { ...formData };
 
       if (useImageUpload && selectedFile) {
-        const uploadFormData = new FormData();
-        uploadFormData.append("file", selectedFile);
-        uploadFormData.append("key", formData.key!);
-
-        const uploadResponse = await fetch("/api/upload-image", {
-          method: "POST",
-          body: uploadFormData,
-        });
-
-        if (!uploadResponse.ok) {
-          throw new Error(
-            `Failed to upload image: ${uploadResponse.status} ${uploadResponse.statusText}`,
-          );
-        }
-
-        const uploadResult = await uploadResponse.json();
-        finalFormData.tp_url = uploadResult.path;
+        finalFormData.tp_url = await uploadImage(
+          formData.key!,
+          selectedFile,
+          "tp",
+        );
       }
 
       await addEdition(finalFormData);

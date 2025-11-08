@@ -46,9 +46,6 @@ function compressRanges(numbers: number[]): string[] {
 }
 
 const upsertEdition = (edition: EditionRequestBody, user: string): void => {
-  edition.key =
-    edition.key || Math.random().toString(36).slice(2, 8).toUpperCase();
-
   if (edition.isManuscript) {
     updateManuscriptCsvs(edition);
   } else {
@@ -73,7 +70,7 @@ const updateManuscriptCsvs = (edition: EditionRequestBody): void => {
   }
 
   const itemsData: ManuscriptDetails = {
-    key: edition.key!,
+    key: edition.key,
     short_title: edition.shortTitle,
     short_title_source: edition.shortTitleSource,
     year_from: edition.manuscriptYearFrom?.toString(),
@@ -81,16 +78,16 @@ const updateManuscriptCsvs = (edition: EditionRequestBody): void => {
     notes: edition.notes,
   };
 
-  upsertCsvRow(CSV_PATH_ITEMS_MANUSCRIPT, edition.key!, itemsData);
+  upsertCsvRow(CSV_PATH_ITEMS_MANUSCRIPT, edition.key, itemsData);
 
   if (edition.isElements) {
     const metadataData: ManuscriptElementsMetadata = {
-      key: edition.key!,
+      key: edition.key,
       class: edition.manuscriptClass,
       subclass: edition.manuscriptSubclass,
       elements_books: compressRanges(edition.books).join(", "),
     };
-    upsertCsvRow(CSV_PATH_MD_MANUSCRIPT, edition.key!, metadataData);
+    upsertCsvRow(CSV_PATH_MD_MANUSCRIPT, edition.key, metadataData);
   }
 };
 
@@ -100,7 +97,7 @@ const updatePrintCsvs = (edition: EditionRequestBody): void => {
   }
 
   const itemsData: PrintDetails = {
-    key: edition.key!,
+    key: edition.key,
     city: edition.cities.join(", "),
     short_title: edition.shortTitle,
     short_title_source: edition.shortTitleSource,
@@ -114,33 +111,33 @@ const updatePrintCsvs = (edition: EditionRequestBody): void => {
     notes: edition.notes,
   };
 
-  upsertCsvRow(CSV_PATH_ITEMS_PRINT, edition.key!, itemsData);
+  upsertCsvRow(CSV_PATH_ITEMS_PRINT, edition.key, itemsData);
 
   if (edition.isElements) {
     const metadataData: PrintElementsMetadata = {
-      key: edition.key!,
+      key: edition.key,
       elements_books: compressRanges(edition.books).join(", "),
       additional_content: edition.additionalContent?.join(", "),
       wardhaugh_classification: null,
     };
-    upsertCsvRow(CSV_PATH_MD_PRINT, edition.key!, metadataData);
+    upsertCsvRow(CSV_PATH_MD_PRINT, edition.key, metadataData);
   }
 
   const paratextData: ParatextTranscriptions = {
-    key: edition.key!,
+    key: edition.key,
     colophon: edition.colophon,
     frontispiece: edition.frontispiece,
     imprint: edition.imprint,
     title: edition.title,
   };
 
-  upsertCsvRow(CSV_PATH_TRANSCRIPTIONS, edition.key!, paratextData);
+  upsertCsvRow(CSV_PATH_TRANSCRIPTIONS, edition.key, paratextData);
 };
 
 const updateShelfmarks = (edition: EditionRequestBody): void => {
   edition.shelfmarks.forEach((shelfmark) => {
     const shelfmarkData: Shelfmarks = {
-      key: edition.key!,
+      key: edition.key,
       volume: shelfmark.volume ? shelfmark.volume.toString() : null,
       scan: shelfmark.scan,
       title_page_img: shelfmark.title_page_img,

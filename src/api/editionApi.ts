@@ -1,32 +1,13 @@
-export interface AddEditionRequest {
-  key?: string;
-  year?: string;
-  city?: string;
-  language?: string;
-  "author (normalized)"?: string;
-  title?: string;
-  title_EN?: string;
-  type?: "elements" | "secondary";
-  "publisher (normalized)"?: string;
-  imprint?: string;
-  imprint_EN?: string;
-  ustc_id?: string;
-  scan_url?: string;
-  tp_url?: string;
-  notes?: string;
-}
-
-export interface CreateEditionResponse {
-  success: boolean;
-  key: string;
-}
+import { EDITION_API_PATH, EditionRequestBody } from "../../common/api.ts";
 
 export const addEdition = async (
-  data: AddEditionRequest,
-): Promise<CreateEditionResponse> => {
-  const response = await fetch("/api/edition", {
+  data: EditionRequestBody,
+  authToken: string,
+): Promise<void> => {
+  const response = await fetch(EDITION_API_PATH, {
     method: "POST",
     headers: {
+      Authorization: authToken,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
@@ -37,6 +18,4 @@ export const addEdition = async (
       `Failed to create edition: ${response.status} ${response.statusText}`,
     );
   }
-
-  return response.json();
 };

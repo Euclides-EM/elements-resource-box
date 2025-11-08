@@ -4,10 +4,12 @@ export interface NotesRequestBody {
   note: string;
 }
 
+export const IMAGE_UPLOAD_API_PATH = "/api/upload-image";
+
 export const EDITION_API_PATH = "/api/edition";
 
 export type EditionRequestBody = {
-  key: string | null;
+  key: string;
   shortTitle: string;
   shortTitleSource: string;
   cities: string[];
