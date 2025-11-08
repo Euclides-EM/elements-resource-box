@@ -38,7 +38,7 @@ export function toDisplay(code: BookStatementRef): string {
     resultParts.push(`(${code.note})`);
   }
 
-  return resultParts.join(" ");
+  return resultParts.filter(Boolean).join(" ");
 }
 
 function toRoman(num: number): string {

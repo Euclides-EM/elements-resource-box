@@ -34,6 +34,7 @@ type FilterContextType = {
   setIncludeUndated: React.Dispatch<React.SetStateAction<boolean>>;
   minYear: number;
   maxYear: number;
+  resetFilters: () => void;
 };
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined);
@@ -151,6 +152,20 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
     [data, range, filters, filtersInclude, includeUndated],
   );
 
+  const resetFilters = () => {
+    setFilters({
+      type: [
+        {
+          label: "Elements",
+          value: "Elements",
+        },
+      ],
+    });
+    setFiltersInclude({});
+    setRange([MIN_YEAR, MAX_YEAR]);
+    setIncludeUndated(true);
+  };
+
   const value = {
     data,
     cities,
@@ -167,6 +182,7 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
     setIncludeUndated,
     minYear,
     maxYear,
+    resetFilters,
   };
 
   return (

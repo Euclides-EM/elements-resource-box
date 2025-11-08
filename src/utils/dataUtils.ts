@@ -63,17 +63,17 @@ function mapStudyCorpus(s: string): string {
 
 function parseStudyCorpora(
   printDetails: PrintDetails,
-  corpuses: StudyCorpuses,
+  corpuses: StudyCorpuses | undefined,
   paratext: ParatextTranscriptions,
 ): string[] {
   const studyCorpora: string[] =
-    corpuses.study
+    corpuses?.study
       ?.split(", ")
       .map((study: string): string => mapStudyCorpus(study))
       .filter(Boolean) || [];
   if (
     (!Number(printDetails.year) || Number(printDetails.year) <= 1700) &&
-    corpuses.study.includes("origin_eip_csv") &&
+    corpuses?.study.includes("origin_eip_csv") &&
     printDetails.language !== "CHINESE" &&
     paratext.title &&
     paratext.title !== "?"
@@ -83,13 +83,19 @@ function parseStudyCorpora(
   return studyCorpora;
 }
 
-const loadAndParseCsv = <
+const loadAndParseCsv = async <
   T extends { key: string } & Record<string, string | null> = {
     key: string;
   } & Record<string, string | null>,
 >(
-  csvText: string,
-): T[] => {
+  csvUrl: string,
+): Promise<T[]> => {
+  const response = await fetch(csvUrl);
+  const data = await response.text();
+  return parseCsv<T>(data);
+};
+
+const parseCsv = <T>(csvText: string): T[] => {
   return Papa.parse<T>(csvText, {
     header: true,
     skipEmptyLines: true,
@@ -111,27 +117,13 @@ export const loadEditionsData = (
   setFloatingCity = false,
 ) => {
   Promise.all([
-    fetch(CSV_PATH_ITEMS_PRINT)
-      .then((response) => response.text())
-      .then(loadAndParseCsv<PrintDetails>),
-    fetch(CSV_PATH_MD_PRINT)
-      .then((response) => response.text())
-      .then(loadAndParseCsv<PrintElementsMetadata>),
-    fetch(CSV_PATH_TRANSCRIPTIONS)
-      .then((response) => response.text())
-      .then(loadAndParseCsv<ParatextTranscriptions>),
-    fetch(CSV_PATH_CORPUSES)
-      .then((response) => response.text())
-      .then(loadAndParseCsv<StudyCorpuses>),
-    fetch(CSV_PATH_TITLE_PAGE_FEATURES)
-      .then((response) => response.text())
-      .then(loadAndParseCsv),
-    fetch(CSV_PATH_TRANSLATIONS)
-      .then((response) => response.text())
-      .then(loadAndParseCsv<ParatextTranslations>),
-    fetch(CSV_PATH_SHELFMARKS)
-      .then((response) => response.text())
-      .then(loadAndParseCsv<Shelfmarks>),
+    loadAndParseCsv<PrintDetails>(CSV_PATH_ITEMS_PRINT),
+    loadAndParseCsv<PrintElementsMetadata>(CSV_PATH_MD_PRINT),
+    loadAndParseCsv<ParatextTranscriptions>(CSV_PATH_TRANSCRIPTIONS),
+    loadAndParseCsv<StudyCorpuses>(CSV_PATH_CORPUSES),
+    loadAndParseCsv(CSV_PATH_TITLE_PAGE_FEATURES),
+    loadAndParseCsv<ParatextTranslations>(CSV_PATH_TRANSLATIONS),
+    loadAndParseCsv<Shelfmarks>(CSV_PATH_SHELFMARKS),
     fetchDiagramDirectories(),
     loadDottedLinesAsync(),
   ])
@@ -158,7 +150,7 @@ export const loadEditionsData = (
           .map((printDetails) => {
             const key = printDetails.key;
             const metadata = elementsMetadataByKey[key] || {};
-            const corpus = corpusesByKey[key] || {};
+            const corpus = corpusesByKey[key];
             const transcription = transcriptionsByKey[key] || {};
             const tpFeatures = tpFeaturesByKey[key] || {};
             const translations = groupByMap(
@@ -385,7 +377,7 @@ export const loadEditionsData = (
 
 export const loadCitiesAsync = async (): Promise<Record<string, Point>> => {
   // @ts-expect-error no key...
-  const cities = loadAndParseCsv<City>(CSV_PATH_CITIES);
+  const cities = await loadAndParseCsv<City>(CSV_PATH_CITIES);
   cities.push(FLOATING_CITY_ENTRY);
   return groupByMap(
     cities,
@@ -408,7 +400,7 @@ const loadDottedLinesAsync = async (): Promise<
     }
   >
 > => {
-  const dottedLines = loadAndParseCsv<DottedLine>(CSV_PATH_DOTTED_LINES);
+  const dottedLines = await loadAndParseCsv<DottedLine>(CSV_PATH_DOTTED_LINES);
 
   return groupByMap(
     dottedLines,

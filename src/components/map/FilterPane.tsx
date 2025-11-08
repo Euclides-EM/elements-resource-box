@@ -13,7 +13,7 @@ const Pane = styled.div`
   flex-direction: column;
   gap: 1rem;
   height: calc(100vh - 6rem + 4px);
-  width: 20rem;
+  width: 26rem;
   max-width: 100vw;
   min-width: 256px;
   overflow-x: auto;
@@ -55,6 +55,25 @@ const CheckboxContainer = styled.div`
   }
 `;
 
+const ResetButton = styled.button`
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #333;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #e9e9e9;
+  }
+
+  &:active {
+    background-color: #d9d9d9;
+  }
+`;
+
 export const FilterPane = () => {
   const {
     data,
@@ -69,6 +88,7 @@ export const FilterPane = () => {
     setIncludeUndated,
     minYear,
     maxYear,
+    resetFilters,
   } = useFilter();
   if (!filterOpen) {
     return null;
@@ -77,6 +97,7 @@ export const FilterPane = () => {
   return (
     <Pane onClick={(e) => e.stopPropagation()}>
       <FilterButton />
+      <ResetButton onClick={resetFilters}>Reset Filters</ResetButton>
       <StyledRangeSlider
         min={minYear}
         max={maxYear}
