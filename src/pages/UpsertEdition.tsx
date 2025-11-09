@@ -68,7 +68,6 @@ const FORMATS = [
   "32º",
   "48º",
   "64º",
-  "unknown",
 ];
 
 const STUDY_CORPUSES = [
