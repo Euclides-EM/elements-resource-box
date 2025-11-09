@@ -96,7 +96,7 @@ export const tourSteps = [
         <div>
           All details can be found at the{" "}
           <Link
-            url="https://github.com/ReallyLiri/elements-title-pages/blob/main/README.md"
+            url="https://github.com/Euclides-EM/elements-resource-box/blob/main/README.md"
             text="Github repository."
           />
         </div>

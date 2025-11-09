@@ -1,6 +1,6 @@
 import { callGitHubApi } from "./util-github";
 
-const allowList = ["reallyliri", "miajosko"];
+const allowList = ["reallyliri", "miamish"];
 
 export const validateAuthToken = async (
   token: string,
