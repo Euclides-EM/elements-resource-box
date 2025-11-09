@@ -137,9 +137,11 @@ export const loadEditionsData = (
               Boolean(transcription.title) && transcription.title !== "?";
             const hasTitleImage =
               Boolean(shelfmarks.some((s) => s.title_page_img)) && hasTitle;
-            const type = corpus?.study.includes("origin_eip_csv")
-              ? ItemTypes.elements
-              : ItemTypes.secondary;
+            const type =
+              corpus?.study.includes("origin_eip_csv") ||
+              elementsMetadataByKey[key]
+                ? ItemTypes.elements
+                : ItemTypes.secondary;
             return {
               key,
               year: printDetails.year,

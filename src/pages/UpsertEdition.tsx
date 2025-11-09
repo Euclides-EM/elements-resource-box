@@ -68,6 +68,7 @@ const FORMATS = [
   "32º",
   "48º",
   "64º",
+  "unknown",
 ];
 
 const STUDY_CORPUSES = [
@@ -856,9 +857,7 @@ export const UpsertEdition = () => {
                         <>
                           <MultiSelect
                             name="languages"
-                            options={LANGUAGES.map((lang) =>
-                              lang.toUpperCase(),
-                            )}
+                            options={LANGUAGES.map((lang) => lang)}
                             value={field.state.value}
                             onChange={(values) => field.handleChange(values)}
                             placeholder="Select languages used in the text..."
