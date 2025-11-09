@@ -956,6 +956,7 @@ export const UpsertEdition = () => {
                     <Label className="required">Number of Volumes</Label>
                     <form.Field
                       name="volumes"
+                      defaultValue={1}
                       validators={{
                         onBlur: ({ value }) =>
                           !value || Number(value) < 1 || Number(value) > 50
