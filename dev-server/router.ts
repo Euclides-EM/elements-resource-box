@@ -15,13 +15,14 @@ export const router = async (
   res: ServerResponse,
   next: Connect.NextFunction,
 ) => {
-  logInfo("Incoming request", {
-    method: req.method,
-    url: req.url,
-    userAgent: req.headers["user-agent"],
-    timestamp: new Date().toISOString(),
-  });
   const authorize = async () => {
+    logInfo("Incoming request", {
+      method: req.method,
+      url: req.url,
+      userAgent: req.headers["user-agent"],
+      timestamp: new Date().toISOString(),
+    });
+
     const authHeader = req.headers["authorization"];
     if (!authHeader) {
       logWarn("Authorization failed - missing header", {

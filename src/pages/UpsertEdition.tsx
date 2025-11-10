@@ -502,7 +502,7 @@ export const UpsertEdition = () => {
   const { token } = useContext(AuthContext);
   const [images, setImages] = useState<Record<string, File>>({});
   const [values, setValues] = useState(defaultValues());
-  const [itemLoading, setValuesLoading] = useState(false);
+  const [valuesLoading, setValuesLoading] = useState(!!key);
   const [listsLoading, setListsLoading] = useState(true);
   const [lists, setLists] = useState<{
     editors: string[];
@@ -599,7 +599,7 @@ export const UpsertEdition = () => {
       )}
       <FormContainer ref={formContainerRef}>
         <Title>{key ? "Update a record" : "Add a record"}</Title>
-        {itemLoading || listsLoading ? (
+        {valuesLoading || listsLoading ? (
           <div>Loading...</div>
         ) : (
           <form
