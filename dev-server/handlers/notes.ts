@@ -10,7 +10,10 @@ import {
 import { logInfo, logWarn, logError } from "../logger";
 
 const updateNotesInCsv = (key: string, note: string): void => {
-  logInfo("Starting CSV update for notes", { key, noteLength: note?.length || 0 });
+  logInfo("Starting CSV update for notes", {
+    key,
+    noteLength: note?.length || 0,
+  });
 
   const items = loadCsvData<PrintDetails>(CSV_PATH_ITEMS_PRINT);
   logInfo("Loaded CSV data", { totalItems: items.length });
@@ -29,7 +32,7 @@ const updateNotesInCsv = (key: string, note: string): void => {
     key,
     rowIndex,
     oldNoteLength: oldNote?.length || 0,
-    newNoteLength: note?.length || 0
+    newNoteLength: note?.length || 0,
   });
 };
 
@@ -63,7 +66,7 @@ export const handleNotesRequest = async (
     logInfo("Notes request completed successfully", {
       key,
       duration: `${duration}ms`,
-      responseStatus: 200
+      responseStatus: 200,
     });
 
     sendJsonResponse(res, 200, { success: true, key, note });
@@ -75,7 +78,7 @@ export const handleNotesRequest = async (
       error: message,
       url: req.url,
       duration: `${duration}ms`,
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
     });
 
     if (message.includes("not found")) {

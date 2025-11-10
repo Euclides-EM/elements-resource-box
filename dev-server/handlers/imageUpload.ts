@@ -35,31 +35,43 @@ export const handleImageUploadRequest = async (
   res: ServerResponse,
 ): Promise<void> => {
   const startTime = Date.now();
-  logInfo("Processing image upload request", { url: req.url, method: req.method });
+  logInfo("Processing image upload request", {
+    url: req.url,
+    method: req.method,
+  });
 
   try {
     const { fields, files } = await parseMultipartFormData(req);
     logInfo("Parsed multipart form data", {
       fieldKeys: Object.keys(fields),
-      fileKeys: Object.keys(files)
+      fileKeys: Object.keys(files),
     });
 
     const key = fields.key;
     if (!key) {
-      logWarn("Missing key field in image upload", { availableFields: Object.keys(fields) });
+      logWarn("Missing key field in image upload", {
+        availableFields: Object.keys(fields),
+      });
       sendErrorResponse(res, 400, "Key is required for image upload");
       return;
     }
 
     const type = fields.type;
     if (!type) {
-      logWarn("Missing type field in image upload", { key, availableFields: Object.keys(fields) });
+      logWarn("Missing type field in image upload", {
+        key,
+        availableFields: Object.keys(fields),
+      });
       sendErrorResponse(res, 400, "Type is required for image upload");
       return;
     }
 
     if (!files.file) {
-      logWarn("No file provided in upload", { key, type, availableFiles: Object.keys(files) });
+      logWarn("No file provided in upload", {
+        key,
+        type,
+        availableFiles: Object.keys(files),
+      });
       sendErrorResponse(res, 400, "No file provided");
       return;
     }
@@ -74,7 +86,7 @@ export const handleImageUploadRequest = async (
       originalFilename: files.file.name,
       generatedFilename: filename,
       fileSize: files.file.data.length,
-      fileExtension
+      fileExtension,
     });
 
     saveImageFile(files.file.data, filename);
@@ -85,7 +97,7 @@ export const handleImageUploadRequest = async (
       type,
       filename,
       duration: `${duration}ms`,
-      responseStatus: 201
+      responseStatus: 201,
     });
 
     sendJsonResponse(res, 201, {
@@ -101,7 +113,7 @@ export const handleImageUploadRequest = async (
       error: message,
       url: req.url,
       duration: `${duration}ms`,
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
     });
 
     sendErrorResponse(res, 500, `Error uploading image: ${message}`);
