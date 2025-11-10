@@ -15,7 +15,12 @@ const formatLogMessage = (
   context?: Record<string, unknown>,
 ): string => {
   const timestamp = new Date().toISOString();
-  const contextStr = context ? ` - Context: ${JSON.stringify(context)}` : "";
+  let contextStr = "";
+  try {
+    contextStr = context ? ` - Context: ${JSON.stringify(context)}` : "";
+  } catch {
+    // Ignore JSON stringify errors
+  }
   return `[${timestamp}] ${level}: ${message}${contextStr}\n`;
 };
 

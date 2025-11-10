@@ -255,9 +255,8 @@ export const handleEditionRequest = async (
     } else {
       const edition = await parseRequestBody<EditionRequestBody>(req);
       logInfo("Parsed edition request body", {
-        key: edition.key,
         user,
-        req,
+        edition,
       });
 
       upsertEdition(edition, user);

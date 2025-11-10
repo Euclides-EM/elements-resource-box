@@ -100,48 +100,50 @@ export const handleRepoRequest = async (
       logInfo("Current git branch determined", { branchName });
 
       if (branchName === "main") {
-        logInfo("On main branch, checking for existing open PRs");
+        logInfo("On main branch, creating new branch");
+        const timestamp = new Date()
+          .toISOString()
+          .slice(0, 16)
+          .replace(/[-:]/g, "")
+          .replace("T", "-");
+        branchName = `editor-${timestamp}`;
+
+        logInfo("Creating new branch", { branchName });
+        await execAsync(`git checkout -b ${branchName}`);
+        logInfo("Successfully created and switched to new branch", {
+          branchName,
+        });
+      } else {
+        logInfo("On non-main branch, checking for existing PR", { branchName });
         try {
-          const openPRs = await callGitHubApi<Array<{ head: { ref: string } }>>(
-            {
-              token: authHeader,
-              endpoint: `/repos/${owner}/${repo}/pulls?state=open`,
-              method: "GET",
-            },
-          );
+          const existingPRs = await callGitHubApi<
+            Array<{ number: number; html_url: string }>
+          >({
+            token: authHeader,
+            endpoint: `/repos/${owner}/${repo}/pulls?head=${owner}:${branchName}&state=open`,
+            method: "GET",
+          });
 
-          const existingEditorPR = openPRs.find((pr) =>
-            pr.head.ref.startsWith("editor-"),
-          );
-
-          if (existingEditorPR) {
-            branchName = existingEditorPR.head.ref;
-            logInfo("Found existing open PR, switching to existing branch", {
-              branchName,
-            });
-            await execAsync(`git checkout ${branchName}`);
+          if (existingPRs.length === 0) {
+            logInfo(
+              "No existing PR found for branch, will create new PR after push",
+              { branchName },
+            );
           } else {
-            const timestamp = new Date()
-              .toISOString()
-              .slice(0, 16)
-              .replace(/[-:]/g, "")
-              .replace("T", "-");
-            branchName = `editor-${timestamp}`;
-
-            logInfo("Creating new branch", { branchName });
-            await execAsync(`git checkout -b ${branchName}`);
-            logInfo("Successfully created and switched to new branch", {
+            logInfo("Found existing PR for current branch", {
               branchName,
+              prNumber: existingPRs[0].number,
+              prUrl: existingPRs[0].html_url,
             });
           }
         } catch (prCheckError: any) {
-          logError("Failed to check for existing PRs", {
+          logError("Failed to check for existing PR", {
             error: prCheckError.message,
           });
           sendErrorResponse(
             res,
             500,
-            `Failed to check for existing PRs: ${prCheckError.message}`,
+            `Failed to check for existing PR: ${prCheckError.message}`,
           );
           return;
         }
