@@ -388,7 +388,7 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
             ? printItem!.publisher.split(",").map((s) => s.trim())
             : [],
           format: printItem!.format ? parseInt(printItem!.format, 10) : null,
-          volumes: printItem!.volumes ? parseInt(printItem!.volumes, 10) : null,
+          volumes: printItem!.volumes ? parseInt(printItem!.volumes, 10) : 1,
           ustcId: printItem!.ustc_id || null,
           title: transcription?.title || null,
           title_EN:
