@@ -20,6 +20,7 @@ type MultiSelectProps = {
   name: string;
   options: string[];
   onChange: (values: string[]) => void;
+  onBlur?: () => void;
   defaultValues?: string[];
   colors?: Record<string, string>;
   tooltips?: Record<string, string>;
@@ -34,6 +35,7 @@ const MultiSelect = ({
   name,
   options,
   onChange,
+  onBlur,
   defaultValues,
   colors,
   tooltips,
@@ -81,6 +83,7 @@ const MultiSelect = ({
       }))}
       className={`basic-multi-select ${className}`}
       classNamePrefix="select"
+      onBlur={onBlur}
       onChange={(selected) => onChange(selected.map((option) => option.value))}
       placeholder={placeholder || `Select ${name}`}
       styles={{

@@ -28,7 +28,7 @@ const SingleSelect = ({
     onBlur={onBlur}
     onChange={(selected) => onChange(selected?.value || null)}
     placeholder={placeholder || `Select ${name}`}
-    isClearable={false}
+    isClearable
     styles={{
       menu: (base) => ({
         ...base,

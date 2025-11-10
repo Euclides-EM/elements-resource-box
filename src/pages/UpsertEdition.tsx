@@ -29,11 +29,12 @@ import {
   Shelfmarks,
   StudyCorpuses,
 } from "../../common/csv.ts";
-import { loadAndParseCsv } from "../utils/csv.ts";
+import { invalidateCsvCache, loadAndParseCsv } from "../utils/csv.ts";
 import { parseBooks } from "../utils/normalizeNames.ts";
 import MultiSelect from "../components/tps/filters/MultiSelect.tsx";
 import SingleSelect from "../components/tps/filters/SingleSelect.tsx";
 import { Row } from "../components/common.ts";
+import { isValidUrl } from "../utils/util.ts";
 
 const SHORT_TITLE_SOURCES = [
   "Specified in source",
@@ -98,7 +99,21 @@ const FormContainer = styled.div`
 
   em {
     font-size: 0.875rem;
-    color: darkred;
+    color: #590000;
+    background-color: #fad8d8;
+    padding: 2px 4px;
+    border-radius: 4px;
+    width: fit-content;
+    margin-left: 8px;
+    ::before {
+      content: "\\21B0"; /* ↰ */
+      display: inline-block;
+      font-style: normal;
+      margin-right: 2px;
+      font-size: 1.2rem;
+      transform: rotate(90deg) scaleY(-1);
+      transform-origin: center;
+    }
   }
 `;
 
@@ -350,7 +365,8 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
       corpuses
         .find((c) => c.key === key)
         ?.study.split(",")
-        .map((s) => s.trim()) || [],
+        .map((s) => s.trim())
+        .filter(Boolean) || [],
     shelfmarks: shelfmarks
       .filter((s) => s.key === key)
       .map((s) => ({
@@ -434,7 +450,17 @@ const defaultValues = (): EditionRequestBody => ({
   cities: [],
   notes: "",
   corpus: [],
-  shelfmarks: [],
+  shelfmarks: [
+    {
+      volume: 1,
+      scan: null,
+      shelfmark: null,
+      title_page_img: null,
+      frontispiece_img: null,
+      annotations: null,
+      copyright: null,
+    },
+  ],
   verified: false,
   isManuscript: false,
   year: "",
@@ -494,6 +520,7 @@ export const UpsertEdition = () => {
       }
       try {
         await upsertEdition(value, images, token);
+        invalidateCsvCache();
         navigate(CATALOGUE_ROUTE);
       } catch (err) {
         console.error(err);
@@ -828,6 +855,7 @@ export const UpsertEdition = () => {
                             options={lists?.cities || []}
                             value={field.state.value}
                             onChange={(values) => field.handleChange(values)}
+                            onBlur={field.handleBlur}
                             isCreatable={true}
                             placeholder="Choose or add cities of publication..."
                           />
@@ -859,6 +887,7 @@ export const UpsertEdition = () => {
                             options={LANGUAGES.map((lang) => lang)}
                             value={field.state.value}
                             onChange={(values) => field.handleChange(values)}
+                            onBlur={field.handleBlur}
                             placeholder="Select languages used in the text..."
                           />
                           {!field.state.meta.isValid && (
@@ -889,6 +918,7 @@ export const UpsertEdition = () => {
                             options={lists?.editors || []}
                             value={field.state.value}
                             onChange={(values) => field.handleChange(values)}
+                            onBlur={field.handleBlur}
                             isCreatable={true}
                             placeholder="Choose or add editors/authors..."
                           />
@@ -918,6 +948,7 @@ export const UpsertEdition = () => {
                             options={lists?.publishers || []}
                             value={field.state.value}
                             onChange={(values) => field.handleChange(values)}
+                            onBlur={field.handleBlur}
                             isCreatable={true}
                             placeholder="Choose or add publishers..."
                           />
@@ -1180,6 +1211,7 @@ export const UpsertEdition = () => {
                           onChange={(values) =>
                             field.handleChange(values.map(Number))
                           }
+                          onBlur={field.handleBlur}
                           placeholder="Select which books of Elements are included..."
                         />
                       )}
@@ -1195,6 +1227,7 @@ export const UpsertEdition = () => {
                           options={lists?.additionalContents || []}
                           value={field.state.value}
                           onChange={(values) => field.handleChange(values)}
+                          onBlur={field.handleBlur}
                           isCreatable={true}
                           placeholder="Choose or add additional content types..."
                         />
@@ -1215,6 +1248,7 @@ export const UpsertEdition = () => {
                       options={STUDY_CORPUSES.map((c) => c.name)}
                       value={field.state.value}
                       onChange={(values) => field.handleChange(values)}
+                      onBlur={field.handleBlur}
                       labelFn={(name) =>
                         STUDY_CORPUSES.find((c) => c.name === name)?.label ||
                         name
@@ -1239,7 +1273,7 @@ export const UpsertEdition = () => {
                         type="button"
                         onClick={() =>
                           field.pushValue({
-                            volume: null,
+                            volume: 1,
                             scan: null,
                             shelfmark: null,
                             title_page_img: null,
@@ -1264,6 +1298,7 @@ export const UpsertEdition = () => {
                             {(f) => (
                               <Input
                                 type="number"
+                                defaultValue={1}
                                 value={f.state.value || ""}
                                 onChange={(e) =>
                                   f.handleChange(e.target.valueAsNumber || null)
@@ -1276,17 +1311,30 @@ export const UpsertEdition = () => {
                         </FormField>
                         <FormField>
                           <Label>Facsimile URL</Label>
-                          <form.Field name={`shelfmarks[${i}].scan`}>
+                          <form.Field
+                            name={`shelfmarks[${i}].scan`}
+                            validators={{
+                              onBlur: ({ value }) =>
+                                value && !isValidUrl(value)
+                                  ? "Must be a valid URL"
+                                  : undefined,
+                            }}
+                          >
                             {(f) => (
-                              <Input
-                                type="text"
-                                value={f.state.value || ""}
-                                onChange={(e) =>
-                                  f.handleChange(e.target.value || null)
-                                }
-                                onBlur={f.handleBlur}
-                                placeholder="Facsimile URL"
-                              />
+                              <>
+                                <Input
+                                  type="text"
+                                  value={f.state.value || ""}
+                                  onChange={(e) =>
+                                    f.handleChange(e.target.value || null)
+                                  }
+                                  onBlur={f.handleBlur}
+                                  placeholder="Facsimile URL"
+                                />
+                                {!f.state.meta.isValid && (
+                                  <em>{f.state.meta.errors.join(", ")}</em>
+                                )}
+                              </>
                             )}
                           </form.Field>
                         </FormField>

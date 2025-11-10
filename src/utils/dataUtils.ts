@@ -359,7 +359,7 @@ export const loadEditionsData = (
 
 export const loadCitiesAsync = async (): Promise<Record<string, Point>> => {
   // @ts-expect-error no key...
-  const cities = await loadAndParseCsv<City>(CSV_PATH_CITIES);
+  const cities = [...(await loadAndParseCsv<City>(CSV_PATH_CITIES))];
   cities.push(FLOATING_CITY_ENTRY);
   return groupByMap(
     cities,
