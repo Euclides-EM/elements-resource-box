@@ -8,8 +8,9 @@ export const IMAGE_UPLOAD_API_PATH = "/api/upload-image";
 
 export const EDITION_API_PATH = "/api/edition";
 
-export const REPO_PULL_API_PATH = "/api/repo/pull";
-export const REPO_PR_API_PATH = "/api/repo/pr";
+export const REPO_API_PATH_PREFIX = "/api/repo";
+export const REPO_PULL_API_PATH = `${REPO_API_PATH_PREFIX}/pull`;
+export const REPO_PR_API_PATH = `${REPO_API_PATH_PREFIX}/pr`;
 
 export type EditionRequestBody = {
   key: string;

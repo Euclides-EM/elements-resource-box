@@ -25,6 +25,7 @@ import {
 } from "../util-request";
 import { batchUpsertCsvRows, upsertCsvRow } from "../util-csv";
 import { EDITION_API_PATH, EditionRequestBody } from "../../common/api";
+import { logInfo, logWarn, logError } from "../logger";
 
 function compressRanges(numbers: number[]): string[] {
   if (!numbers.length) return [];
@@ -48,9 +49,19 @@ function compressRanges(numbers: number[]): string[] {
 }
 
 const upsertEdition = (edition: EditionRequestBody, user: string): void => {
+  logInfo("Starting edition upsert", {
+    key: edition.key,
+    user,
+    isManuscript: edition.isManuscript,
+    isElements: edition.isElements,
+    verified: edition.verified
+  });
+
   if (edition.isManuscript) {
+    logInfo("Processing manuscript edition", { key: edition.key });
     updateManuscriptCsvs(edition);
   } else {
+    logInfo("Processing print edition", { key: edition.key });
     updatePrintCsvs(edition);
   }
 
@@ -59,12 +70,15 @@ const upsertEdition = (edition: EditionRequestBody, user: string): void => {
   updateCorpuses(edition);
 
   if (edition.verified) {
+    logInfo("Creating review record for verified edition", { key: edition.key, user });
     upsertCsvRow(CSV_PATH_REVIEWS, edition.key, {
       key: edition.key,
       researcher: user,
       timestamp: new Date().toISOString(),
     } satisfies Review);
   }
+
+  logInfo("Edition upsert completed", { key: edition.key });
 };
 
 const updateManuscriptCsvs = (edition: EditionRequestBody): void => {
@@ -193,13 +207,43 @@ export const handleEditionRequest = async (
   req: IncomingMessage,
   res: ServerResponse,
 ): Promise<void> => {
+  const startTime = Date.now();
+  logInfo("Processing edition request", { url: req.url, method: req.method, user });
+
   try {
     const edition = await parseRequestBody<EditionRequestBody>(req);
+    logInfo("Parsed edition request body", {
+      key: edition.key,
+      user,
+      isManuscript: edition.isManuscript,
+      isElements: edition.isElements,
+      shelfmarksCount: edition.shelfmarks?.length || 0,
+      booksCount: edition.books?.length || 0
+    });
+
     upsertEdition(edition, user);
+
+    const duration = Date.now() - startTime;
+    logInfo("Edition request completed successfully", {
+      key: edition.key,
+      user,
+      duration: `${duration}ms`,
+      responseStatus: 201
+    });
+
     sendJsonResponse(res, 201, { success: true, key: edition.key });
   } catch (error) {
-    console.error(error);
     const message = error instanceof Error ? error.message : String(error);
+    const duration = Date.now() - startTime;
+
+    logError("Edition request failed", {
+      error: message,
+      user,
+      url: req.url,
+      duration: `${duration}ms`,
+      stack: error instanceof Error ? error.stack : undefined
+    });
+
     if (message.includes("already exists")) {
       sendErrorResponse(res, 409, message);
     } else if (message.includes("not found")) {

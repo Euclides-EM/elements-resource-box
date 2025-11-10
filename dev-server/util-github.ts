@@ -5,7 +5,9 @@ export interface GitHubApiOptions {
   body?: Record<string, unknown>;
 }
 
-export const callGitHubApi = async <T extends Record<string, unknown>>(
+export const callGitHubApi = async <
+  T extends Record<string, unknown> | Record<string, unknown>[],
+>(
   options: GitHubApiOptions,
 ): Promise<T> => {
   const { token, endpoint, method = "GET", body } = options;
