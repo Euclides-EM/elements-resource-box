@@ -23,9 +23,9 @@ import {
   sendErrorResponse,
   sendJsonResponse,
 } from "../util-request";
-import { batchUpsertCsvRows, upsertCsvRow } from "../util-csv";
+import { batchUpsertCsvRows, upsertCsvRow, deleteCsvRow } from "../util-csv";
 import { EDITION_API_PATH, EditionRequestBody } from "../../common/api";
-import { logInfo, logWarn, logError } from "../logger";
+import { logError, logInfo } from "../logger";
 
 function compressRanges(numbers: number[]): string[] {
   if (!numbers.length) return [];
@@ -54,7 +54,7 @@ const upsertEdition = (edition: EditionRequestBody, user: string): void => {
     user,
     isManuscript: edition.isManuscript,
     isElements: edition.isElements,
-    verified: edition.verified
+    verified: edition.verified,
   });
 
   if (edition.isManuscript) {
@@ -70,7 +70,10 @@ const upsertEdition = (edition: EditionRequestBody, user: string): void => {
   updateCorpuses(edition);
 
   if (edition.verified) {
-    logInfo("Creating review record for verified edition", { key: edition.key, user });
+    logInfo("Creating review record for verified edition", {
+      key: edition.key,
+      user,
+    });
     upsertCsvRow(CSV_PATH_REVIEWS, edition.key, {
       key: edition.key,
       researcher: user,
@@ -198,8 +201,24 @@ const updateCorpuses = (edition: EditionRequestBody): void => {
   } satisfies StudyCorpuses);
 };
 
+const deleteEdition = (key: string): void => {
+  logInfo("Starting edition deletion", { key });
+
+  deleteCsvRow(CSV_PATH_ITEMS_MANUSCRIPT, key);
+  deleteCsvRow(CSV_PATH_ITEMS_PRINT, key);
+  deleteCsvRow(CSV_PATH_MD_MANUSCRIPT, key);
+  deleteCsvRow(CSV_PATH_MD_PRINT, key);
+  deleteCsvRow(CSV_PATH_REVIEWS, key);
+  deleteCsvRow(CSV_PATH_SHELFMARKS, key);
+  deleteCsvRow(CSV_PATH_TRANSCRIPTIONS, key);
+  deleteCsvRow(CSV_PATH_TRANSLATIONS, key);
+  deleteCsvRow(CSV_PATH_CORPUSES, key);
+
+  logInfo("Edition deletion completed", { key });
+};
+
 export const isEditionRequest = (req: IncomingMessage): boolean => {
-  return req.method === "POST" && req.url === EDITION_API_PATH;
+  return req.url === EDITION_API_PATH;
 };
 
 export const handleEditionRequest = async (
@@ -208,30 +227,51 @@ export const handleEditionRequest = async (
   res: ServerResponse,
 ): Promise<void> => {
   const startTime = Date.now();
-  logInfo("Processing edition request", { url: req.url, method: req.method, user });
+  logInfo("Processing edition request", {
+    url: req.url,
+    method: req.method,
+    user,
+  });
 
   try {
-    const edition = await parseRequestBody<EditionRequestBody>(req);
-    logInfo("Parsed edition request body", {
-      key: edition.key,
-      user,
-      isManuscript: edition.isManuscript,
-      isElements: edition.isElements,
-      shelfmarksCount: edition.shelfmarks?.length || 0,
-      booksCount: edition.books?.length || 0
-    });
+    if (req.method === "DELETE") {
+      const { key } = await parseRequestBody<{ key: string }>(req);
+      logInfo("Parsed edition deletion request", {
+        key,
+        user,
+      });
 
-    upsertEdition(edition, user);
+      deleteEdition(key);
 
-    const duration = Date.now() - startTime;
-    logInfo("Edition request completed successfully", {
-      key: edition.key,
-      user,
-      duration: `${duration}ms`,
-      responseStatus: 201
-    });
+      const duration = Date.now() - startTime;
+      logInfo("Edition deletion completed successfully", {
+        key,
+        user,
+        duration: `${duration}ms`,
+        responseStatus: 200,
+      });
 
-    sendJsonResponse(res, 201, { success: true, key: edition.key });
+      sendJsonResponse(res, 200, { success: true, key });
+    } else {
+      const edition = await parseRequestBody<EditionRequestBody>(req);
+      logInfo("Parsed edition request body", {
+        key: edition.key,
+        user,
+        req,
+      });
+
+      upsertEdition(edition, user);
+
+      const duration = Date.now() - startTime;
+      logInfo("Edition request completed successfully", {
+        key: edition.key,
+        user,
+        duration: `${duration}ms`,
+        responseStatus: 201,
+      });
+
+      sendJsonResponse(res, 201, { success: true, key: edition.key });
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const duration = Date.now() - startTime;
@@ -241,7 +281,7 @@ export const handleEditionRequest = async (
       user,
       url: req.url,
       duration: `${duration}ms`,
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
     });
 
     if (message.includes("already exists")) {
@@ -249,7 +289,8 @@ export const handleEditionRequest = async (
     } else if (message.includes("not found")) {
       sendErrorResponse(res, 404, message);
     } else {
-      sendErrorResponse(res, 500, `Error creating edition: ${message}`);
+      const errorType = req.method === "DELETE" ? "deleting" : "creating";
+      sendErrorResponse(res, 500, `Error ${errorType} edition: ${message}`);
     }
   }
 };

@@ -63,3 +63,23 @@ export const upsertEdition = async (
     );
   }
 };
+
+export const deleteEdition = async (
+  key: string,
+  authToken: string,
+): Promise<void> => {
+  const response = await fetch(EDITION_API_PATH, {
+    method: "DELETE",
+    headers: {
+      Authorization: authToken,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ key }),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to delete edition: ${response.status} ${response.statusText}`,
+    );
+  }
+};

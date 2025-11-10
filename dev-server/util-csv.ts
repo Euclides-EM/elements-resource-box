@@ -5,7 +5,8 @@ import path from "path";
 export const loadCsvData = <T extends Record<string, unknown>>(
   filePath: string,
 ): T[] => {
-  const csvPath = path.resolve(`public/${filePath}`);
+  filePath = `public/${filePath}`;
+  const csvPath = path.resolve(filePath);
 
   if (!fs.existsSync(csvPath)) {
     throw new Error(`CSV file not found: ${filePath}`);
@@ -66,4 +67,16 @@ export const batchUpsertCsvRows = <T extends Record<string, string | null>>(
   filteredData.push(...rowsData);
 
   saveCsvData(filePath, filteredData);
+};
+
+export const deleteCsvRow = <T extends Record<string, string | null>>(
+  filePath: string,
+  key: string,
+  keyField: string = "key",
+): void => {
+  const parsed = loadCsvData<T>(filePath);
+  const filteredData = parsed.filter((row) => row[keyField] !== key);
+  if (filteredData.length !== parsed.length) {
+    saveCsvData(filePath, filteredData);
+  }
 };

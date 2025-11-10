@@ -2,7 +2,7 @@ import { useForm, useStore } from "@tanstack/react-form";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "@emotion/styled";
-import { upsertEdition } from "../api/editionApi";
+import { upsertEdition, deleteEdition } from "../api/editionApi";
 import { EditionRequestBody } from "../../common/api.ts";
 import { AuthContext } from "../contexts/Auth.ts";
 import { CATALOGUE_ROUTE } from "../components/layout/routes.ts";
@@ -117,8 +117,14 @@ const FormContainer = styled.div`
   }
 `;
 
-const Title = styled.h1`
+const TitleContainer = styled.div`
+  display: flex;
+  align-items: center;
   margin: 0 0 2rem 0;
+`;
+
+const Title = styled.h1`
+  margin: 0;
   font-size: 2rem;
   color: #333;
 `;
@@ -249,6 +255,10 @@ const RemoveButton = styled.button`
   &:hover {
     opacity: 0.8;
   }
+`;
+
+const DeleteButton = styled(RemoveButton)`
+  margin-left: 2rem;
 `;
 
 const FileInput = styled.input`
@@ -504,6 +514,7 @@ export const UpsertEdition = () => {
   const [values, setValues] = useState(defaultValues());
   const [valuesLoading, setValuesLoading] = useState(!!key);
   const [listsLoading, setListsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [lists, setLists] = useState<{
     editors: string[];
     publishers: string[];
@@ -587,18 +598,55 @@ export const UpsertEdition = () => {
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
   const formIsValid = useStore(form.store, (state) => state.isValid);
 
+  const handleDelete = async () => {
+    if (!key || !token) {
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to delete edition "${key}"?`)) {
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      await deleteEdition(key, token);
+      invalidateCsvCache();
+      navigate(CATALOGUE_ROUTE);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete edition");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <PageContainer>
-      {isSubmitting && (
+      {(isSubmitting || isDeleting) && (
         <LoadingOverlay>
           <LoadingSpinner />
           <LoadingText>
-            {key ? "Updating record..." : "Adding record..."}
+            {isDeleting
+              ? "Deleting record..."
+              : key
+                ? "Updating record..."
+                : "Adding record..."}
           </LoadingText>
         </LoadingOverlay>
       )}
       <FormContainer ref={formContainerRef}>
-        <Title>{key ? "Update a record" : "Add a record"}</Title>
+        <TitleContainer>
+          <Title>{key ? "Update a record" : "Add a record"}</Title>
+          {key && (
+            <DeleteButton
+              type="button"
+              onClick={handleDelete}
+              disabled={isDeleting || isSubmitting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </DeleteButton>
+          )}
+        </TitleContainer>
         {valuesLoading || listsLoading ? (
           <div>Loading...</div>
         ) : (

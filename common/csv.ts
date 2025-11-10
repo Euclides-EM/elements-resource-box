@@ -8,7 +8,7 @@ export type ManuscriptDetails = {
   notes: string | null;
 };
 
-export const CSV_PATH_MD_MANUSCRIPT = "/docs/metadata_elements_manuscript.csv";
+export const CSV_PATH_MD_MANUSCRIPT = "/docs/metadata_elements_manuscripts.csv";
 export type ManuscriptElementsMetadata = {
   key: string;
   class: string;
