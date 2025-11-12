@@ -1,0 +1,1 @@
+This is a small test file to verify that commits and pushes work correctly.
