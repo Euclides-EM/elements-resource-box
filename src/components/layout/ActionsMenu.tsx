@@ -149,7 +149,7 @@ export const ActionsMenu = ({
     try {
       const result = await pullRepo(token);
       console.log("Pull successful:", result);
-      alert(`Pull successful!\n\nOutput: ${result.stdout || "No output"}`);
+      alert(`Pull successful!\n\nBranch: ${result.branch}`);
     } catch (error) {
       console.error("Pull failed:", error);
       const errorMessage =

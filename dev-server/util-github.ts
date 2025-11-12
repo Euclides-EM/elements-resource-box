@@ -1,3 +1,5 @@
+import { logInfo } from "./logger";
+
 export interface GitHubApiOptions {
   token: string;
   endpoint: string;
@@ -11,8 +13,11 @@ export const callGitHubApi = async <
   options: GitHubApiOptions,
 ): Promise<T> => {
   const { token, endpoint, method = "GET", body } = options;
+  const u = `https://api.github.com${endpoint}`;
 
-  const response = await fetch(`https://api.github.com${endpoint}`, {
+  logInfo(`Calling GitHub API: ${method} ${u}`);
+
+  const response = await fetch(u, {
     method,
     headers: {
       Authorization: `Bearer ${token}`,

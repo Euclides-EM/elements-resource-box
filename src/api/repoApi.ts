@@ -2,8 +2,7 @@ import { REPO_PULL_API_PATH, REPO_PR_API_PATH } from "../../common/api.ts";
 
 export interface RepoPullResponse {
   success: boolean;
-  stdout: string;
-  stderr: string;
+  branch: string;
 }
 
 export interface RepoPrResponse {
