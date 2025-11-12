@@ -6,13 +6,13 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { FLOATING_CITY, Item } from "../types";
+import { Item } from "../types";
 import { FilterValue } from "../components/map/Filter";
 import { useLocalStorage } from "usehooks-ts";
 import { isArray, isEmpty, isNil } from "lodash";
 import { loadCitiesAsync, loadEditionsData } from "../utils/dataUtils";
 import { Point } from "react-simple-maps";
-import { MAX_YEAR, MIN_YEAR } from "../constants";
+import { MAX_YEAR, MIN_YEAR, NO_CITY } from "../constants";
 
 type FilterContextType = {
   data: Item[];
@@ -34,6 +34,7 @@ type FilterContextType = {
   setIncludeUndated: React.Dispatch<React.SetStateAction<boolean>>;
   minYear: number;
   maxYear: number;
+  resetFilters: () => void;
 };
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined);
@@ -64,7 +65,7 @@ const filterRecord = (
   }
   const fields = Object.keys(filters) as (keyof Item)[];
   return fields.every((field) => {
-    if (field === "year" && t.cities.includes(FLOATING_CITY)) {
+    if (field === "year" && t.cities.includes(NO_CITY)) {
       return false;
     }
     const filterValues = filters[field]?.map((v) => v.value);
@@ -148,8 +149,22 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
       data.filter((t) =>
         filterRecord(t, range, filters, filtersInclude, includeUndated),
       ),
-    [data, range, filters, filtersInclude, includeUndated, maxYear],
+    [data, range, filters, filtersInclude, includeUndated],
   );
+
+  const resetFilters = () => {
+    setFilters({
+      type: [
+        {
+          label: "Elements",
+          value: "Elements",
+        },
+      ],
+    });
+    setFiltersInclude({});
+    setRange([MIN_YEAR, MAX_YEAR]);
+    setIncludeUndated(true);
+  };
 
   const value = {
     data,
@@ -167,6 +182,7 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
     setIncludeUndated,
     minYear,
     maxYear,
+    resetFilters,
   };
 
   return (

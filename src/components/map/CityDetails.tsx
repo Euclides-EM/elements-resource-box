@@ -4,7 +4,8 @@ import styled from "@emotion/styled";
 import { PANE_COLOR, TRANSPARENT_BLACK } from "../../utils/colors";
 import TopDeco from "./svg/deco3.svg?react";
 import BottomDeco from "./svg/deco2.svg?react";
-import { FLOATING_CITY, Item } from "../../types";
+import { Item } from "../../types";
+import { NO_CITY } from "../../constants";
 
 type CityDetailsProps = {
   city: string;
@@ -62,7 +63,7 @@ const StyledBottomDeco = styled(BottomDeco)`
 `;
 
 export const CityName = (city: string) =>
-  city === FLOATING_CITY ? "Uncategorized" : city;
+  city === NO_CITY ? "Uncategorized" : city;
 
 export const CityDetails = ({
   city,

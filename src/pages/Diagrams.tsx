@@ -519,7 +519,8 @@ const Diagrams = () => {
                 <strong>Dotted Lines Cases:</strong>{" "}
                 {[...item.dotted_lines_cases]
                   .sort(compareBookStatementRef)
-                  .join(", ")}
+                  .filter(Boolean)
+                  .join(", ") || "None"}
               </DocumentDescription>
             )}
           </Row>

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import styled from "@emotion/styled";
-import { FaExternalLinkAlt, FaPlus } from "react-icons/fa";
+import { FaExternalLinkAlt } from "react-icons/fa";
 import { css } from "@emotion/react";
 import {
   CATALOGUE_ROUTE,
@@ -8,10 +8,10 @@ import {
   MAP_ROUTE,
   TITLE_PAGES_ROUTE,
   TRENDS_ROUTE,
+  ITEM_EDIT_ROUTE,
 } from "./routes.ts";
 import { MACTUTOR_URL } from "../../constants";
-import { useState } from "react";
-import { AddEditionModal } from "../tps/modal/AddEditionModal.tsx";
+import { ActionsMenu } from "./ActionsMenu.tsx";
 
 const StyledNavItem = styled.li<{ active: boolean; mobile: boolean }>`
   a {
@@ -40,32 +40,6 @@ const StyledNavItem = styled.li<{ active: boolean; mobile: boolean }>`
 const StyledExternalIcon = styled(FaExternalLinkAlt)`
   font-size: 0.8rem;
   margin-left: 0.5rem;
-`;
-
-const DevButton = styled.button<{ mobile: boolean }>`
-  background: #7f8c8d;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background: #6c7b7d;
-  }
-
-  ${({ mobile }) =>
-    mobile &&
-    css`
-      width: 100%;
-      justify-content: center;
-      margin-top: 0.5rem;
-    `};
 `;
 
 const DevNavItem = styled.li<{ mobile: boolean }>`
@@ -126,7 +100,6 @@ const NavList = styled.ul<{ mobile: boolean }>`
 
 export const NavItems = ({ mobile }: { mobile: boolean }) => {
   const location = useLocation();
-  const [showCreateModal, setShowCreateModal] = useState(false);
 
   return (
     <>
@@ -171,16 +144,13 @@ export const NavItems = ({ mobile }: { mobile: boolean }) => {
         </NavItem>
         {import.meta.env.DEV && (
           <DevNavItem mobile={mobile}>
-            <DevButton mobile={mobile} onClick={() => setShowCreateModal(true)}>
-              <FaPlus />
-              Add Edition
-            </DevButton>
+            <ActionsMenu
+              mobile={mobile}
+              onShowCreateModal={() => (window.location.href = ITEM_EDIT_ROUTE)}
+            />
           </DevNavItem>
         )}
       </NavList>
-      {showCreateModal && (
-        <AddEditionModal onClose={() => setShowCreateModal(false)} />
-      )}
     </>
   );
 };

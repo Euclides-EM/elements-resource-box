@@ -23,6 +23,10 @@ body {
   background-color: #282828ff;
   overflow-x: hidden;
   overscroll-behavior: none;
+
+  div {
+    overscroll-behavior: none;
+  }
 }
 
 @font-face {

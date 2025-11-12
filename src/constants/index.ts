@@ -1,11 +1,5 @@
 import { Feature } from "../types";
 
-export const CSV_PATH_ELEMENTS = "/docs/EiP.csv";
-export const CSV_PATH_SECONDARY = "/docs/EiP-secondary.csv";
-export const CSV_PATH_CITIES = "/docs/cities.csv";
-export const CSV_PATH_DOTTED_LINES = "/docs/dotted_lines.csv";
-export const CSV_PATH_COPIES = "/docs/copies.csv";
-
 export const TILE_HEIGHT = 400;
 export const TILE_WIDTH = 400;
 
@@ -30,35 +24,32 @@ export const NO_YEAR = "s.d.";
 export const NO_AUTHOR = "s.n.";
 
 export const FeatureToColumnName: Record<Feature, string[]> = {
-  "Elements Designation": ["ELEMENTS DESIGNATION"],
-  "Base Content": ["BASE CONTENT"],
-  "Base Content Description": ["CONTENT DESC", "CONTENT DESC 2"],
-  "Adapter Attribution": ["AUTHOR NAME", "AUTHOR NAME 2"],
-  "Adapter Description": ["AUTHOR DESCRIPTION", "AUTHOR DESCRIPTION 2"],
-  "Patronage Dedication": ["PATRON REF"],
-  "Edition Statement": ["EDITION INFO", "EDITION INFO 2"],
-  "Supplementary Content": ["ADDITIONAL CONTENT", "ADDITIONAL CONTENT 2"],
-  "Publishing Privileges": ["PRIVILEGES"],
-  "Euclid References": ["EUCLID REF"],
-  "Other Educational Authorities": ["OTHER NAMES"],
-  "Explicit Language References": [
-    "EXPLICITLY STATED: TRANSLATED FROM",
-    "EXPLICITLY STATED: TRANSLATED TO",
-  ],
-  "Euclid Description": ["EUCLID DESCRIPTION", "EUCLID DESCRIPTION 2"],
-  Verbs: ["VERBS"],
-  "Intended Audience": ["EXPLICIT RECIPIENT", "EXPLICIT RECIPIENT 2"],
-  "Greek designation": ["GREEK IN NON GREEK BOOKS"],
-  Institutions: ["INSTITUTIONS"],
-  "Bound With": ["BOUND WITH"],
-  "Enriched With": ["ENRICHED WITH"],
-  "Date in Imprint": ["IMPRINT DATE"],
-  "Publisher in Imprint": ["IMPRINT PUBLISHER"],
-  "Place in Imprint": ["IMPRINT PLACE"],
-  "Privileges in Imprint": ["IMPRINT PRIVILEGES"],
-  "Dedication in Imprint": ["IMPRINT DEDICATION"],
-  "Adapter Attribution in Imprint": ["IMPRINT AUTHOR NAME"],
-  "Adapter Description in Imprint": ["IMPRINT AUTHOR DESCRIPTION"],
+  "Elements Designation": ["Elements_designation"],
+  "Base Content": ["base_content"],
+  "Base Content Description": ["content_description"],
+  "Adapter Attribution": ["editor_name"],
+  "Adapter Description": ["editor_description"],
+  "Patronage Dedication": ["dedicatee_name"],
+  "Edition Statement": ["edition_details"],
+  "Supplementary Content": ["additional_content"],
+  "Publishing Privileges": ["printing_privilege"],
+  "Euclid References": ["references_to_Euclid"],
+  "Other Educational Authorities": ["educational_authorities_references"],
+  "Explicit Language References": ["origin_language", "destination_language"],
+  "Euclid Description": ["description_of_Euclid"],
+  Verbs: ["action_verbs"],
+  "Intended Audience": ["audience"],
+  "Greek designation": ["Greek_text"],
+  Institutions: ["institutions"],
+  "Bound With": ["bound_with"],
+  "Enriched With": ["enriched_with"],
+  "Date in Imprint": ["date_in_imprint"],
+  "Publisher in Imprint": ["publisher_in_imprint"],
+  "Place in Imprint": ["location_in_imprint"],
+  "Privileges in Imprint": ["printing_privilege_in_imprint"],
+  "Dedication in Imprint": ["dedication_in_imprint"],
+  "Adapter Attribution in Imprint": ["editor_in_imprint"],
+  "Adapter Description in Imprint": ["editor_description_in_imprint"],
 };
 
 export const FeaturesToSplit: Partial<Record<Feature, boolean>> = {

@@ -31,3 +31,5 @@ __pycache__
 
 public/docs/diagram-directories.json
 public/docs/diagrams
+
+dev_server_logs.txt

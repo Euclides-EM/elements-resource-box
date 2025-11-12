@@ -1,10 +1,11 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { isNil, startCase, uniq, groupBy } from "lodash";
 import { Filter, FilterValue } from "./Filter";
-import { FLOATING_CITY, Item } from "../../types";
+import { Item } from "../../types";
 import { authorDisplayName } from "../../utils/dataUtils.ts";
 import { ItemProperty } from "../../constants/itemProperties.ts";
 import styled from "@emotion/styled";
+import { NO_CITY } from "../../constants";
 
 const GroupSeparator = styled.div`
   border-top: 1px solid #e0e0e0;
@@ -143,7 +144,7 @@ export const FiltersGroup = ({
         byFilter[field] = uniq(
           data
             .map((t) => t[field]?.toString() || "")
-            .filter((v) => v && v !== FLOATING_CITY)
+            .filter((v) => v && v !== NO_CITY)
             .sort(config.customCompareFn),
         ).map(toOption);
       }

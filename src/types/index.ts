@@ -1,3 +1,6 @@
+import { NO_CITY } from "../constants";
+import { City } from "../../common/csv.ts";
+
 export type Mode = "texts" | "images";
 
 export type Feature =
@@ -42,19 +45,25 @@ export type Range = {
 
 type YesNoBool = "Yes" | "No";
 
+export const FLOATING_CITY_ENTRY: City = {
+  city: NO_CITY,
+  lon: -16,
+  lat: 42,
+};
+
 export type Item = {
   key: string;
-  year: string;
+  year: string | null;
   cities: string[];
   languages: string[];
   authors: string[];
   imageUrl: string | null;
   hasTitle: string;
-  title: string;
+  title: string | null;
   titleEn: string | null;
   imprint: string | null;
   imprintEn: string | null;
-  scanUrl: string[] | null;
+  scanUrl: string[];
   features: Partial<Record<Feature, string[]>>;
   type: string;
   format: string | null;
@@ -106,36 +115,4 @@ export type ItemProps = {
   width: number;
   mode: Mode;
   features: Feature[] | null;
-};
-
-export type City = {
-  city: string;
-  lon: number;
-  lat: number;
-};
-
-export type DottedLine = {
-  key: string;
-  type: string;
-  has_diagrams: string;
-  uc_b79_token: string;
-  uc_b10: string;
-  uc_b2: string;
-  uc_geo_dotted: string;
-  uc_other: string;
-  quality: string;
-};
-
-export type EditionCopy = {
-  key: string;
-  scan_url: string;
-  annotation: string;
-  vol: string;
-};
-
-export const FLOATING_CITY = "s.l.";
-export const FLOATING_CITY_ENTRY: City = {
-  city: FLOATING_CITY,
-  lon: -16,
-  lat: 42,
 };

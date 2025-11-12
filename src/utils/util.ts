@@ -1,6 +1,6 @@
 import { reduce } from "lodash";
 
-export const groupByMap = <TFrom, TKey extends string, TValue>(
+export const groupByMap = <TFrom, TKey extends string, TValue = TFrom>(
   data: TFrom[],
   keyBy: (entry: TFrom) => TKey,
   valueBy: ((entry: TFrom) => TValue) | undefined = undefined,
@@ -21,3 +21,12 @@ export const joinArr = (arr: string[]): string => {
   if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
   return `${arr.slice(0, -1).join(", ")}, and ${arr[arr.length - 1]}`;
 };
+
+export function isValidUrl(s: string) {
+  try {
+    new URL(s);
+  } catch {
+    return false;
+  }
+  return true;
+}

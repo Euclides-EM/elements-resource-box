@@ -36,11 +36,11 @@ import { Stats } from "../components/Stats.tsx";
 const TableContainer = styled.div`
   ${ScrollbarStyle};
   max-width: 98vw;
-  overflow-x: auto;
   border-radius: 0.5rem;
   background-color: aliceblue;
   color: black;
   margin-bottom: 2rem;
+  overflow-x: hidden;
 `;
 
 const StyledTable = styled.table`

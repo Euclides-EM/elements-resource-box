@@ -19,6 +19,7 @@ import {
 } from "../../map/MapTooltips.tsx";
 import { NotesEditor } from "./NotesEditor.tsx";
 import { ItemInfo } from "./ItemInfo.tsx";
+import { ITEM_EDIT_ROUTE } from "../../layout/routes.ts";
 
 const HighlightedText = lazy(() => import("../features/HighlightedText.tsx"));
 
@@ -43,6 +44,22 @@ const NoTitlePage = styled.div`
   color: darkgray;
 `;
 
+const EditLink = styled.a`
+  display: block;
+  margin: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ddd;
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+  text-align: center;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
+`;
+
 const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
   return (
     <Modal onClick={onClose}>
@@ -50,6 +67,9 @@ const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
         onClick={(e) => e.stopPropagation()}
         hasImage={!!item.imageUrl}
       >
+        {import.meta.env.DEV && (
+          <EditLink href={`${ITEM_EDIT_ROUTE}?key=${item.key}`}>Edit</EditLink>
+        )}
         <ModalClose title="Close" onClick={onClose}>
           ✕
         </ModalClose>
