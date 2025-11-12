@@ -15,7 +15,9 @@ function devApiPlugin(): Plugin {
   };
 }
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), svgr(), devApiPlugin(), facsimileListingPlugin()],
+  server: {
+    allowedHosts: ["euclides.huma-num.fr"],
+  },
 });
