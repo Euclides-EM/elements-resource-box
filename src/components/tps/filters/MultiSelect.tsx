@@ -1,4 +1,4 @@
-import Select from "react-select";
+import Select, { components } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import { TOOLTIP_FEATURES_HIGHLIGHT } from "../../map/MapTooltips.tsx";
 
@@ -15,6 +15,19 @@ const OptionLabel = ({ option, tooltip }: OptionLabelProps) => (
     {option}
   </span>
 );
+
+const CustomMultiValueLabel = (props: unknown) => {
+  return (
+    <components.MultiValueLabel
+      {...props}
+      innerProps={{
+        ...props.innerProps,
+        // This is the key: Stop the click from bubbling up to the input
+        onMouseDown: (e) => e.stopPropagation(),
+      }}
+    />
+  );
+};
 
 type MultiSelectProps = {
   name: string;
@@ -51,6 +64,18 @@ const MultiSelect = ({
     <SelectComponent
       isMulti
       name={name}
+      components={{
+        MultiValueLabel: (props) => (
+          <components.MultiValueLabel
+            {...props}
+            innerProps={{
+              ...props.innerProps,
+              // @ts-expect-error ...
+              onMouseDown: (e) => e.stopPropagation(),
+            }}
+          />
+        ),
+      }}
       value={value?.map((v) => ({
         value: v,
         label: tooltips ? (
@@ -107,6 +132,8 @@ const MultiSelect = ({
         multiValueLabel: (base) => ({
           ...base,
           color: "black",
+          userSelect: "text",
+          cursor: "text",
         }),
       }}
       menuPortalTarget={document.body}

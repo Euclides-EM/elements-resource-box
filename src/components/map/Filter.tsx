@@ -1,4 +1,4 @@
-import Select from "react-select";
+import Select, { components } from "react-select";
 import { LAND_COLOR, SEA_COLOR } from "../../utils/colors";
 import styled from "@emotion/styled";
 import { MdQuestionMark } from "react-icons/md";
@@ -116,6 +116,18 @@ export const Filter = ({
         options={options}
         isMulti
         onChange={(value) => setValue(value)}
+        components={{
+          MultiValueLabel: (props) => (
+            <components.MultiValueLabel
+              {...props}
+              innerProps={{
+                ...props.innerProps,
+                // @ts-expect-error ...
+                onMouseDown: (e) => e.stopPropagation(),
+              }}
+            />
+          ),
+        }}
         styles={{
           control: (styles, { isFocused }) => ({
             ...styles,
@@ -166,6 +178,8 @@ export const Filter = ({
           multiValueLabel: (styles) => ({
             ...styles,
             color: "black",
+            userSelect: "text",
+            cursor: "text",
           }),
         }}
       />
