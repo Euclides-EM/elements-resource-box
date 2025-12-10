@@ -1,4 +1,10 @@
-import Select, { components } from "react-select";
+import Select, {
+  components,
+  MultiValueGenericProps,
+  GroupBase,
+  MultiValue,
+  SingleValue,
+} from "react-select";
 import CreatableSelect from "react-select/creatable";
 import { TOOLTIP_FEATURES_HIGHLIGHT } from "../../map/MapTooltips.tsx";
 
@@ -15,19 +21,6 @@ const OptionLabel = ({ option, tooltip }: OptionLabelProps) => (
     {option}
   </span>
 );
-
-const CustomMultiValueLabel = (props: unknown) => {
-  return (
-    <components.MultiValueLabel
-      {...props}
-      innerProps={{
-        ...props.innerProps,
-        // This is the key: Stop the click from bubbling up to the input
-        onMouseDown: (e) => e.stopPropagation(),
-      }}
-    />
-  );
-};
 
 type MultiSelectProps = {
   name: string;
@@ -65,14 +58,21 @@ const MultiSelect = ({
       isMulti
       name={name}
       components={{
-        MultiValueLabel: (props) => (
+        MultiValueLabel: (
+          props: MultiValueGenericProps<
+            { value: string; label: string | JSX.Element },
+            boolean,
+            GroupBase<{ value: string; label: string | JSX.Element }>
+          >,
+        ) => (
           <components.MultiValueLabel
             {...props}
-            innerProps={{
-              ...props.innerProps,
-              // @ts-expect-error ...
-              onMouseDown: (e) => e.stopPropagation(),
-            }}
+            innerProps={
+              {
+                ...props.innerProps,
+                onMouseDown: (e: React.MouseEvent) => e.stopPropagation(),
+              } as React.HTMLProps<HTMLDivElement>
+            }
           />
         ),
       }}
@@ -109,7 +109,17 @@ const MultiSelect = ({
       className={`basic-multi-select ${className}`}
       classNamePrefix="select"
       onBlur={onBlur}
-      onChange={(selected) => onChange(selected.map((option) => option.value))}
+      onChange={(
+        selected:
+          | MultiValue<{ value: string; label: string | JSX.Element }>
+          | SingleValue<{ value: string; label: string | JSX.Element }>,
+      ) => {
+        if (selected && Array.isArray(selected)) {
+          onChange(selected.map((option) => option.value));
+        } else {
+          onChange([]);
+        }
+      }}
       placeholder={placeholder || `Select ${name}`}
       styles={{
         menu: (base) => ({
