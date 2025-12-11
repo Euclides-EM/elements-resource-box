@@ -72,7 +72,7 @@ Lyon_1660,,,1660,Lyon,LATIN,Claude-François Milliet Dechales,Benedictum Coral,1
 Lyon_1675,,,1675,Lyon,LATIN,Claude-François Milliet Dechales,,6,1,,
 Frankfurt_1674,,,1674,Frankfurt,LATIN,Gaspar Schott,Johann Arnold Cholini,2,1,,
 Rome_1589,,,1589,Rome,LATIN,Christopher Clavius,,8,2,,
-Cologne_1591,,,1591,Cologne,LATIN,Christopher Clavius,Giovanni Battista Ciotti,4,2,,
+Cologne_1591,Euclidis Elementorum Libri XV,Specified in source,1591,Cologne,LATIN,Christopher Clavius,Giovanni Battista Ciotti,4,1,,"In letter n. 72 in Clavius' correspondence, Jacob Curtz complains that the Cologne edition of Clavius’s Euclides was printed ""infeliciter et plenus omnino mendis excusus est, id me ut primum vidi ex animo male habuit"" (unhappily and full of all manner of errors, when I first saw it, it truly pained me), and recommends using Sartorius in Ingolstadt or the Wechel heirs in Frankfurt for future work in Germany [Source: Clavius, C. 1992. Corrispondenza. Baldini, U. and Napolitani, P.D., Eds. Università di Pisa, Dipartimento di matematica, Pisa., https://echo.mpiwg-berlin.mpg.de/content/mpiwglib/clavius/pdf/clavius_1992_bd_2_1.pdf p. 178]"
 Rome_1603,,,1603,Rome,LATIN,Christopher Clavius,Aloysius Zannettus,8,2,,
 Douai_1620,,,1620,Douai,LATIN,Charles Malapert de Mons,Belleri,8,1,-,
 Douai_1625,,,1625,Douai,LATIN,Charles Malapert de Mons,,12,1,-,
@@ -777,3 +777,5 @@ bib-282,,,1563,Paris,FRENCH,Claude de Boissière,Guillaume Cavellat,,,,
 bib-283,,,1603,London,ENGLISH,Humfrey Baker,Thomas Purfoot,,,,
 bib-284,,,1687,London,ENGLISH,"Humfrey Baker, Henry Phillippes","J. Richardson, William Thackery",,,,
 bib-285,,,1564,London,ENGLISH,Humfrey Baker,"Henry Denham, James Rowbothum",,,,
+X2T7PY,Fabrica et usus instrumenti ad horologiorum descriptionem,Provided by catalog,1586,Rome,LATIN,Christopher Clavius,Bartholomaeus Grassium,,1,,"In letter n. 35 from 1587 in Clavius correspondence Francesco Barozzi relays Clavius's complaint that the printers of his Horologiis had ""lasciato fuori le righe intiere, et aggiontone di quelle, che non andavano"" (left out entire lines and added ones that didn't belong) [Source: Clavius, C. 1992. Corrispondenza. Baldini, U. and Napolitani, P.D., Eds. Università di Pisa, Dipartimento di matematica, Pisa., https://echo.mpiwg-berlin.mpg.de/content/mpiwglib/clavius/pdf/clavius_1992_bd_2_1.pdf p. 95]"
+ZGOHUR,Gnomonices Libri Octo,Specified in source,1581,Rome,LATIN,Christopher Clavius,Franciscus Zanettus,,1,,
