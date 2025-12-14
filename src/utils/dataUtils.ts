@@ -133,6 +133,13 @@ export const loadEditionsData = (
               (t) => t.field,
             );
             const shelfmarks = shelfmarksByKey[key] || [];
+            const dottedLines = dottedLinesMap[key];
+            const inDottedLinesCorpus = Boolean(dottedLines);
+            const baseCorpora = parseStudyCorpora(
+              printDetails,
+              corpus,
+              transcription,
+            );
             const hasTitle =
               Boolean(transcription.title) && transcription.title !== "?";
             const hasTitleImage =
@@ -197,10 +204,8 @@ export const loadEditionsData = (
                       ? "No"
                       : "Unknown",
 
-              study_corpora: parseStudyCorpora(
-                printDetails,
-                corpus,
-                transcription,
+              study_corpora: uniq(
+                baseCorpora.concat(inDottedLinesCorpus ? ["Dotted lines"] : []),
               ),
               tp_illustration: tpFeatures["illustration"]
                 ? "Yes"
