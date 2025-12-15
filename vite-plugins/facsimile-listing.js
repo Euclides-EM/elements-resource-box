@@ -5,7 +5,7 @@ import { config } from "dotenv";
 config();
 
 const GITHUB_API_BASE =
-  "https://api.github.com/repos/ReallyLiri/elements-facsimile/contents";
+  "https://api.github.com/repos/Euclides-EM/elements-facsimile/contents";
 const DIAGRAMS_PATH = "docs/diagrams";
 const OUTPUT_DIR = "public/docs";
 const GITHUB_PAT = process.env.GITHUB_PAT;
