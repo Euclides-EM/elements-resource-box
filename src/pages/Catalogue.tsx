@@ -1,5 +1,5 @@
 import { upperFirst } from "lodash";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useContext } from "react";
 import {
   ColumnDef,
   ColumnResizeMode,
@@ -24,7 +24,9 @@ import ItemModal from "../components/tps/modal/ItemModal";
 import { NO_AUTHOR, NO_CITY, NO_YEAR } from "../constants";
 import { joinArr } from "../utils/util.ts";
 import { FaBookReader } from "react-icons/fa";
+import { AiFillEdit } from "react-icons/ai";
 import { SEA_COLOR } from "../utils/colors.ts";
+import { AuthContext } from "../contexts/Auth.ts";
 import { authorDisplayName } from "../utils/dataUtils.ts";
 import {
   TOOLTIP_BOOK_TYPE,
@@ -164,6 +166,7 @@ const StyledHelpTip = styled(HelpTip)`
 
 function Catalogue() {
   const { filteredItems, filters } = useFilter();
+  const { token } = useContext(AuthContext);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "year", desc: false },
   ]);
@@ -215,6 +218,16 @@ function Catalogue() {
               >
                 ⤢
               </ViewButton>
+              {token && (
+                <a
+                  href={`/item/edit?key=${info.row.original.key}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Edit Item"
+                >
+                  <AiFillEdit style={{ color: SEA_COLOR, fontSize: "1rem" }} />
+                </a>
+              )}
               {info.row.original.scanUrl &&
                 info.row.original.scanUrl.length > 0 &&
                 info.row.original.scanUrl.map((url, index) => (
@@ -374,7 +387,7 @@ function Catalogue() {
           size: 120,
         }),
       ].filter(Boolean) as ColumnDef<Item>[],
-    [columnHelper, showOtherColumns, showElementsColumns],
+    [columnHelper, showOtherColumns, showElementsColumns, token],
   );
 
   const table = useReactTable({
