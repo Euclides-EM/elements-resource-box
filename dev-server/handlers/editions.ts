@@ -167,9 +167,43 @@ const updateShelfmarks = (edition: EditionRequestBody): void => {
   }));
 
   const parsed = loadCsvData<Shelfmarks>(CSV_PATH_SHELFMARKS);
-  const filteredData = parsed.filter((row) => row.key !== edition.key);
-  filteredData.push(...shelfmarkRows);
-  saveCsvData(CSV_PATH_SHELFMARKS, filteredData);
+  const existingRows = parsed.filter((row) => row.key === edition.key);
+
+  const hasChanges = shelfmarkRows.length !== existingRows.length ||
+    shelfmarkRows.some((newRow, index) => {
+      const existingRow = existingRows[index];
+      if (!existingRow) return true;
+      return Object.keys(newRow).some(key => {
+        const newVal = newRow[key as keyof Shelfmarks];
+        const existingVal = existingRow[key as keyof Shelfmarks];
+        return newVal !== existingVal;
+      });
+    });
+
+  if (!hasChanges) {
+    return;
+  }
+
+  const firstIndex = parsed.findIndex((row) => row.key === edition.key);
+  const updatedData: Shelfmarks[] = [];
+
+  if (firstIndex === -1) {
+    updatedData.push(...parsed, ...shelfmarkRows);
+  } else {
+    let replacementDone = false;
+    for (let i = 0; i < parsed.length; i++) {
+      if (parsed[i].key === edition.key) {
+        if (!replacementDone) {
+          updatedData.push(...shelfmarkRows);
+          replacementDone = true;
+        }
+      } else {
+        updatedData.push(parsed[i]);
+      }
+    }
+  }
+
+  saveCsvData(CSV_PATH_SHELFMARKS, updatedData);
 };
 
 const updateTranslations = (edition: EditionRequestBody): void => {
