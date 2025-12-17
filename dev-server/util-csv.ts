@@ -59,14 +59,36 @@ export const batchUpsertCsvRows = <T extends Record<string, string | null>>(
   if (rowsData.length === 0) return;
 
   const parsed = loadCsvData<T>(filePath);
-  const keysToDelete = new Set(
-    rowsData.map((row) => row[keyField]).filter(Boolean),
-  );
+  const rowsByKey = new Map<string | null, T>();
 
-  const filteredData = parsed.filter((row) => !keysToDelete.has(row[keyField]));
-  filteredData.push(...rowsData);
+  for (const row of rowsData) {
+    rowsByKey.set(row[keyField], row);
+  }
 
-  saveCsvData(filePath, filteredData);
+  const updatedData: T[] = [];
+
+  for (const existingRow of parsed) {
+    const newRow = rowsByKey.get(existingRow[keyField]);
+    if (newRow) {
+      const hasChanges = Object.keys(newRow).some(
+        (field) => existingRow[field] !== newRow[field]
+      );
+      if (hasChanges) {
+        updatedData.push(newRow);
+      } else {
+        updatedData.push(existingRow);
+      }
+      rowsByKey.delete(existingRow[keyField]);
+    } else {
+      updatedData.push(existingRow);
+    }
+  }
+
+  for (const newRow of rowsByKey.values()) {
+    updatedData.push(newRow);
+  }
+
+  saveCsvData(filePath, updatedData);
 };
 
 export const deleteCsvRow = <T extends Record<string, string | null>>(
