@@ -97,6 +97,7 @@ const FormContainer = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   color: black;
+  padding-right: 1rem;
 
   em {
     font-size: 0.875rem;
