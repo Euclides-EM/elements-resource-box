@@ -23,7 +23,7 @@ import {
   sendErrorResponse,
   sendJsonResponse,
 } from "../util-request";
-import { batchUpsertCsvRows, upsertCsvRow, deleteCsvRow } from "../util-csv";
+import { batchUpsertCsvRows, upsertCsvRow, deleteCsvRow, loadCsvData, saveCsvData } from "../util-csv";
 import { EDITION_API_PATH, EditionRequestBody } from "../../common/api";
 import { logError, logInfo } from "../logger";
 
@@ -165,7 +165,11 @@ const updateShelfmarks = (edition: EditionRequestBody): void => {
     shelf_mark: shelfmark.shelfmark,
     copyright: shelfmark.copyright,
   }));
-  batchUpsertCsvRows(CSV_PATH_SHELFMARKS, shelfmarkRows);
+
+  const parsed = loadCsvData<Shelfmarks>(CSV_PATH_SHELFMARKS);
+  const filteredData = parsed.filter((row) => row.key !== edition.key);
+  filteredData.push(...shelfmarkRows);
+  saveCsvData(CSV_PATH_SHELFMARKS, filteredData);
 };
 
 const updateTranslations = (edition: EditionRequestBody): void => {

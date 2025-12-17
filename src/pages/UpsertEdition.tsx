@@ -281,7 +281,7 @@ const SelectedImage = styled.span`
   font-size: 0.875rem;
   color: #666;
   margin-top: 0.25rem;
-  background-color: #d1e8ff;
+  background-color: #e6ffe5;
   padding: 4px;
   border-radius: 4px;
 `;
@@ -1413,9 +1413,9 @@ export const UpsertEdition = () => {
                               <>
                                 <Label>
                                   Title Page Image{" "}
-                                  <SelectedImage>
-                                    {f.state.value && "Image is set"}
-                                  </SelectedImage>
+                                  {f.state.value && (
+                                    <SelectedImage>Image is set</SelectedImage>
+                                  )}
                                 </Label>
                                 <FileInput
                                   type="file"
