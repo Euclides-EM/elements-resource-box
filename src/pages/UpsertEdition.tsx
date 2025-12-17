@@ -76,7 +76,8 @@ const STUDY_CORPUSES = [
   { name: "tps", label: "Title pages" },
   { name: "dotted_lines", label: "Dotted lines" },
   { name: "Angela_metadata", label: "Angela metadata" },
-  { name: "origin_eip_csv", label: "original EiP" },
+  { name: "origin_eip_csv", label: "Original EiP" },
+  { name: "axiomatics_16", label: "Axiomatics 16" },
 ];
 
 const ANNOTATIONS = ["none", "a few", "some", "many", "uncatalogued"];
@@ -1293,7 +1294,9 @@ export const UpsertEdition = () => {
                   {(field) => (
                     <MultiSelect
                       name="corpus"
-                      options={STUDY_CORPUSES.map((c) => c.name)}
+                      options={STUDY_CORPUSES.sort((c1, c2) =>
+                        c1.label.localeCompare(c2.label),
+                      ).map((c) => c.name)}
                       value={field.state.value}
                       onChange={(values) => field.handleChange(values)}
                       onBlur={field.handleBlur}
