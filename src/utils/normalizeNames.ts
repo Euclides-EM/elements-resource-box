@@ -26,7 +26,7 @@ export const parseBooks = (
     .filter((e) => e);
 
   for (const entry of entries) {
-    const match = entry.match(/^"?Elements\s+(.+?)"?$/i);
+    const match = entry.match(/^"?(.+?)"?$/i);
     if (!match) {
       additionalContent.push(startCase(entry.toLowerCase()));
       continue;
