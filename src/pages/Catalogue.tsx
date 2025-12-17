@@ -290,10 +290,19 @@ function Catalogue() {
           },
         }),
         showOtherColumns &&
-          columnHelper.accessor("title", {
+          columnHelper.accessor((row) => row, {
+            id: "title",
             header: "Title",
             cell: (info) => {
-              let val = info.getValue() || "";
+              if (info.row.original.shortTitle) {
+                const val = info.row.original.shortTitle;
+                return (
+                  <span className="short-title-container" title={val}>
+                    {val}
+                  </span>
+                );
+              }
+              let val = info.row.original.title || "";
               val = upperFirst(
                 val
                   .replaceAll(/-\s+/gi, "")

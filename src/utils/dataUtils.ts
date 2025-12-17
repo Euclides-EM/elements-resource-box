@@ -174,6 +174,7 @@ export const loadEditionsData = (
                 firstOrNull(
                   shelfmarks.map((s) => s.frontispiece_img).filter(Boolean),
                 ),
+              shortTitle: printDetails.short_title,
               title: transcription.title,
               titleEn: translations.title?.en,
               imprint: transcription.imprint,

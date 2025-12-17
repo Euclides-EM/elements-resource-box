@@ -59,6 +59,7 @@ export type Item = {
   authors: string[];
   imageUrl: string | null;
   hasTitle: string;
+  shortTitle: string | null;
   title: string | null;
   titleEn: string | null;
   imprint: string | null;
