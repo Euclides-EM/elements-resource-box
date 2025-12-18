@@ -23,7 +23,13 @@ import {
   sendErrorResponse,
   sendJsonResponse,
 } from "../util-request";
-import { batchUpsertCsvRows, upsertCsvRow, deleteCsvRow, loadCsvData, saveCsvData } from "../util-csv";
+import {
+  batchUpsertCsvRows,
+  upsertCsvRow,
+  deleteCsvRow,
+  loadCsvData,
+  saveCsvData,
+} from "../util-csv";
 import { EDITION_API_PATH, EditionRequestBody } from "../../common/api";
 import { logError, logInfo } from "../logger";
 
@@ -169,11 +175,12 @@ const updateShelfmarks = (edition: EditionRequestBody): void => {
   const parsed = loadCsvData<Shelfmarks>(CSV_PATH_SHELFMARKS);
   const existingRows = parsed.filter((row) => row.key === edition.key);
 
-  const hasChanges = shelfmarkRows.length !== existingRows.length ||
+  const hasChanges =
+    shelfmarkRows.length !== existingRows.length ||
     shelfmarkRows.some((newRow, index) => {
       const existingRow = existingRows[index];
       if (!existingRow) return true;
-      return Object.keys(newRow).some(key => {
+      return Object.keys(newRow).some((key) => {
         const newVal = newRow[key as keyof Shelfmarks];
         const existingVal = existingRow[key as keyof Shelfmarks];
         return newVal !== existingVal;
@@ -224,7 +231,7 @@ const updateTranslations = (edition: EditionRequestBody): void => {
       key: edition.key,
       field,
       en: value,
-      source: edition.shortTitleSource,
+      source: null,
     }));
 
   if (translationRows.length > 0) {
