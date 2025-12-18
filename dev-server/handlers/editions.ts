@@ -240,6 +240,10 @@ const updateTranslations = (edition: EditionRequestBody): void => {
 };
 
 const updateCorpuses = (edition: EditionRequestBody): void => {
+  if (edition.corpus.length === 0) {
+    return;
+  }
+
   upsertCsvRow(CSV_PATH_CORPUSES, edition.key, {
     key: edition.key,
     study: edition.corpus.join(", "),
