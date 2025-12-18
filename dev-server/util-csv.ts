@@ -59,16 +59,24 @@ export const batchUpsertCsvRows = <T extends Record<string, string | null>>(
   if (rowsData.length === 0) return;
 
   const parsed = loadCsvData<T>(filePath);
-  const rowsByKey = new Map<string | null, T>();
+  const rowsByKey = new Map<string, T>();
+
+  const isTranslationsFile = filePath.includes("translations");
 
   for (const row of rowsData) {
-    rowsByKey.set(row[keyField], row);
+    const mapKey = isTranslationsFile && row.field
+      ? `${row[keyField]}:${row.field}`
+      : String(row[keyField]);
+    rowsByKey.set(mapKey, row);
   }
 
   const updatedData: T[] = [];
 
   for (const existingRow of parsed) {
-    const newRow = rowsByKey.get(existingRow[keyField]);
+    const mapKey = isTranslationsFile && existingRow.field
+      ? `${existingRow[keyField]}:${existingRow.field}`
+      : String(existingRow[keyField]);
+    const newRow = rowsByKey.get(mapKey);
     if (newRow) {
       const hasChanges = Object.keys(newRow).some(
         (field) => existingRow[field] !== newRow[field]
@@ -78,7 +86,7 @@ export const batchUpsertCsvRows = <T extends Record<string, string | null>>(
       } else {
         updatedData.push(existingRow);
       }
-      rowsByKey.delete(existingRow[keyField]);
+      rowsByKey.delete(mapKey);
     } else {
       updatedData.push(existingRow);
     }
