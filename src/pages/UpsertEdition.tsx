@@ -540,6 +540,15 @@ export const UpsertEdition = () => {
         alert("Failed to submit form");
       }
     },
+    onSubmitInvalid: ({ value, formApi }) => {
+      console.warn("Submission failed!", value, formApi.state.fieldMeta);
+      if (formContainerRef.current) {
+        formContainerRef.current.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
+    },
     validators: {
       onBlur: ({ value }) => {
         return {
@@ -598,7 +607,6 @@ export const UpsertEdition = () => {
   }, []);
 
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
-  const formIsValid = useStore(form.store, (state) => state.isValid);
 
   const handleDelete = async () => {
     if (!key || !token) {
@@ -656,14 +664,7 @@ export const UpsertEdition = () => {
             onSubmit={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              form.handleSubmit().then(() => {
-                if (formContainerRef.current) {
-                  formContainerRef.current.scrollTo({
-                    top: 0,
-                    behavior: "smooth",
-                  });
-                }
-              });
+              form.handleSubmit();
             }}
           >
             <FormGrid>
@@ -1572,10 +1573,7 @@ export const UpsertEdition = () => {
             </FormGrid>
 
             <ButtonContainer>
-              <SubmitButton
-                type="submit"
-                disabled={isSubmitting || !formIsValid}
-              >
+              <SubmitButton type="submit" disabled={isSubmitting}>
                 {isSubmitting
                   ? key
                     ? "Updating..."
