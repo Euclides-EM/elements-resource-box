@@ -34,6 +34,7 @@ import {
 } from "../components/map/MapTooltips.tsx";
 import { HelpTip } from "../components/map/Filter.tsx";
 import { Stats } from "../components/Stats.tsx";
+import { exportCitationsAsRTF } from "../utils/chicagoCitationExport";
 
 const TableContainer = styled.div`
   ${ScrollbarStyle};
@@ -164,6 +165,22 @@ const StyledHelpTip = styled(HelpTip)`
   margin: 0;
 `;
 
+const ExportButton = styled.button`
+  background-color: ${SEA_COLOR};
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  align-self: end;
+  margin: -1.5rem 10vw -1rem 0;
+
+  &:hover {
+    opacity: 0.9;
+  }
+`;
+
 function Catalogue() {
   const { filteredItems, filters } = useFilter();
   const { token } = useContext(AuthContext);
@@ -184,6 +201,11 @@ function Catalogue() {
       top: 0,
       behavior: "smooth",
     });
+  };
+
+  const handleExportCitations = () => {
+    const timestamp = new Date().toISOString().slice(0, 10);
+    exportCitationsAsRTF(filteredItems, `chicago_citations_${timestamp}.rtf`);
   };
 
   useEffect(() => {
@@ -412,6 +434,10 @@ function Catalogue() {
       )}
 
       <Stats />
+
+      <ExportButton onClick={handleExportCitations}>
+        Export Citations (Chicago Style)
+      </ExportButton>
 
       <TableContainer>
         <StyledTable>

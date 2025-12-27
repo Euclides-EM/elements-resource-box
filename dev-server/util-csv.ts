@@ -64,22 +64,24 @@ export const batchUpsertCsvRows = <T extends Record<string, string | null>>(
   const isTranslationsFile = filePath.includes("translations");
 
   for (const row of rowsData) {
-    const mapKey = isTranslationsFile && row.field
-      ? `${row[keyField]}:${row.field}`
-      : String(row[keyField]);
+    const mapKey =
+      isTranslationsFile && row.field
+        ? `${row[keyField]}:${row.field}`
+        : String(row[keyField]);
     rowsByKey.set(mapKey, row);
   }
 
   const updatedData: T[] = [];
 
   for (const existingRow of parsed) {
-    const mapKey = isTranslationsFile && existingRow.field
-      ? `${existingRow[keyField]}:${existingRow.field}`
-      : String(existingRow[keyField]);
+    const mapKey =
+      isTranslationsFile && existingRow.field
+        ? `${existingRow[keyField]}:${existingRow.field}`
+        : String(existingRow[keyField]);
     const newRow = rowsByKey.get(mapKey);
     if (newRow) {
       const hasChanges = Object.keys(newRow).some(
-        (field) => existingRow[field] !== newRow[field]
+        (field) => existingRow[field] !== newRow[field],
       );
       if (hasChanges) {
         updatedData.push(newRow);
