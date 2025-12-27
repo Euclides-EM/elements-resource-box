@@ -1,4 +1,9 @@
-import { EDITION_API_PATH, EditionRequestBody } from "../../common/api.ts";
+import {
+  EDITION_API_PATH,
+  EditionRequestBody,
+  USTC_LOOKUP_API_PATH,
+  UstcResult,
+} from "../../common/api.ts";
 import { uploadImage } from "./imageApi.ts";
 
 export const upsertEdition = async (
@@ -82,4 +87,24 @@ export const deleteEdition = async (
       `Failed to delete edition: ${response.status} ${response.statusText}`,
     );
   }
+};
+
+export const ustcLookup = async (
+  ustcId: string,
+  authToken: string,
+): Promise<Partial<UstcResult>> => {
+  const response = await fetch(`${USTC_LOOKUP_API_PATH}/${ustcId}`, {
+    headers: {
+      Authorization: authToken,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to lookup in USTC: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  return (await response.json()) as Partial<UstcResult>;
 };

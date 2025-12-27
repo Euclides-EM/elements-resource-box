@@ -2,7 +2,7 @@ import { useForm, useStore } from "@tanstack/react-form";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "@emotion/styled";
-import { upsertEdition, deleteEdition } from "../api/editionApi";
+import { deleteEdition, upsertEdition, ustcLookup } from "../api/editionApi";
 import { EditionRequestBody } from "../../common/api.ts";
 import { AuthContext } from "../contexts/Auth.ts";
 import { CATALOGUE_ROUTE } from "../components/layout/routes.ts";
@@ -569,6 +569,81 @@ export const UpsertEdition = () => {
   const isManuscript = useStore(form.store, (s) => s.values.isManuscript);
   const isElements = useStore(form.store, (s) => s.values.isElements);
 
+  const fetchAndMergeUstcData = async (ustcId: string) => {
+    if (!ustcId || isNaN(Number(ustcId)) || !token) {
+      return;
+    }
+
+    try {
+      const data = await ustcLookup(ustcId, token);
+      if (!data || Object.keys(data).length === 0) {
+        return;
+      }
+
+      const currentValues = form.state.values as EditionRequestBody & {
+        isManuscript: false;
+      };
+
+      if ((data.authors || [])?.length > 0 && !currentValues.editor?.length) {
+        form.setFieldValue("editor", data.authors!);
+      }
+
+      if (data.short_title && !currentValues.shortTitle) {
+        form.setFieldValue("shortTitle", data.short_title);
+        form.setFieldValue("shortTitleSource", "Specified in source");
+      }
+
+      if (
+        (data.publishers || [])?.length > 0 &&
+        !currentValues.publisher?.length
+      ) {
+        form.setFieldValue("publisher", data.publishers!);
+      }
+
+      if (data.city && !currentValues.cities) {
+        form.setFieldValue("cities", [data.city]);
+      }
+
+      if (data.year && !currentValues.year) {
+        form.setFieldValue("year", data.year.toString());
+      }
+
+      if (
+        (data.languages || [])?.length > 0 &&
+        !currentValues.languages?.length
+      ) {
+        form.setFieldValue("languages", data.languages!);
+      }
+
+      if (data.format && !currentValues.format) {
+        const formatNumber = data.format.replace("º", "");
+        if (!isNaN(Number(formatNumber))) {
+          form.setFieldValue("format", Number(formatNumber));
+        }
+      }
+
+      if ((data.digitizations || [])?.length > 0) {
+        const newShelfmarks = data.digitizations!.map((url: string) => ({
+          volume: 1,
+          scan: url,
+          shelfmark: null,
+          title_page_img: null,
+          frontispiece_img: null,
+          annotations: null,
+          copyright: null,
+        }));
+
+        const existingShelfmarks = currentValues.shelfmarks || [];
+        form.setFieldValue("shelfmarks", [
+          ...existingShelfmarks.filter((s) => s.scan),
+          ...newShelfmarks,
+        ]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch USTC data:", error);
+    }
+  };
+
   useEffect(() => {
     if (!key) {
       return;
@@ -1083,7 +1158,10 @@ export const UpsertEdition = () => {
                             onChange={(e) =>
                               field.handleChange(e.target.value || null)
                             }
-                            onBlur={field.handleBlur}
+                            onBlur={async (e) => {
+                              field.handleBlur();
+                              await fetchAndMergeUstcData(e.target.value);
+                            }}
                           />
                           {!field.state.meta.isValid && (
                             <em>{field.state.meta.errors.join(",")}</em>

@@ -1,20 +1,10 @@
-interface UstcResult {
-  ustc_id: number;
-  authors: string[];
-  short_title: string;
-  publishers: string[];
-  city: string | null;
-  year: number | null;
-  languages: string[];
-  digitizations: string[];
-  format: string | null;
-}
+import { UstcResult } from "../common/api.ts";
 
 function formatName(name: string): string {
-  const cleanName = name.replace(/\s*\([^)]*\)\s*/g, '').trim();
+  const cleanName = name.replace(/\s*\([^)]*\)\s*/g, "").trim();
 
-  if (cleanName.includes(',')) {
-    const parts = cleanName.split(',').map(p => p.trim());
+  if (cleanName.includes(",")) {
+    const parts = cleanName.split(",").map((p) => p.trim());
     if (parts.length === 2) {
       return `${parts[1]} ${parts[0]}`;
     }
@@ -57,7 +47,10 @@ export async function ustcLookup(ustc_id: number): Promise<UstcResult | null> {
     for (let i = 1; i <= 8; i++) {
       const authorName = edition[`author_name_${i}`];
       if (authorName && authorName.trim()) {
-        const namesList = authorName.split(';').map((n: string) => n.trim()).filter((n: string) => n);
+        const namesList = authorName
+          .split(";")
+          .map((n: string) => n.trim())
+          .filter((n: string) => n);
         for (const name of namesList) {
           authors.push(formatName(name));
         }
@@ -70,7 +63,10 @@ export async function ustcLookup(ustc_id: number): Promise<UstcResult | null> {
     for (let i = 1; i <= 4; i++) {
       const printerName = edition[`printer_name_${i}`];
       if (printerName && printerName.trim()) {
-        const namesList = printerName.split(';').map((n: string) => n.trim()).filter((n: string) => n);
+        const namesList = printerName
+          .split(";")
+          .map((n: string) => n.trim())
+          .filter((n: string) => n);
         for (const name of namesList) {
           publishers.push(formatName(name));
         }

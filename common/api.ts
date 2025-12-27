@@ -8,6 +8,8 @@ export const IMAGE_UPLOAD_API_PATH = "/api/upload-image";
 
 export const EDITION_API_PATH = "/api/edition";
 
+export const USTC_LOOKUP_API_PATH = "/api/ustc";
+
 export const REPO_API_PATH_PREFIX = "/api/repo";
 export const REPO_PULL_API_PATH = `${REPO_API_PATH_PREFIX}/pull`;
 export const REPO_PR_API_PATH = `${REPO_API_PATH_PREFIX}/pr`;
@@ -64,3 +66,15 @@ export type EditionRequestBody = {
         additionalContent: string[];
       }
   );
+
+export interface UstcResult {
+  ustc_id: number;
+  authors: string[];
+  short_title: string;
+  publishers: string[];
+  city: string | null;
+  year: number | null;
+  languages: string[];
+  digitizations: string[];
+  format: string | null;
+}

@@ -8,6 +8,7 @@ import {
 } from "./handlers/imageUpload";
 import { handleEditionRequest, isEditionRequest } from "./handlers/editions";
 import { handleRepoRequest, isRepoRequest } from "./handlers/repo";
+import { handleUstcRequest, isUstcRequest } from "./handlers/ustc";
 import { logInfo, logWarn } from "./logger";
 
 export const router = async (
@@ -76,6 +77,12 @@ export const router = async (
       return;
     }
     await handleRepoRequest(req, res);
+  } else if (isUstcRequest(req)) {
+    logInfo("Routing to USTC handler", { url: req.url });
+    if (!(await authorize())) {
+      return;
+    }
+    await handleUstcRequest(req, res);
   } else {
     next();
   }

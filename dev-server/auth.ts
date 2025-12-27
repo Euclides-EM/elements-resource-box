@@ -16,6 +16,7 @@ export const validateAuthToken = async (
       ? user.login
       : null;
   } catch (error) {
+    console.warn(error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     if (errorMessage.includes("401")) {
       return null;
