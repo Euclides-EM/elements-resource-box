@@ -616,24 +616,29 @@ export const UpsertEdition = () => {
       }
 
       if (data.format && !currentValues.format) {
-        const formatNumber = data.format.replace("º", "");
+        const formatNumber = data.format.replace("º", "").replace("°", "");
         if (!isNaN(Number(formatNumber))) {
           form.setFieldValue("format", Number(formatNumber));
         }
       }
 
       if ((data.digitizations || [])?.length > 0) {
-        const newShelfmarks = data.digitizations!.map((url: string) => ({
-          volume: 1,
-          scan: url,
-          shelfmark: null,
-          title_page_img: null,
-          frontispiece_img: null,
-          annotations: null,
-          copyright: null,
-        }));
-
         const existingShelfmarks = currentValues.shelfmarks || [];
+        const newShelfmarks = data
+          .digitizations!.map((url: string) => ({
+            volume: 1,
+            scan: url,
+            shelfmark: null,
+            title_page_img: null,
+            frontispiece_img: null,
+            annotations: null,
+            copyright: null,
+          }))
+          .filter(
+            (shelfmark) =>
+              !existingShelfmarks.some((s) => s.scan === shelfmark.scan),
+          );
+
         form.setFieldValue("shelfmarks", [
           ...existingShelfmarks.filter((s) => s.scan),
           ...newShelfmarks,
