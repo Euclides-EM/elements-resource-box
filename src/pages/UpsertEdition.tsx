@@ -600,7 +600,7 @@ export const UpsertEdition = () => {
         form.setFieldValue("publisher", data.publishers!);
       }
 
-      if (data.city && !currentValues.cities) {
+      if (data.city && !currentValues.cities.length) {
         form.setFieldValue("cities", [data.city]);
       }
 
