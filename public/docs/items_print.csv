@@ -744,7 +744,7 @@ bib-256,,,1677,London,ENGLISH,Henry Phillippes,Andrew Clark,,,,"A math manual, w
 "
 bib-257,,,1694,London,ENGLISH,William Leybourn,"Richard Baldwin, John Dunton",,,,"William Leybourn; A book of “recreations” (in this context: puzzles, many of them of mathematical nature); An algebraic treatise added to the book"
 bib-258,,,1585,Leiden,DUTCH,Simon Stevin,Christophe Plantin,,,,https://en.wikipedia.org/wiki/De_Thiende
-bib-259,,,1591,Tours,LATIN,Michel Psellos,Claude Michael,,,,"Arithmetics, geometry and music textbook;"
+bib-259,"Michaelis Pselli Arithmetica, musica et geometria",Specified in source,1591,Tours,LATIN,Elie Vinet,Claude Michael,,1,,"Arithmetics, geometry and music textbook;"
 bib-260,,,1659,Dordrecht,DUTCH,Mattheus van Nispen,Mattheus van Nispen,,,,Astronomy; Seems quasi-interesting; Mattheus van Nispen; Title: Astronomisch en geometrisch quadrant
 bib-261,,,1683,London,ENGLISH,Joseph Moxon,Joseph Moxon,,,,"Mechanick exercises, or, The doctrine of handy-works : applied to the art of printing"
 bib-262,,,1582,Antwerp,FRENCH,Gemma Frisius,Jean Withage,,,,
@@ -826,3 +826,5 @@ RH6KEE,La castrametation,Specified in source,1618,Leiden,FRENCH,Simon Stevin,"Bo
 1QQS64,La castrametation,Specified in source,1618,Rotterdam,FRENCH,Simon Stevin,Janvan Waesberge,2,1,1029447,
 N000JX,Cursus quattuor mathematicarum artium liberalium,Provided by catalog,1516,Alcalá de Henares,LATIN,Pedro Ciruelo,Arnao Guillén de Brocar,2,1,335713,"Listed as part of the library of Elie Vinet (Desgraves, Louis. Élie Vinet humaniste de Bordeaux :  1509-1587, vie, bibliographie, correspondance, bibliothèque. Travaux d’Humanisme et Renaissance 156. Droz [diffusion Minard] [diffusion Champion], 1977. http://gallica.bnf.fr/ark:/12148/bpt6k5620, p. 157)"
 6PMNRZ,Arithmetica theoricen praxinque luculenter complexa,Specified in source,1526,Paris,LATIN,"Juan Martínez Silíceo, Thomas Blaurer",Simon de Colines,2,1,145738,
+XP5WU4,De logistica libri tres,Provided by catalog,1573,Bordeaux,LATIN,Elie Vinet,Simon Millanges,8,1,110030,"Arithmetic book; Mentioned in Rommevaux-Tani, Sabine. “Les ouvrages mathématiques d’Élie Vinet.” Revue française d’histoire du livre 145 (August 2024): 57–75. https://doi.org/10.47421/RFHL_145_57-75."
+4ZSED7,"Pselli philosophi et mathematici clarissimi geometria edita studio M. Christophori meureri, mathematum professoris publici in academia Lipsiensi.",Specified in source,1589,Leipzig,LATIN,"Michael, Joachim Tancke, Philipp Melanchthon",Hans Steinmann,8,1,688550,
