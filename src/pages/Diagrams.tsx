@@ -7,7 +7,7 @@ import {
   Row,
   ScrollToTopButton,
 } from "../components/common";
-import { useFilter } from "../contexts/FilterContext";
+import { useAppliedFilter } from "../contexts/FilterAppliedContext";
 import { Item } from "../types";
 import { ItemInfo } from "../components/tps/modal/ItemInfo";
 import { NO_AUTHOR, NO_CITY, NO_YEAR } from "../constants";
@@ -239,7 +239,7 @@ const parseImageName = (filename: string): ImageInfo => {
 const Diagrams = () => {
   const [searchParams] = useSearchParams();
   const editionKey = searchParams.get("key");
-  const { data } = useFilter();
+  const { data } = useAppliedFilter();
   const [item, setItem] = useState<Item | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [volumes, setVolumes] = useState<VolumeData[]>([]);

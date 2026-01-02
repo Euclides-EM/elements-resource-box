@@ -8,26 +8,29 @@ import {
   MapTooltips,
   TOOLTIP_FEATURES_HIGHLIGHT,
 } from "./components/map/MapTooltips.tsx";
-import { FilterProvider } from "./contexts/FilterContext.tsx";
+import { FilterAppliedProvider } from "./contexts/FilterAppliedContext.tsx";
+import { FilterEditProvider } from "./contexts/FilterEditContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <FilterProvider>
-      <App />
-      <Tooltip
-        id={TOOLTIP_FEATURES_HIGHLIGHT}
-        delayHide={200}
-        clickable
-        style={{
-          zIndex: 11,
-          backgroundColor: "white",
-          color: "black",
-          padding: "1rem",
-          fontSize: "1.2rem",
-          maxWidth: 600,
-        }}
-      />
-      <MapTooltips />
-    </FilterProvider>
+    <FilterEditProvider>
+      <FilterAppliedProvider>
+        <App />
+        <Tooltip
+          id={TOOLTIP_FEATURES_HIGHLIGHT}
+          delayHide={200}
+          clickable
+          style={{
+            zIndex: 11,
+            backgroundColor: "white",
+            color: "black",
+            padding: "1rem",
+            fontSize: "1.2rem",
+            maxWidth: 600,
+          }}
+        />
+        <MapTooltips />
+      </FilterAppliedProvider>
+    </FilterEditProvider>
   </StrictMode>,
 );

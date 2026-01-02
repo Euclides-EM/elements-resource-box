@@ -13,7 +13,7 @@ import {
 import styled from "@emotion/styled";
 import { SiMaterialdesign } from "react-icons/si";
 import { Item } from "../types";
-import { useFilter } from "../contexts/FilterContext";
+import { useAppliedFilter } from "../contexts/FilterAppliedContext";
 import {
   Container,
   Row,
@@ -179,7 +179,7 @@ const ExportButton = styled.button`
 `;
 
 function Catalogue() {
-  const { filteredItems, filters } = useFilter();
+  const { filteredItems, filters } = useAppliedFilter();
   const { token } = useContext(AuthContext);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "year", desc: false },

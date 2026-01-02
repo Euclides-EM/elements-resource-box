@@ -1,15 +1,21 @@
 import styled from "@emotion/styled";
 import { PANE_BORDER } from "../../utils/colors";
 import { FiltersGroup } from "./FiltersGroup";
-import { useFilter } from "../../contexts/FilterContext";
+import { useAppliedFilter } from "../../contexts/FilterAppliedContext";
+import { useEditFilter } from "../../contexts/FilterEditContext";
 import { ScrollbarStyle } from "../common";
 import RangeSlider from "../tps/filters/RangeSlider";
-import { FilterButton } from "../layout/FilterButton.tsx";
+import { FilterButton as FilterToggleButton } from "../layout/FilterButton.tsx";
 import { itemProperties } from "../../constants/itemProperties.ts";
 import { NAVBAR_HEIGHT } from "../layout/routes.ts";
 import { TextSearchFilter } from "./TextSearchFilter";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { FilterValue } from "./Filter";
+import { useLocalStorage } from "usehooks-ts";
+import { Item } from "../../types";
+import { useEffect } from "react";
 
-const Pane = styled.div`
+const Pane = styled.div<{ isLoading?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -17,7 +23,7 @@ const Pane = styled.div`
   width: 26rem;
   max-width: 100vw;
   min-width: 256px;
-  overflow-x: auto;
+  overflow-x: ${({ isLoading }) => (isLoading ? "hidden" : "auto")};
   background-color: white;
   color: black;
   padding: 1rem;
@@ -29,6 +35,7 @@ const Pane = styled.div`
   top: ${NAVBAR_HEIGHT}px;
   left: 0;
   z-index: 100;
+  pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")};
 
   ${ScrollbarStyle};
 `;
@@ -56,53 +63,217 @@ const CheckboxContainer = styled.div`
   }
 `;
 
-const ResetButton = styled.button`
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
+const FilterButton = styled.button`
   border-radius: 4px;
   padding: 0.5rem 1rem;
   cursor: pointer;
   font-size: 0.9rem;
-  color: #333;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #e9e9e9;
-  }
+  transition: all 0.2s ease;
+  border: 1px solid #ccc;
 
   &:active {
-    background-color: #d9d9d9;
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+const ResetButton = styled(FilterButton)`
+  background-color: #f5f5f5;
+  color: #333;
+
+  &:hover:not(:disabled) {
+    background-color: #e9e9e9;
+  }
+`;
+
+const ApplyButton = styled(FilterButton)<{ $hasChanges: boolean }>`
+  background-color: ${(props) => (props.$hasChanges ? "#4CAF50" : "#e0e0e0")};
+  color: ${(props) => (props.$hasChanges ? "white" : "#999")};
+  font-weight: ${(props) => (props.$hasChanges ? "500" : "normal")};
+  border-color: ${(props) => (props.$hasChanges ? "#4CAF50" : "#ccc")};
+
+  &:hover:not(:disabled) {
+    background-color: ${(props) => (props.$hasChanges ? "#45a049" : "#e0e0e0")};
+  }
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+`;
+
+const LoadingOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: 0 0.7rem 0.7rem 0.7rem;
+  pointer-events: all;
+`;
+
+const LoadingSpinner = styled(AiOutlineLoading3Quarters)`
+  font-size: 2rem;
+  animation: spin 1s linear infinite;
+  color: #666;
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const LoadingText = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  span {
+    font-size: 0.9rem;
+    color: #666;
   }
 `;
 
 export const FilterPane = () => {
   const {
     data,
-    filters,
-    setFilters,
-    filtersInclude,
-    setFiltersInclude,
-    filterOpen,
-    range,
-    setRange,
-    includeUndated,
-    setIncludeUndated,
     minYear,
     maxYear,
     resetFilters,
+    isFiltering,
+    applyFilters,
+    hasUnappliedChanges,
+    updateHasUnappliedChanges,
+    filters: appliedFilters,
+    filtersInclude: appliedFiltersInclude,
+    range: appliedRange,
+    includeUndated: appliedIncludeUndated,
+    textSearch: appliedTextSearch,
+    textSearchFields: appliedTextSearchFields,
+  } = useAppliedFilter();
+
+  const { filterOpen } = useEditFilter();
+
+  const [range, setRange] = useLocalStorage<[number, number]>(
+    "time-range",
+    [0, 9999],
+  );
+  const [filters, setFilters] = useLocalStorage<
+    Record<string, FilterValue[] | undefined>
+  >("filters", {
+    type: [
+      {
+        label: "Elements",
+        value: "Elements",
+      },
+    ],
+  });
+  const [filtersInclude, setFiltersInclude] = useLocalStorage<
+    Record<string, boolean>
+  >("filter-include", {});
+  const [includeUndated, setIncludeUndated] = useLocalStorage<boolean>(
+    "include-undated",
+    true,
+  );
+  const [textSearch, setTextSearch] = useLocalStorage<string>(
+    "text-search",
+    "",
+  );
+  const [textSearchFields, setTextSearchFields] = useLocalStorage<
+    (keyof Item)[]
+  >("text-search-fields", ["shortTitle", "title", "titleEn"]);
+
+  useEffect(() => {
+    const hasChanges =
+      JSON.stringify(filters) !== JSON.stringify(appliedFilters) ||
+      JSON.stringify(filtersInclude) !==
+        JSON.stringify(appliedFiltersInclude) ||
+      JSON.stringify(range) !== JSON.stringify(appliedRange) ||
+      includeUndated !== appliedIncludeUndated ||
+      textSearch !== appliedTextSearch ||
+      JSON.stringify(textSearchFields) !==
+        JSON.stringify(appliedTextSearchFields);
+    updateHasUnappliedChanges(hasChanges);
+  }, [
+    filters,
+    filtersInclude,
+    range,
+    includeUndated,
     textSearch,
-    setTextSearch,
     textSearchFields,
-    setTextSearchFields,
-  } = useFilter();
+    appliedFilters,
+    appliedFiltersInclude,
+    appliedRange,
+    appliedIncludeUndated,
+    appliedTextSearch,
+    appliedTextSearchFields,
+    updateHasUnappliedChanges,
+  ]);
+
   if (!filterOpen) {
     return null;
   }
 
   return (
-    <Pane onClick={(e) => e.stopPropagation()}>
-      <FilterButton />
-      <ResetButton onClick={resetFilters}>Reset Filters</ResetButton>
+    <Pane isLoading={isFiltering} onClick={(e) => e.stopPropagation()}>
+      {isFiltering && (
+        <LoadingOverlay>
+          <LoadingText>
+            <LoadingSpinner />
+            <span>Applying filters...</span>
+          </LoadingText>
+        </LoadingOverlay>
+      )}
+      <FilterToggleButton />
+      <ButtonRow>
+        <ResetButton
+          onClick={() =>
+            resetFilters({
+              setFilters,
+              setFiltersInclude,
+              setRange,
+              setIncludeUndated,
+              setTextSearch,
+              setTextSearchFields,
+            })
+          }
+          disabled={isFiltering}
+        >
+          Reset Filters
+        </ResetButton>
+        <ApplyButton
+          onClick={() =>
+            applyFilters({
+              filters,
+              filtersInclude,
+              range,
+              includeUndated,
+              textSearch,
+              textSearchFields,
+            })
+          }
+          disabled={isFiltering || !hasUnappliedChanges}
+          $hasChanges={hasUnappliedChanges}
+        >
+          {isFiltering ? "Applying..." : "Apply Filters"}
+          {hasUnappliedChanges && !isFiltering && " *"}
+        </ApplyButton>
+      </ButtonRow>
       <StyledRangeSlider
         min={minYear}
         max={maxYear}

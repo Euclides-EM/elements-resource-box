@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import { Item } from "../../types";
 
@@ -28,11 +28,17 @@ const FieldSelector = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  padding-left: 2rem;
+`;
+
+const FilterTitle = styled.div`
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: black;
 `;
 
 const Label = styled.label`
   font-size: 0.9rem;
-  font-weight: 500;
   margin-bottom: 0.25rem;
 `;
 
@@ -73,8 +79,6 @@ export const TextSearchFilter: React.FC<TextSearchFilterProps> = ({
   textSearchFields,
   setTextSearchFields,
 }) => {
-  const [localSearchValue, setLocalSearchValue] = useState(textSearch);
-
   const handleFieldChange = (field: keyof Item, checked: boolean) => {
     if (checked) {
       setTextSearchFields([...textSearchFields, field]);
@@ -83,27 +87,17 @@ export const TextSearchFilter: React.FC<TextSearchFilterProps> = ({
     }
   };
 
-  const handleSearchBlur = () => {
-    setTextSearch(localSearchValue);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      setTextSearch(localSearchValue);
-    }
-  };
-
   return (
     <Container>
       <div>
-        <Label>Text Search</Label>
+        <FilterTitle>
+          <span className="gothic">T</span>ext Search
+        </FilterTitle>
         <SearchInput
           type="text"
           placeholder="Search in titles..."
-          value={localSearchValue}
-          onChange={(e) => setLocalSearchValue(e.target.value)}
-          onBlur={handleSearchBlur}
-          onKeyPress={handleKeyPress}
+          value={textSearch}
+          onChange={(e) => setTextSearch(e.target.value)}
         />
       </div>
       <FieldSelector>

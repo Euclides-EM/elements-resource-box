@@ -13,7 +13,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { css } from "@emotion/react";
 import { EIP_URL, MACTUTOR_URL } from "../constants";
 import { TbMathMaxMin } from "react-icons/tb";
-import { useFilter } from "../contexts/FilterContext.tsx";
+import { useEditFilter } from "../contexts/FilterEditContext.tsx";
 
 const ParallaxBackground = styled.div`
   position: fixed;
@@ -156,7 +156,7 @@ const Card = ({
 function Home() {
   const navigate = useNavigate();
   const [imageHeight, setImageHeight] = useState(0);
-  const { setFilterOpen } = useFilter();
+  const { setFilterOpen } = useEditFilter();
 
   useEffect(() => {
     setFilterOpen(false);

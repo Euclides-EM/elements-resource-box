@@ -22,11 +22,12 @@ import {
 import { Timeline } from "../components/map/Timeline";
 import { HeatLegend } from "../components/map/HeatMap";
 import { useTour } from "@reactour/tour";
-import { useFilter } from "../contexts/FilterContext";
+import { useAppliedFilter } from "../contexts/FilterAppliedContext";
 import ItemModal from "../components/tps/modal/ItemModal.tsx";
 import { CityDetails } from "../components/map/CityDetails.tsx";
 import { NAVBAR_HEIGHT } from "../components/layout/routes.ts";
 import { useIsMobile } from "../components/layout/isMobile.ts";
+import { useEditFilter } from "../contexts/FilterEditContext.tsx";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -111,7 +112,8 @@ const Pane = styled.div<{
 const Map = () => {
   const { height } = useWindowSize();
   const isMobile = useIsMobile();
-  const { cities, filteredItems, filterOpen, setFilterOpen } = useFilter();
+  const { filterOpen, setFilterOpen } = useEditFilter();
+  const { cities, filteredItems } = useAppliedFilter();
   const [zoom, setZoom] = useLocalStorage<number>("zoom", 1);
   const {
     ref: mapSectionRef,

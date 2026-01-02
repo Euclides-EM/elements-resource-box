@@ -5,7 +5,7 @@ import { ButtonStyle, TRANSPARENT_WHITE } from "../../utils/colors";
 import { TOOLTIP_TIMELINE_BUTTON } from "./MapTooltips.tsx";
 import { TIMELINE_PLAY_ID, TIMELINE_RANGE_ID } from "./Tour";
 import RangeSlider from "../../RangeSlider.tsx";
-import { useFilter } from "../../contexts/FilterContext";
+import { useAppliedFilter } from "../../contexts/FilterAppliedContext";
 
 const PlayButton = styled.div`
   ${ButtonStyle};
@@ -39,19 +39,20 @@ const PLAY_STEP_YEARS = 10;
 const PLAY_STEP_SEC = 1;
 
 export const Timeline = () => {
-  const { range, setRange, minYear, maxYear } = useFilter();
+  const { range, minYear, maxYear } = useAppliedFilter();
+  const [localRange, setLocalRange] = useState<[number, number]>(range);
   const [isPlay, setPlay] = useState<boolean>(false);
 
   const playStep = useCallback(
     () =>
-      setRange(([from, to]) => {
+      setLocalRange(([from, to]) => {
         to = Math.min(maxYear, to + PLAY_STEP_YEARS);
         if (to >= maxYear) {
           setPlay(false);
         }
         return [from, to];
       }),
-    [maxYear, setRange],
+    [maxYear],
   );
 
   useEffect(() => {
@@ -73,12 +74,12 @@ export const Timeline = () => {
         {isPlay ? <MdPause /> : <MdPlayArrow />}
       </PlayButton>
       <RangeWrapper id={TIMELINE_RANGE_ID}>
-        {range[0] > 0 && range[1] > 0 && (
+        {localRange[0] > 0 && localRange[1] > 0 && (
           <StyledRangeSlider
             min={minYear}
             max={maxYear}
-            value={range}
-            onChange={setRange}
+            value={localRange}
+            onChange={setLocalRange}
           />
         )}
       </RangeWrapper>

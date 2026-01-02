@@ -20,13 +20,12 @@ import {
 import MultiSelect from "../components/tps/filters/MultiSelect";
 import Radio from "../components/tps/filters/Radio";
 import ItemView from "../components/tps/features/ItemView";
-import { useFilter } from "../contexts/FilterContext";
+import { useAppliedFilter } from "../contexts/FilterAppliedContext";
 import { IoWarning } from "react-icons/io5";
 import styled from "@emotion/styled";
 import Switch from "react-switch";
 import { LAND_COLOR, MARKER_3 } from "../utils/colors.ts";
 import { Stats } from "../components/Stats.tsx";
-import { searchWithSpecialChars } from "../utils/normalizeNames";
 
 const NoteLine = styled(Row)`
   opacity: 0.8;
@@ -41,7 +40,7 @@ const SearchInput = styled.input`
 `;
 
 function TitlePage() {
-  const { filteredItems } = useFilter();
+  const { filteredItems } = useAppliedFilter();
 
   const [titlePagesModeOn, setTitlePagesModeOn] = useLocalStorageState<boolean>(
     "tp-on",
@@ -85,19 +84,35 @@ function TitlePage() {
       return filteredItems;
     }
 
+    const searchLower = searchText.toLowerCase();
     return filteredItems.filter((item) => {
+      const title = item.title?.toLowerCase() || "";
+      const imprint = item.imprint?.toLowerCase() || "";
+      const titleEn = item.titleEn?.toLowerCase() || "";
       return (
-        searchWithSpecialChars(searchText, item.title || "") ||
-        searchWithSpecialChars(searchText, item.titleEn || "") ||
-        searchWithSpecialChars(searchText, item.imprint || "") ||
+        title
+          .replaceAll("\n", " ")
+          .replaceAll("  ", " ")
+          .replaceAll("-", "")
+          .includes(searchLower) ||
+        titleEn
+          .replaceAll("\n", " ")
+          .replaceAll("  ", " ")
+          .replaceAll("-", "")
+          .includes(searchLower) ||
+        imprint
+          .replaceAll("\n", " ")
+          .replaceAll("  ", " ")
+          .replaceAll("-", "")
+          .includes(searchLower) ||
         item.authors?.some((author) =>
-          searchWithSpecialChars(searchText, author),
+          author.toLowerCase().includes(searchLower),
         ) ||
-        item.cities.some((city) => searchWithSpecialChars(searchText, city)) ||
+        item.cities.some((city) => city.toLowerCase().includes(searchLower)) ||
         item.languages.some((lang) =>
-          searchWithSpecialChars(searchText, lang),
+          lang.toLowerCase().includes(searchLower),
         ) ||
-        searchWithSpecialChars(searchText, item.year || "")
+        item.year?.toLowerCase().includes(searchLower)
       );
     });
   }, [filteredItems, searchText, titlePagesModeOn]);
@@ -138,71 +153,77 @@ function TitlePage() {
       )}
       <Column minWidth="min(820px, 90%)">
         <Stats />
-        <Row gap={0.5}>
-          Title Pages Experiment View{" "}
-          <Switch
-            onColor={MARKER_3}
-            activeBoxShadow={`0 0 2px 3px ${MARKER_3}`}
-            onChange={() =>
-              setTitlePagesModeOn((b) => {
-                if (b) {
-                  setMode("texts");
-                }
-                return !b;
-              })
-            }
-            checked={titlePagesModeOn}
-          />
-        </Row>
-        {titlePagesModeOn && (
+        {filteredBySearchItems.length > 0 && (
           <>
-            <Radio
-              name="Show"
-              options={["Texts", "Images"]}
-              value={mode === "images"}
-              onChange={(b) => setMode(b ? "images" : "texts")}
-            />
-            <Row justifyStart noWrap>
-              <Column alignItems="end">
-                <span>Highlight Segments:</span>
-              </Column>
-              <MultiSelect
-                name="Features"
-                value={features}
-                options={Object.keys(FeatureToColumnName).sort()}
-                onChange={(f) => setFeatures((f as Feature[]).sort())}
-                colors={FeatureToColor}
-                tooltips={FeatureToTooltip}
-                className="features-multi-select"
-              />
-              <ResetButton
-                onClick={() =>
-                  setFeatures(
-                    Object.keys(FeatureToColumnName)
-                      .filter(
-                        (f) =>
-                          !FeaturesNotSelectedByDefault.includes(f as Feature),
-                      )
-                      .sort() as Feature[],
-                  )
+            <Row gap={0.5}>
+              Title Pages Experiment View{" "}
+              <Switch
+                onColor={MARKER_3}
+                activeBoxShadow={`0 0 2px 3px ${MARKER_3}`}
+                onChange={() =>
+                  setTitlePagesModeOn((b) => {
+                    if (b) {
+                      setMode("texts");
+                    }
+                    return !b;
+                  })
                 }
-              >
-                Reset
-              </ResetButton>
-            </Row>
-            <Row>
-              <SearchInput
-                ref={searchInputRef}
-                type="text"
-                placeholder="Search in title pages..."
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
+                checked={titlePagesModeOn}
               />
             </Row>
-            <NoteLine gap={0.5} noWrap noWrapAlsoOnMobile>
-              <IoWarning /> Highlighted features were partially identified using
-              an LLM and may not be accurate.
-            </NoteLine>
+            {titlePagesModeOn && (
+              <>
+                <Radio
+                  name="Show"
+                  options={["Texts", "Images"]}
+                  value={mode === "images"}
+                  onChange={(b) => setMode(b ? "images" : "texts")}
+                />
+                <Row justifyStart noWrap>
+                  <Column alignItems="end">
+                    <span>Highlight Segments:</span>
+                  </Column>
+                  <MultiSelect
+                    name="Features"
+                    value={features}
+                    options={Object.keys(FeatureToColumnName).sort()}
+                    onChange={(f) => setFeatures((f as Feature[]).sort())}
+                    colors={FeatureToColor}
+                    tooltips={FeatureToTooltip}
+                    className="features-multi-select"
+                  />
+                  <ResetButton
+                    onClick={() =>
+                      setFeatures(
+                        Object.keys(FeatureToColumnName)
+                          .filter(
+                            (f) =>
+                              !FeaturesNotSelectedByDefault.includes(
+                                f as Feature,
+                              ),
+                          )
+                          .sort() as Feature[],
+                      )
+                    }
+                  >
+                    Reset
+                  </ResetButton>
+                </Row>
+                <Row>
+                  <SearchInput
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search in title pages..."
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                  />
+                </Row>
+                <NoteLine gap={0.5} noWrap noWrapAlsoOnMobile>
+                  <IoWarning /> Highlighted features were partially identified
+                  using an LLM and may not be accurate.
+                </NoteLine>
+              </>
+            )}
           </>
         )}
       </Column>

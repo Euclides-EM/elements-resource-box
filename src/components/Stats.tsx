@@ -1,7 +1,7 @@
 import { authorDisplayName } from "../utils/dataUtils.ts";
 import { Row, Text } from "./common.ts";
 import { joinArr } from "../utils/util.ts";
-import { useFilter } from "../contexts/FilterContext.tsx";
+import { useAppliedFilter } from "../contexts/FilterAppliedContext.tsx";
 import { ItemTypes } from "../constants";
 import { MARKER_4 } from "../utils/colors.ts";
 import { isEmpty } from "lodash";
@@ -13,7 +13,7 @@ const Highlight = styled.span`
 `;
 
 export const Stats = ({ verb }: { verb?: string }) => {
-  const { filteredItems, filters } = useFilter();
+  const { filteredItems, filters } = useAppliedFilter();
 
   const types = isEmpty(filters["type"])
     ? Object.values(ItemTypes)
@@ -39,13 +39,17 @@ export const Stats = ({ verb }: { verb?: string }) => {
 
   return (
     <Row>
-      <Text size={1}>
-        {verb || "Listing"} <Highlight>{filteredItems.length}</Highlight>{" "}
-        {types && joinArr(types)} editions, by{" "}
-        <Highlight>{authorsCount}</Highlight> authors, in{" "}
-        <Highlight>{languagesCount}</Highlight> languages, from{" "}
-        <Highlight>{citiesCount}</Highlight> cities.
-      </Text>
+      {filteredItems.length === 0 ? (
+        <Highlight>No matches. Try adjusting the filters or search.</Highlight>
+      ) : (
+        <Text size={1}>
+          {verb || "Listing"} <Highlight>{filteredItems.length}</Highlight>{" "}
+          {types && joinArr(types)} editions, by{" "}
+          <Highlight>{authorsCount}</Highlight> authors, in{" "}
+          <Highlight>{languagesCount}</Highlight> languages, from{" "}
+          <Highlight>{citiesCount}</Highlight> cities.
+        </Text>
+      )}
     </Row>
   );
 };

@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { LuFilter } from "react-icons/lu";
-import { useFilter } from "../../contexts/FilterContext";
+import { useEditFilter } from "../../contexts/FilterEditContext";
 import { TOOLTIP_FILTERS } from "../map/MapTooltips";
 import React, { useRef } from "react";
 import { FILTER_TOGGLE_BUTTON_ID } from "../map/Tour.tsx";
@@ -23,7 +23,7 @@ const FilterButtonContainer = styled.div`
 `;
 
 export const FilterButton = () => {
-  const { filterOpen, setFilterOpen } = useFilter();
+  const { filterOpen, setFilterOpen } = useEditFilter();
   const buttonRef = useRef<HTMLDivElement>(null);
 
   const handleClick = (e: React.MouseEvent) => {

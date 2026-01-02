@@ -144,66 +144,8 @@ export function parseInstitutions(institutions: string) {
     .map((lang) => startCase(lang.toLowerCase()));
 }
 
-export function stripDiacritics(str: string): string {
+function stripDiacritics(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
-
-export function normalizeTextForSearch(text: string): string {
-  if (!text) {
-    return "";
-  }
-
-  let normalized = text
-    .replace(/\r?\n|\r/g, " ")
-    .replace(/\s+/g, " ")
-    .toLowerCase()
-    .trim();
-
-  normalized = stripDiacritics(normalized);
-
-  normalized = normalized
-    .replace(/æ/g, "ae")
-    .replace(/œ/g, "oe")
-    .replace(/ß/g, "ss")
-    .replace(/[''´`]/g, "'")
-    .replace(/[""„"]/g, '"')
-    .replace(/–/g, "-")
-    .replace(/—/g, "-")
-    .replace(/…/g, "...")
-    .replace(/-/g, "");
-
-  return normalized;
-}
-
-export function createSearchPattern(searchTerm: string): string {
-  if (!searchTerm) {
-    return "";
-  }
-
-  let pattern = normalizeTextForSearch(searchTerm);
-
-  pattern = pattern.replace(/[uv]/g, "[uv]");
-
-  return pattern;
-}
-
-export function searchWithSpecialChars(
-  searchTerm: string,
-  text: string,
-): boolean {
-  if (!searchTerm || !text) {
-    return false;
-  }
-
-  const normalizedText = normalizeTextForSearch(text);
-  const searchPattern = createSearchPattern(searchTerm);
-
-  try {
-    const searchRegex = new RegExp(searchPattern, "i");
-    return searchRegex.test(normalizedText);
-  } catch {
-    return normalizedText.includes(searchPattern);
-  }
 }
 
 export function normalizeAncientPersona(name: string): string | null {
