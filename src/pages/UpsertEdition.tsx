@@ -520,8 +520,8 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
         const examples = visualElementExamples
           .filter((vee) => vee.key === ve.key)
           .map((vee) => ({
-            key: vee.key,
             img: vee.path,
+            has_locator: !!vee.locator_key,
             locator: vee.locator_key
               ? locators.find((l) => l.key === vee.locator_key) || null
               : null,
@@ -990,7 +990,7 @@ export const UpsertEdition = () => {
                   {(field) => (
                     <>
                       <SingleSelect
-                        name="shortTitleSource"
+                        name="short title source"
                         options={SHORT_TITLE_SOURCES.map((item) => ({
                           value: item,
                           label: item,
@@ -1015,7 +1015,7 @@ export const UpsertEdition = () => {
                 <form.Field name="isManuscript">
                   {(field) => (
                     <SingleSelect
-                      name="isManuscript"
+                      name="item type"
                       options={[
                         { value: "false", label: "Printed Edition" },
                         { value: "true", label: "Manuscript" },
@@ -1376,7 +1376,7 @@ export const UpsertEdition = () => {
                     <form.Field name="reprintOf">
                       {(field) => (
                         <SingleSelect
-                          name="reprintOf"
+                          name="reprint edition"
                           options={lists?.reprintOptions || []}
                           value={field.state.value}
                           onBlur={field.handleBlur}
@@ -1523,7 +1523,7 @@ export const UpsertEdition = () => {
                 <form.Field name="isElements">
                   {(field) => (
                     <SingleSelect
-                      name="isElements"
+                      name="if is Elements"
                       options={[
                         { value: "false", label: "No" },
                         { value: "true", label: "Yes" },
@@ -1918,7 +1918,7 @@ export const UpsertEdition = () => {
                             {(f) => (
                               <>
                                 <SingleSelect
-                                  name={`visualElements[${i}].visual_element_type`}
+                                  name="type"
                                   options={
                                     lists?.visualElementTypes?.map((t) => ({
                                       value: t,
@@ -1969,7 +1969,7 @@ export const UpsertEdition = () => {
                             {(f) => (
                               <>
                                 <SingleSelect
-                                  name="locator_type"
+                                  name="locator type"
                                   options={[
                                     { value: "ref", label: "Ref" },
                                     { value: "many", label: "Many" },
@@ -2022,7 +2022,7 @@ export const UpsertEdition = () => {
                               >
                                 {(f) => (
                                   <SingleSelect
-                                    name="first_order_type"
+                                    name="first order type"
                                     options={[
                                       { value: "book", label: "Book" },
                                       { value: "section", label: "Section" },
@@ -2089,7 +2089,7 @@ export const UpsertEdition = () => {
                               >
                                 {(f) => (
                                   <SingleSelect
-                                    name="locator_type"
+                                    name="locator type"
                                     options={
                                       lists?.locatorTypes?.map((t) => ({
                                         value: t,
@@ -2157,17 +2157,11 @@ export const UpsertEdition = () => {
                               <Label>Page Type</Label>
                               <form.Field
                                 name={`visualElements[${i}].locator.page_type`}
-                                validators={{
-                                  onBlur: ({ value }) =>
-                                    field.state.value[i].locator &&
-                                    !value &&
-                                    "Page type is required when locator is specified",
-                                }}
                               >
                                 {(f) => (
                                   <>
                                     <SingleSelect
-                                      name="page_type"
+                                      name="page type"
                                       options={[
                                         { value: "page", label: "Page" },
                                         { value: "folio", label: "Folio" },
@@ -2235,7 +2229,7 @@ export const UpsertEdition = () => {
                                     return (
                                       !field.state.value[i].locator
                                         ?.page_type &&
-                                      !value &&
+                                      value &&
                                       "Page value cannot be set when page type is not specified"
                                     );
                                   },
@@ -2277,8 +2271,8 @@ export const UpsertEdition = () => {
                                   type="button"
                                   onClick={() =>
                                     examplesField.pushValue({
-                                      key: getSuggestedKey(),
                                       img: "",
+                                      has_locator: false,
                                       locator: null,
                                     })
                                   }
@@ -2331,6 +2325,368 @@ export const UpsertEdition = () => {
                                       )}
                                     </form.Field>
                                   </FormField>
+
+                                  <FormField width="max-content">
+                                    <Label>Specify Locator</Label>
+                                    <form.Field
+                                      name={`visualElements[${i}].examples[${j}].has_locator`}
+                                    >
+                                      {(f) => (
+                                        <Row justifyStart gap={1}>
+                                          <Input
+                                            type="checkbox"
+                                            checked={f.state.value}
+                                            onChange={(e) => {
+                                              f.handleChange(e.target.checked);
+                                              if (e.target.checked) {
+                                                form.setFieldValue(
+                                                  `visualElements[${i}].examples[${j}].locator`,
+                                                  {
+                                                    key: getSuggestedKey(),
+                                                    first_order_type: null,
+                                                    first_order_value: null,
+                                                    type: null,
+                                                    value: "",
+                                                    page_type: "",
+                                                    page_value: null,
+                                                  },
+                                                );
+                                              } else {
+                                                form.setFieldValue(
+                                                  `visualElements[${i}].examples[${j}].locator`,
+                                                  null,
+                                                );
+                                              }
+                                            }}
+                                            onBlur={f.handleBlur}
+                                          />
+                                          <Label
+                                            muted
+                                            onClick={() => {
+                                              const newValue = !f.state.value;
+                                              f.handleChange(newValue);
+                                              if (newValue) {
+                                                form.setFieldValue(
+                                                  `visualElements[${i}].examples[${j}].locator`,
+                                                  {
+                                                    key: getSuggestedKey(),
+                                                    first_order_type: null,
+                                                    first_order_value: null,
+                                                    type: null,
+                                                    value: "",
+                                                    page_type: "",
+                                                    page_value: null,
+                                                  },
+                                                );
+                                              } else {
+                                                form.setFieldValue(
+                                                  `visualElements[${i}].examples[${j}].locator`,
+                                                  null,
+                                                );
+                                              }
+                                            }}
+                                          >
+                                            Check to add locator details for
+                                            this example
+                                          </Label>
+                                        </Row>
+                                      )}
+                                    </form.Field>
+                                  </FormField>
+
+                                  {examplesField.state.value[j].has_locator && (
+                                    <>
+                                      <FormField>
+                                        <Label>First Order Type</Label>
+                                        <form.Field
+                                          name={`visualElements[${i}].examples[${j}].locator.first_order_type`}
+                                        >
+                                          {(f) => (
+                                            <SingleSelect
+                                              name="first order type"
+                                              options={[
+                                                {
+                                                  value: "book",
+                                                  label: "Book",
+                                                },
+                                                {
+                                                  value: "section",
+                                                  label: "Section",
+                                                },
+                                              ]}
+                                              onChange={(value) =>
+                                                f.handleChange(
+                                                  value as string | null,
+                                                )
+                                              }
+                                              value={f.state.value || ""}
+                                              onBlur={f.handleBlur}
+                                            />
+                                          )}
+                                        </form.Field>
+                                      </FormField>
+
+                                      <FormField>
+                                        <Label>First Order Value</Label>
+                                        <form.Field
+                                          name={`visualElements[${i}].examples[${j}].locator.first_order_value`}
+                                          validators={{
+                                            onBlur: ({ value }) => {
+                                              if (
+                                                examplesField.state.value[j]
+                                                  .locator?.first_order_type &&
+                                                !value
+                                              ) {
+                                                return "First order value is required when first order type is specified";
+                                              }
+                                              if (
+                                                examplesField.state.value[j]
+                                                  .locator &&
+                                                !examplesField.state.value[j]
+                                                  .locator.first_order_type &&
+                                                value
+                                              ) {
+                                                return "First order value is cannot be set when first order type is not specified";
+                                              }
+                                            },
+                                          }}
+                                        >
+                                          {(f) => (
+                                            <>
+                                              <Input
+                                                type="text"
+                                                value={f.state.value || ""}
+                                                onChange={(e) =>
+                                                  f.handleChange(
+                                                    e.target.value?.trim() ||
+                                                      null,
+                                                  )
+                                                }
+                                                onBlur={f.handleBlur}
+                                                placeholder="e.g. book number or name"
+                                              />
+                                              {!f.state.meta.isValid && (
+                                                <em>
+                                                  {f.state.meta.errors.join(
+                                                    ", ",
+                                                  )}
+                                                </em>
+                                              )}
+                                            </>
+                                          )}
+                                        </form.Field>
+                                      </FormField>
+
+                                      <FormField>
+                                        <Label>Locator Type</Label>
+                                        <form.Field
+                                          name={`visualElements[${i}].examples[${j}].locator.type`}
+                                        >
+                                          {(f) => (
+                                            <SingleSelect
+                                              name="locator type"
+                                              options={
+                                                lists?.locatorTypes?.map(
+                                                  (t) => ({
+                                                    value: t,
+                                                    label: t,
+                                                  }),
+                                                ) || []
+                                              }
+                                              onChange={(value) => {
+                                                const strValue = (value ||
+                                                  "") as string;
+                                                if (
+                                                  strValue &&
+                                                  !lists?.locatorTypes?.includes(
+                                                    strValue,
+                                                  )
+                                                ) {
+                                                  setLists(
+                                                    (l) =>
+                                                      ({
+                                                        ...l,
+                                                        locatorTypes: [
+                                                          ...(l!.locatorTypes ||
+                                                            []),
+                                                          strValue,
+                                                        ],
+                                                      }) as typeof lists,
+                                                  );
+                                                }
+                                                f.handleChange(strValue);
+                                              }}
+                                              isCreatable
+                                              value={f.state.value || ""}
+                                              onBlur={f.handleBlur}
+                                            />
+                                          )}
+                                        </form.Field>
+                                      </FormField>
+
+                                      <FormField>
+                                        <Label className="required">
+                                          Locator Value
+                                        </Label>
+                                        <form.Field
+                                          name={`visualElements[${i}].examples[${j}].locator.value`}
+                                          validators={{
+                                            onBlur: ({ value }) =>
+                                              !value &&
+                                              "Locator value is required",
+                                          }}
+                                        >
+                                          {(f) => (
+                                            <>
+                                              <Input
+                                                type="text"
+                                                value={f.state.value || ""}
+                                                onChange={(e) =>
+                                                  f.handleChange(
+                                                    e.target.value?.trim() ||
+                                                      null,
+                                                  )
+                                                }
+                                                onBlur={f.handleBlur}
+                                                placeholder="e.g. book number or name"
+                                              />
+                                              {!f.state.meta.isValid && (
+                                                <em>
+                                                  {f.state.meta.errors.join(
+                                                    ", ",
+                                                  )}
+                                                </em>
+                                              )}
+                                            </>
+                                          )}
+                                        </form.Field>
+                                      </FormField>
+
+                                      <FormField>
+                                        <Label>Page Type</Label>
+                                        <form.Field
+                                          name={`visualElements[${i}].examples[${j}].locator.page_type`}
+                                        >
+                                          {(f) => (
+                                            <>
+                                              <SingleSelect
+                                                name="page type"
+                                                options={[
+                                                  {
+                                                    value: "page",
+                                                    label: "Page",
+                                                  },
+                                                  {
+                                                    value: "folio",
+                                                    label: "Folio",
+                                                  },
+                                                  {
+                                                    value: "page_range",
+                                                    label: "Page range",
+                                                  },
+                                                  {
+                                                    value: "folio_range",
+                                                    label: "Folio range",
+                                                  },
+                                                  {
+                                                    value: "facsimile_page",
+                                                    label: "Facsimile Page",
+                                                  },
+                                                  {
+                                                    value:
+                                                      "facsimile_page_range",
+                                                    label:
+                                                      "Facsimile Page range",
+                                                  },
+                                                ]}
+                                                onChange={(value) => {
+                                                  const strValue = value as
+                                                    | string
+                                                    | null;
+                                                  f.handleChange(strValue);
+                                                }}
+                                                value={f.state.value || ""}
+                                                onBlur={f.handleBlur}
+                                              />
+                                              {!f.state.meta.isValid && (
+                                                <em>
+                                                  {f.state.meta.errors.join(
+                                                    ", ",
+                                                  )}
+                                                </em>
+                                              )}
+                                            </>
+                                          )}
+                                        </form.Field>
+                                      </FormField>
+
+                                      <FormField>
+                                        <Label>Page Value</Label>
+                                        <form.Field
+                                          name={`visualElements[${i}].examples[${j}].locator.page_value`}
+                                          validators={{
+                                            onBlur: ({ value }) => {
+                                              if (
+                                                [
+                                                  "page",
+                                                  "facsimile_page",
+                                                ].includes(
+                                                  examplesField.state.value[j]
+                                                    .locator?.page_type || "",
+                                                ) &&
+                                                !/^(\d+(-\d+)?)(,(\d+(-\d+)?))*$/.test(
+                                                  value || "",
+                                                )
+                                              ) {
+                                                return "Value must be a comma separated list of page numbers or ranges (e.g., 12,14-16,18)";
+                                              }
+                                              if (
+                                                [
+                                                  "page_range",
+                                                  "facsimile_page_range",
+                                                ].includes(
+                                                  examplesField.state.value[j]
+                                                    .locator?.page_type || "",
+                                                ) &&
+                                                !/^\d+v?$/.test(value || "")
+                                              ) {
+                                                return "Value must be a single folio or page number (e.g., 12 or 12v)";
+                                              }
+                                              return (
+                                                !examplesField.state.value[j]
+                                                  .locator?.page_type &&
+                                                value &&
+                                                "Page value cannot be set when page type is not specified"
+                                              );
+                                            },
+                                          }}
+                                        >
+                                          {(f) => (
+                                            <>
+                                              <Input
+                                                type="text"
+                                                value={f.state.value || ""}
+                                                onChange={(e) =>
+                                                  f.handleChange(
+                                                    e.target.value || null,
+                                                  )
+                                                }
+                                                onBlur={f.handleBlur}
+                                                placeholder="Page number or reference"
+                                              />
+                                              {!f.state.meta.isValid && (
+                                                <em>
+                                                  {f.state.meta.errors.join(
+                                                    ", ",
+                                                  )}
+                                                </em>
+                                              )}
+                                            </>
+                                          )}
+                                        </form.Field>
+                                      </FormField>
+                                    </>
+                                  )}
 
                                   <RemoveButton
                                     type="button"

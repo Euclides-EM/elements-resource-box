@@ -438,7 +438,7 @@ const updateVisualElements = (edition: EditionRequestBody): void => {
       }
 
       exampleRows.push({
-        key: example.key,
+        key: edition.key,
         path: example.img,
         locator_key: exampleLocatorKey,
       });

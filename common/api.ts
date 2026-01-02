@@ -41,8 +41,8 @@ export type EditionRequestBody = {
     locator_type: string;
     locator: Locator | null;
     examples: {
-      key: string;
       img: string;
+      has_locator: boolean;
       locator: Locator | null;
     }[];
   }[];
