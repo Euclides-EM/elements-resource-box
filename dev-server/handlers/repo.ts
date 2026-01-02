@@ -94,8 +94,8 @@ const handlePullRequest = async (
   let currentBranch: string;
   try {
     currentBranch = await getCurrentBranch();
-  } catch (error: any) {
-    throw new Error(`Failed to get current branch: ${error.message}`);
+  } catch (error: unknown) {
+    throw new Error(`Failed to get current branch: ${error}`);
   }
 
   // if not main, check for existing PR
@@ -114,8 +114,8 @@ const handlePullRequest = async (
           branchName: currentBranch,
         });
       }
-    } catch (error: any) {
-      throw new Error(`Failed to get current branch: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Failed to get current branch: ${error}`);
     }
 
     // if there is no existing PR, switch to main
@@ -124,10 +124,8 @@ const handlePullRequest = async (
         await execAsync("git checkout main");
         logInfo("Switched to main branch");
         currentBranch = "main";
-      } catch (checkoutError: any) {
-        throw new Error(
-          `Failed to checkout main branch: ${checkoutError.message}`,
-        );
+      } catch (checkouterror: unknown) {
+        throw new Error(`Failed to checkout main branch: ${checkouterror}`);
       }
     }
   }
@@ -141,8 +139,8 @@ const handlePullRequest = async (
       stdoutLength: stdout.length,
       stderrLength: stderr.length,
     });
-  } catch (error: any) {
-    throw new Error(`Failed to get current branch: ${error.message}`);
+  } catch (error: unknown) {
+    throw new Error(`Failed to get current branch: ${error}`);
   }
 
   return { branch: currentBranch };
@@ -188,19 +186,14 @@ export const handleRepoRequest = async (
   try {
     const res = await handlePullRequest(authHeader);
     branch = res.branch;
-  } catch (error: any) {
+  } catch (error: unknown) {
     const duration = Date.now() - startTime;
     logError("Repo request handling failed", {
-      error: error.message,
+      error,
       url,
       duration: `${duration}ms`,
-      stack: error.stack,
     });
-    sendErrorResponse(
-      res,
-      500,
-      `Repo request handling failed: ${error.message}`,
-    );
+    sendErrorResponse(res, 500, `Repo request handling failed: ${error}`);
     return;
   }
 
@@ -219,8 +212,8 @@ export const handleRepoRequest = async (
     statusRes = await execAsync(
       "git status --porcelain public/docs/ public/tps/",
     );
-  } catch (error: any) {
-    sendErrorResponse(res, 500, `Failed to check git status: ${error.message}`);
+  } catch (error: unknown) {
+    sendErrorResponse(res, 500, `Failed to check git status: ${error}`);
     return;
   }
   if (!statusRes.stdout.trim()) {
@@ -248,12 +241,8 @@ export const handleRepoRequest = async (
     logInfo("Creating new branch", { branch });
     try {
       await execAsync(`git checkout -b ${branch}`);
-    } catch (error: any) {
-      sendErrorResponse(
-        res,
-        500,
-        `Failed to create new branch: ${error.message}`,
-      );
+    } catch (error: unknown) {
+      sendErrorResponse(res, 500, `Failed to create new branch: ${error}`);
       return;
     }
     logInfo("Successfully created and switched to new branch", {
@@ -264,12 +253,8 @@ export const handleRepoRequest = async (
     logInfo("Pushing new branch to origin", { branch });
     try {
       await execAsync(`git push -u origin ${branch}`);
-    } catch (error: any) {
-      sendErrorResponse(
-        res,
-        500,
-        `Failed to push new branch: ${error.message}`,
-      );
+    } catch (error: unknown) {
+      sendErrorResponse(res, 500, `Failed to push new branch: ${error}`);
       return;
     }
   }
@@ -281,8 +266,8 @@ export const handleRepoRequest = async (
     const commitMessage = `Update documentation files - ${new Date().toISOString()}`;
     await execAsync(`git commit -m "${commitMessage}"`);
     logInfo("Successfully committed changes", { commitMessage });
-  } catch (error: any) {
-    sendErrorResponse(res, 500, `Failed to commit changes: ${error.message}`);
+  } catch (error: unknown) {
+    sendErrorResponse(res, 500, `Failed to commit changes: ${error}`);
     return;
   }
 
@@ -290,12 +275,8 @@ export const handleRepoRequest = async (
   logInfo("Pushing branch updates to origin", { branch });
   try {
     await execAsync(`git push origin ${branch}`);
-  } catch (error: any) {
-    sendErrorResponse(
-      res,
-      500,
-      `Failed to push branch updates: ${error.message}`,
-    );
+  } catch (error: unknown) {
+    sendErrorResponse(res, 500, `Failed to push branch updates: ${error}`);
     return;
   }
 
@@ -320,8 +301,8 @@ export const handleRepoRequest = async (
         },
       });
       logInfo("Created new PR", existingPR);
-    } catch (error: any) {
-      sendErrorResponse(res, 500, `Failed to create PR: ${error.message}`);
+    } catch (error: unknown) {
+      sendErrorResponse(res, 500, `Failed to create PR: ${error}`);
       return;
     }
   }

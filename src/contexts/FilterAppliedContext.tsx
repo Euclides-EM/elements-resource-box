@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useState,
   useRef,
+  useCallback,
 } from "react";
 import { Item } from "../types";
 import { FilterValue } from "../components/map/Filter";
@@ -98,7 +99,9 @@ export const FilterAppliedProvider = ({
     if (stored) {
       try {
         return JSON.parse(stored);
-      } catch {}
+      } catch {
+        console.error("Failed to parse stored applied filters", stored);
+      }
     }
     return {
       filters: {
@@ -117,10 +120,10 @@ export const FilterAppliedProvider = ({
     };
   });
 
-  const setAppliedFilters = (newFilters: typeof appliedFilters) => {
+  const setAppliedFilters = useCallback((newFilters: typeof appliedFilters) => {
     setAppliedFiltersState(newFilters);
     localStorage.setItem("applied-filters", JSON.stringify(newFilters));
-  };
+  }, []);
 
   const [hasUnappliedChanges, setHasUnappliedChanges] = useState(false);
 
@@ -176,59 +179,65 @@ export const FilterAppliedProvider = ({
       setIsFiltering(true);
       workerRef.current.postMessage(message);
     }
-  }, [appliedFilters]);
+  }, [appliedFilters, isFiltering]);
 
   const filteredItems = internalFilteredItems;
 
-  const resetFilters = (setters: {
-    setFilters: React.Dispatch<
-      React.SetStateAction<Record<string, FilterValue[] | undefined>>
-    >;
-    setFiltersInclude: React.Dispatch<
-      React.SetStateAction<Record<string, boolean>>
-    >;
-    setRange: React.Dispatch<React.SetStateAction<[number, number]>>;
-    setIncludeUndated: React.Dispatch<React.SetStateAction<boolean>>;
-    setTextSearch: React.Dispatch<React.SetStateAction<string>>;
-    setTextSearchFields: React.Dispatch<React.SetStateAction<(keyof Item)[]>>;
-  }) => {
-    const defaultFilters = {
-      type: [
-        {
-          label: "Elements",
-          value: "Elements",
-        },
-      ],
-    };
-    setters.setFilters(defaultFilters);
-    setters.setFiltersInclude({});
-    setters.setRange([minYear, maxYear]);
-    setters.setIncludeUndated(true);
-    setters.setTextSearch("");
-    setters.setTextSearchFields(["shortTitle", "title", "titleEn"]);
+  const resetFilters = useCallback(
+    (setters: {
+      setFilters: React.Dispatch<
+        React.SetStateAction<Record<string, FilterValue[] | undefined>>
+      >;
+      setFiltersInclude: React.Dispatch<
+        React.SetStateAction<Record<string, boolean>>
+      >;
+      setRange: React.Dispatch<React.SetStateAction<[number, number]>>;
+      setIncludeUndated: React.Dispatch<React.SetStateAction<boolean>>;
+      setTextSearch: React.Dispatch<React.SetStateAction<string>>;
+      setTextSearchFields: React.Dispatch<React.SetStateAction<(keyof Item)[]>>;
+    }) => {
+      const defaultFilters = {
+        type: [
+          {
+            label: "Elements",
+            value: "Elements",
+          },
+        ],
+      };
+      setters.setFilters(defaultFilters);
+      setters.setFiltersInclude({});
+      setters.setRange([minYear, maxYear]);
+      setters.setIncludeUndated(true);
+      setters.setTextSearch("");
+      setters.setTextSearchFields(["shortTitle", "title", "titleEn"]);
 
-    setAppliedFilters({
-      filters: defaultFilters,
-      filtersInclude: {},
-      range: [minYear, maxYear],
-      includeUndated: true,
-      textSearch: "",
-      textSearchFields: ["shortTitle", "title", "titleEn"],
-    });
-    setHasUnappliedChanges(false);
-  };
+      setAppliedFilters({
+        filters: defaultFilters,
+        filtersInclude: {},
+        range: [minYear, maxYear],
+        includeUndated: true,
+        textSearch: "",
+        textSearchFields: ["shortTitle", "title", "titleEn"],
+      });
+      setHasUnappliedChanges(false);
+    },
+    [maxYear, minYear, setAppliedFilters],
+  );
 
-  const applyFilters = (filterState: {
-    filters: Record<string, FilterValue[] | undefined>;
-    filtersInclude: Record<string, boolean>;
-    range: [number, number];
-    includeUndated: boolean;
-    textSearch: string;
-    textSearchFields: (keyof Item)[];
-  }) => {
-    setAppliedFilters(filterState);
-    setHasUnappliedChanges(false);
-  };
+  const applyFilters = useCallback(
+    (filterState: {
+      filters: Record<string, FilterValue[] | undefined>;
+      filtersInclude: Record<string, boolean>;
+      range: [number, number];
+      includeUndated: boolean;
+      textSearch: string;
+      textSearchFields: (keyof Item)[];
+    }) => {
+      setAppliedFilters(filterState);
+      setHasUnappliedChanges(false);
+    },
+    [setAppliedFilters],
+  );
 
   const updateHasUnappliedChanges = (hasChanges: boolean) => {
     setHasUnappliedChanges(hasChanges);
@@ -257,10 +266,17 @@ export const FilterAppliedProvider = ({
       data,
       cities,
       filteredItems,
-      appliedFilters,
+      appliedFilters.filters,
+      appliedFilters.filtersInclude,
+      appliedFilters.range,
+      appliedFilters.includeUndated,
+      appliedFilters.textSearch,
+      appliedFilters.textSearchFields,
       minYear,
       maxYear,
       isFiltering,
+      applyFilters,
+      resetFilters,
       hasUnappliedChanges,
     ],
   );

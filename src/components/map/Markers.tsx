@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Marker, Point } from "react-simple-maps";
 import {
   MARKER_1,
@@ -8,7 +8,7 @@ import {
   SEA_COLOR,
 } from "../../utils/colors";
 import styled from "@emotion/styled";
-import { getHeatColor, getTopLengths } from "./HeatMap";
+import { getHeatColor } from "./HeatMap";
 import { CityName } from "./CityDetails";
 import { CITY_MARKER_ID } from "./Tour";
 import { TOOLTIP_MARKER_ARROW } from "./MapTooltips.tsx";
@@ -86,12 +86,7 @@ export const CityMarkers = ({
     [],
   );
 
-  const topLengths = useMemo(() => getTopLengths(data), [data]);
-
-  const getFillColor = useCallback(
-    (value: number) => getHeatColor(value),
-    [topLengths],
-  );
+  const getFillColor = useCallback((value: number) => getHeatColor(value), []);
 
   const reffedCities = Object.keys(refsByCity);
   useEffect(() => {
