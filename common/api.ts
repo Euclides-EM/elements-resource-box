@@ -36,7 +36,6 @@ export type EditionRequestBody = {
   bibliography: string[];
   reprintOf: string | null;
   visualElements: {
-    key: string;
     visual_element_type: string;
     notes: string;
     locator_type: string;

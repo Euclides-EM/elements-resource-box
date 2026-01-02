@@ -4,9 +4,9 @@ import { QueryClient } from "@tanstack/react-query";
 const queryClient = new QueryClient();
 
 export const loadAndParseCsv = async <
-  T extends Record<string, string | null> = {
+  T extends Record<string, string | boolean | null> = {
     key: string;
-  } & Record<string, string | null>,
+  } & Record<string, string | boolean | null>,
 >(
   csvUrl: string,
 ): Promise<T[]> => {

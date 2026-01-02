@@ -9,12 +9,16 @@ import {
   CSV_PATH_CORPUSES,
   CSV_PATH_ITEMS_MANUSCRIPT,
   CSV_PATH_ITEMS_PRINT,
+  CSV_PATH_LOCATORS,
   CSV_PATH_MD_MANUSCRIPT,
   CSV_PATH_MD_PRINT,
   CSV_PATH_REVIEWS,
   CSV_PATH_SHELFMARKS,
   CSV_PATH_TRANSCRIPTIONS,
   CSV_PATH_TRANSLATIONS,
+  CSV_PATH_VISUAL_ELEMENTS,
+  CSV_PATH_VISUAL_ELEMENTS_EXAMPLES,
+  Locator,
   ManuscriptDetails,
   ManuscriptElementsMetadata,
   ParatextTranscriptions,
@@ -23,6 +27,8 @@ import {
   Review,
   Shelfmarks,
   StudyCorpuses,
+  VisualElement,
+  VisualElementExample,
 } from "../../common/csv";
 import {
   parseRequestBody,
@@ -82,6 +88,7 @@ const upsertEdition = (edition: EditionRequestBody, user: string): void => {
   updateCorpuses(edition);
   updateBibliography(edition);
   updateClusters(edition);
+  updateVisualElements(edition);
 
   if (edition.verified) {
     logInfo("Creating review record for verified edition", {
@@ -110,6 +117,7 @@ const updateManuscriptCsvs = (edition: EditionRequestBody): void => {
     year_from: edition.manuscriptYearFrom?.toString(),
     year_to: edition.manuscriptYearTo?.toString(),
     notes: edition.notes,
+    has_diagrams: null,
   };
 
   upsertCsvRow(CSV_PATH_ITEMS_MANUSCRIPT, edition.key, itemsData);
@@ -143,6 +151,7 @@ const updatePrintCsvs = (edition: EditionRequestBody): void => {
     volumes: edition.volumes?.toString() || null,
     ustc_id: edition.ustcId,
     notes: edition.notes,
+    has_diagrams: null,
   };
 
   upsertCsvRow(CSV_PATH_ITEMS_PRINT, edition.key, itemsData);
@@ -386,6 +395,118 @@ const updateClusters = (edition: EditionRequestBody): void => {
   }
 };
 
+const updateVisualElements = (edition: EditionRequestBody): void => {
+  if (!edition.visualElements || edition.visualElements.length === 0) {
+    return;
+  }
+
+  logInfo("Processing visual elements", {
+    key: edition.key,
+    count: edition.visualElements.length,
+  });
+
+  // Create a map to track locators that need to be created
+  const newLocators: Map<string, Locator> = new Map();
+
+  // Process visual elements and collect locators
+  const visualElementRows: VisualElement[] = [];
+  const exampleRows: VisualElementExample[] = [];
+
+  for (const ve of edition.visualElements) {
+    // Handle locator if it exists
+    let locatorKey: string | null = null;
+    if (ve.locator) {
+      locatorKey = ve.locator.key;
+      newLocators.set(locatorKey, ve.locator);
+    }
+
+    // Create visual element row
+    visualElementRows.push({
+      key: edition.key,
+      visual_element_type: ve.visual_element_type,
+      locator_type: ve.locator_type,
+      locator_key: locatorKey,
+      notes: ve.notes || null,
+    });
+
+    // Create example rows
+    for (const example of ve.examples) {
+      let exampleLocatorKey: string | null = null;
+      if (example.locator) {
+        exampleLocatorKey = example.locator.key;
+        newLocators.set(exampleLocatorKey, example.locator);
+      }
+
+      exampleRows.push({
+        key: example.key,
+        path: example.img,
+        locator_key: exampleLocatorKey,
+      });
+    }
+  }
+
+  // Update locators CSV
+  if (newLocators.size > 0) {
+    const locatorRows = Array.from(newLocators.values());
+    batchUpsertCsvRows(CSV_PATH_LOCATORS, locatorRows);
+  }
+
+  // Update visual elements CSV
+  const parsed = loadCsvData<VisualElement>(CSV_PATH_VISUAL_ELEMENTS);
+  const existingRows = parsed.filter((row) => row.key === edition.key);
+
+  const hasChanges =
+    visualElementRows.length !== existingRows.length ||
+    visualElementRows.some((newRow, index) => {
+      const existingRow = existingRows[index];
+      if (!existingRow) return true;
+      return Object.keys(newRow).some((key) => {
+        const newVal = newRow[key as keyof VisualElement];
+        const existingVal = existingRow[key as keyof VisualElement];
+        return newVal !== existingVal;
+      });
+    });
+
+  if (hasChanges) {
+    const firstIndex = parsed.findIndex((row) => row.key === edition.key);
+    const updatedData: VisualElement[] = [];
+
+    if (firstIndex === -1) {
+      updatedData.push(...parsed, ...visualElementRows);
+    } else {
+      let replacementDone = false;
+      for (let i = 0; i < parsed.length; i++) {
+        if (parsed[i].key === edition.key) {
+          if (!replacementDone) {
+            updatedData.push(...visualElementRows);
+            replacementDone = true;
+          }
+        } else {
+          updatedData.push(parsed[i]);
+        }
+      }
+    }
+
+    saveCsvData(CSV_PATH_VISUAL_ELEMENTS, updatedData);
+  }
+
+  // Update visual element examples CSV
+  if (exampleRows.length > 0) {
+    const examplesParsed = loadCsvData<VisualElementExample>(
+      CSV_PATH_VISUAL_ELEMENTS_EXAMPLES,
+    );
+
+    // Remove existing examples for this edition's visual elements
+    const visualElementKeys = edition.visualElements.map((ve) => ve.key);
+    const filteredExamples = examplesParsed.filter(
+      (row) => !visualElementKeys.includes(row.key),
+    );
+
+    const updatedExamplesData = [...filteredExamples, ...exampleRows];
+    saveCsvData(CSV_PATH_VISUAL_ELEMENTS_EXAMPLES, updatedExamplesData);
+  }
+};
+
 const deleteEdition = (key: string): void => {
   logInfo("Starting edition deletion", { key });
 
@@ -400,6 +521,9 @@ const deleteEdition = (key: string): void => {
   deleteCsvRow(CSV_PATH_CORPUSES, key);
   deleteCsvRow(CSV_PATH_BIBLIOGRAPHY, key);
   deleteCsvRow(CSV_PATH_CLUSTER_ITEMS, key);
+  deleteCsvRow(CSV_PATH_VISUAL_ELEMENTS, key);
+  deleteCsvRow(CSV_PATH_VISUAL_ELEMENTS_EXAMPLES, key);
+  deleteCsvRow(CSV_PATH_LOCATORS, key);
 
   logInfo("Edition deletion completed", { key });
 };

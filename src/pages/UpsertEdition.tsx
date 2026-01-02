@@ -150,13 +150,18 @@ const FormGrid = styled.div`
   margin-bottom: 1rem;
 `;
 
-const FormField = styled.div<{ gap?: number; bgColor?: string }>`
+const FormField = styled.div<{
+  gap?: number;
+  bgColor?: string;
+  width?: string;
+}>`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.gap || 0.25}rem;
   background-color: ${(props) => props.bgColor || "unset"};
   padding: ${(props) => (props.bgColor ? 0.25 : 0)}rem;
   border-radius: 4px;
+  width: ${(props) => props.width || "unset"};
 
   &.full-width {
     grid-column: span 3;
@@ -638,13 +643,16 @@ const defaultValues = (): EditionRequestBody => ({
   visualElements: [],
 });
 
-function toOptions<T extends Record<string, string | null>>(
+function toOptions<T extends Record<string, string | boolean | null>>(
   items: T[],
   field: keyof T,
 ): string[] {
   return uniq(
     items
-      .flatMap((item) => item[field]?.split(",").map((s) => s.trim()) || [])
+      .flatMap(
+        (item) =>
+          (item[field] as string | null)?.split(",").map((s) => s.trim()) || [],
+      )
       .filter(Boolean)
       .sort(),
   );
@@ -1879,7 +1887,6 @@ export const UpsertEdition = () => {
                         type="button"
                         onClick={() =>
                           field.pushValue({
-                            key: getSuggestedKey(),
                             visual_element_type: "",
                             notes: "",
                             locator_type: "uncatalogued",
@@ -2122,9 +2129,7 @@ export const UpsertEdition = () => {
                                 name={`visualElements[${i}].locator.value`}
                                 validators={{
                                   onBlur: ({ value }) =>
-                                    field.state.value[i].locator &&
-                                    !value &&
-                                    "Locator value is required when locator is specified",
+                                    !value && "Locator value is required",
                                 }}
                               >
                                 {(f) => (
@@ -2149,7 +2154,7 @@ export const UpsertEdition = () => {
                             </FormField>
 
                             <FormField>
-                              <Label className="required">Page Type</Label>
+                              <Label>Page Type</Label>
                               <form.Field
                                 name={`visualElements[${i}].locator.page_type`}
                                 validators={{
@@ -2378,7 +2383,7 @@ export const UpsertEdition = () => {
                 </form.Field>
               </FormField>
 
-              <FormField>
+              <FormField width="max-content">
                 <Label>Verified</Label>
                 <Row justifyStart gap={1}>
                   <form.Field name="verified">

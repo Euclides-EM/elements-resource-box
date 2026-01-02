@@ -6,7 +6,7 @@ export type ManuscriptDetails = {
   year_from: string | null;
   year_to: string | null;
   notes: string | null;
-  has_diagrams: string;
+  has_diagrams: boolean | null;
 };
 
 export const CSV_PATH_MD_MANUSCRIPT = "/docs/metadata_elements_manuscripts.csv";
@@ -51,7 +51,7 @@ export type PrintDetails = {
   volumes: string | null;
   ustc_id: string | null;
   notes: string | null;
-  has_diagrams: string;
+  has_diagrams: boolean | null;
 };
 
 export const CSV_PATH_TRANSCRIPTIONS = "/docs/paratext_transcriptions.csv";
