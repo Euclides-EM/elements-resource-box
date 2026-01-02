@@ -109,3 +109,15 @@ export type BibliographyEntry = {
   key: string;
   citation: string;
 };
+
+export const CSV_PATH_CLUSTERS = "/docs/clusters.csv";
+export type ClusterEntry = {
+  key: string;
+  type: string;
+};
+
+export const CSV_PATH_CLUSTER_ITEMS = "/docs/cluster_items.csv";
+export type ClusterItem = {
+  cluster_key: string;
+  item_key: string;
+};

@@ -4,7 +4,7 @@ import { QueryClient } from "@tanstack/react-query";
 const queryClient = new QueryClient();
 
 export const loadAndParseCsv = async <
-  T extends { key: string } & Record<string, string | null> = {
+  T extends Record<string, string | null> = {
     key: string;
   } & Record<string, string | null>,
 >(

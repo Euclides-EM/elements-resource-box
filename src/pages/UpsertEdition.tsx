@@ -10,8 +10,12 @@ import { isNil, startCase, uniq, uniqueId } from "lodash";
 import {
   BibliographyEntry,
   City,
+  ClusterEntry,
+  ClusterItem,
   CSV_PATH_BIBLIOGRAPHY,
   CSV_PATH_CITIES,
+  CSV_PATH_CLUSTER_ITEMS,
+  CSV_PATH_CLUSTERS,
   CSV_PATH_CORPUSES,
   CSV_PATH_ITEMS_MANUSCRIPT,
   CSV_PATH_ITEMS_PRINT,
@@ -333,6 +337,92 @@ const getSuggestedKey = (): string => {
   return Math.random().toString(36).slice(2, 8).toUpperCase();
 };
 
+const getReprintOf = (
+  key: string,
+  printsItems: PrintDetails[],
+  clusters: ClusterEntry[],
+  clusterItems: ClusterItem[],
+): string | null => {
+  const reprintClusters = clusters.filter((c) => c.type === "reprint");
+  const relevantCluster = clusterItems.find((ci) => ci.item_key === key);
+
+  if (!relevantCluster) {
+    return null;
+  }
+
+  const clusterKey = relevantCluster.cluster_key;
+  const cluster = reprintClusters.find((c) => c.key === clusterKey);
+
+  if (!cluster) {
+    return null;
+  }
+
+  const itemsInCluster = clusterItems
+    .filter((ci) => ci.cluster_key === clusterKey)
+    .map((ci) => ci.item_key);
+
+  if (itemsInCluster.length < 2) {
+    return null;
+  }
+
+  const itemsWithYears = itemsInCluster
+    .map((itemKey) => {
+      const item = printsItems.find((p) => p.key === itemKey);
+      return item
+        ? { key: itemKey, year: (item.year && parseInt(item.year)) || 0 }
+        : null;
+    })
+    .filter(Boolean) as { key: string; year: number }[];
+
+  const minYear = Math.min(...itemsWithYears.map((i) => i.year));
+  const earliestItems = itemsWithYears.filter((i) => i.year === minYear);
+
+  if (earliestItems.some((i) => i.key === key)) {
+    return null;
+  }
+
+  return earliestItems[0]?.key || null;
+};
+
+const generateCitationWithShortTitle = (
+  item: PrintDetails,
+  transcription?: ParatextTranscriptions,
+): string => {
+  const year = item.year || "s.d.";
+  const authors = item.author_or_editor
+    ? item.author_or_editor.split(",").map((s) => s.trim())
+    : [];
+
+  const getAuthorLastName = (author: string) => {
+    return author.split(",")[0]?.trim() || author.trim();
+  };
+
+  let citation = "";
+  if (authors.length === 0 || authors[0] === "") {
+    citation = `s.n. ${year}`;
+  } else if (authors.length === 1) {
+    citation = `${getAuthorLastName(authors[0])} ${year}`;
+  } else if (authors.length > 3) {
+    citation = `${getAuthorLastName(authors[0])} et al. ${year}`;
+  } else {
+    const lastNames = authors.map(getAuthorLastName);
+    citation = `${lastNames.slice(0, -1).join(", ")}, and ${lastNames[lastNames.length - 1]} ${year}`;
+  }
+
+  const shortTitle = item.short_title?.trim();
+  if (shortTitle) {
+    citation += ` (${shortTitle})`;
+  } else if (transcription?.title) {
+    const title =
+      transcription.title.length > 50
+        ? transcription.title.substring(0, 50) + "..."
+        : transcription.title;
+    citation += ` (${title})`;
+  }
+
+  return citation;
+};
+
 const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
   const [
     manuscriptsItems,
@@ -345,6 +435,8 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
     shelfmarks,
     reviews,
     bibliography,
+    clusters,
+    clusterItems,
   ] = await Promise.all([
     loadAndParseCsv<ManuscriptDetails>(CSV_PATH_ITEMS_MANUSCRIPT),
     loadAndParseCsv<ManuscriptElementsMetadata>(CSV_PATH_MD_MANUSCRIPT),
@@ -356,6 +448,8 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
     loadAndParseCsv<Shelfmarks>(CSV_PATH_SHELFMARKS),
     loadAndParseCsv<Review>(CSV_PATH_REVIEWS),
     loadAndParseCsv<BibliographyEntry>(CSV_PATH_BIBLIOGRAPHY),
+    loadAndParseCsv<ClusterEntry>(CSV_PATH_CLUSTERS),
+    loadAndParseCsv<ClusterItem>(CSV_PATH_CLUSTER_ITEMS),
   ]);
   const manuscriptItem = manuscriptsItems.find((item) => item.key === key);
   const manuscriptMd = manuscriptsMetadata.find((item) => item.key === key);
@@ -399,6 +493,7 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
     bibliography: bibliography
       .filter((b) => b.key === key)
       .map((b) => b.citation),
+    reprintOf: getReprintOf(key, printsItems, clusters, clusterItems),
     ...(isManuscript
       ? {
           isManuscript: true,
@@ -502,6 +597,7 @@ const defaultValues = (): EditionRequestBody => ({
   books: [],
   additionalContent: [],
   bibliography: [],
+  reprintOf: null,
 });
 
 function toOptions<T extends Record<string, string | null>>(
@@ -531,6 +627,7 @@ export const UpsertEdition = () => {
     publishers: string[];
     additionalContents: string[];
     cities: string[];
+    reprintOptions: { value: string; label: string }[];
   }>();
   const formContainerRef = useRef<HTMLDivElement>(null);
 
@@ -678,19 +775,33 @@ export const UpsertEdition = () => {
     Promise.all([
       loadAndParseCsv<PrintDetails>(CSV_PATH_ITEMS_PRINT),
       loadAndParseCsv<PrintElementsMetadata>(CSV_PATH_MD_PRINT),
-      // @ts-expect-error no key
+      loadAndParseCsv<ParatextTranscriptions>(CSV_PATH_TRANSCRIPTIONS),
       loadAndParseCsv<City>(CSV_PATH_CITIES),
     ])
-      .then(([printItems, elementsMd, cities]) => {
+      .then(([printItems, elementsMd, transcriptions, cities]) => {
         const editors = toOptions(printItems, "author_or_editor");
         const publishers = toOptions(printItems, "publisher");
         const additionalContents = toOptions(elementsMd, "additional_content");
         const cityNames = cities.map((c) => c.city).filter(Boolean);
+
+        const reprintOptions = printItems
+          .map((item) => {
+            const transcription = transcriptions.find(
+              (t) => t.key === item.key,
+            );
+            return {
+              value: item.key,
+              label: generateCitationWithShortTitle(item, transcription),
+            };
+          })
+          .sort((a, b) => a.label.localeCompare(b.label));
+
         setLists({
           editors,
           publishers,
           additionalContents,
           cities: cityNames,
+          reprintOptions,
         });
       })
       .finally(() => setListsLoading(false));
@@ -822,8 +933,6 @@ export const UpsertEdition = () => {
                   )}
                 </form.Field>
               </FormField>
-
-              <FormField />
 
               <FormField>
                 <Label className="required">Item Type</Label>
@@ -1186,7 +1295,23 @@ export const UpsertEdition = () => {
                     </form.Field>
                   </FormField>
 
-                  <FormField />
+                  <FormField>
+                    <Label>Reprint of</Label>
+                    <form.Field name="reprintOf">
+                      {(field) => (
+                        <SingleSelect
+                          name="reprintOf"
+                          options={lists?.reprintOptions || []}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(value) =>
+                            field.handleChange((value as string) || null)
+                          }
+                          placeholder="Select a previous edition..."
+                        />
+                      )}
+                    </form.Field>
+                  </FormField>
 
                   <FormField>
                     <Label>Title</Label>

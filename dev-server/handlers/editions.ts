@@ -1,7 +1,11 @@
 import type { IncomingMessage, ServerResponse } from "http";
 import {
   BibliographyEntry,
+  ClusterEntry,
+  ClusterItem,
   CSV_PATH_BIBLIOGRAPHY,
+  CSV_PATH_CLUSTER_ITEMS,
+  CSV_PATH_CLUSTERS,
   CSV_PATH_CORPUSES,
   CSV_PATH_ITEMS_MANUSCRIPT,
   CSV_PATH_ITEMS_PRINT,
@@ -77,6 +81,7 @@ const upsertEdition = (edition: EditionRequestBody, user: string): void => {
   updateTranslations(edition);
   updateCorpuses(edition);
   updateBibliography(edition);
+  updateClusters(edition);
 
   if (edition.verified) {
     logInfo("Creating review record for verified edition", {
@@ -298,6 +303,89 @@ const updateBibliography = (edition: EditionRequestBody): void => {
   saveCsvData(CSV_PATH_BIBLIOGRAPHY, updatedData);
 };
 
+const updateClusters = (edition: EditionRequestBody): void => {
+  if (!edition.reprintOf) {
+    return;
+  }
+
+  logInfo("Processing reprint cluster", {
+    key: edition.key,
+    reprintOf: edition.reprintOf,
+  });
+
+  const clusterItems = loadCsvData<ClusterItem>(CSV_PATH_CLUSTER_ITEMS);
+
+  const parentCluster = clusterItems.find(
+    (ci) => ci.item_key === edition.reprintOf,
+  );
+
+  if (parentCluster) {
+    const clusterKey = parentCluster.cluster_key;
+    logInfo("Found existing cluster for parent item", {
+      key: edition.key,
+      reprintOf: edition.reprintOf,
+      clusterKey,
+    });
+
+    const existingClusterItem = clusterItems.find(
+      (ci) => ci.item_key === edition.key,
+    );
+
+    if (!existingClusterItem) {
+      const newClusterItem: ClusterItem = {
+        cluster_key: clusterKey,
+        item_key: edition.key,
+      };
+
+      logInfo("Adding item to existing cluster", {
+        key: edition.key,
+        clusterKey,
+      });
+
+      upsertCsvRow(
+        CSV_PATH_CLUSTER_ITEMS,
+        `${clusterKey}_${edition.key}`,
+        newClusterItem,
+      );
+    }
+  } else {
+    const newClusterKey = Math.random().toString(36).slice(2, 8).toUpperCase();
+
+    logInfo("Creating new cluster", {
+      key: edition.key,
+      reprintOf: edition.reprintOf,
+      newClusterKey,
+    });
+
+    const newCluster: ClusterEntry = {
+      key: newClusterKey,
+      type: "reprint",
+    };
+
+    const parentClusterItem: ClusterItem = {
+      cluster_key: newClusterKey,
+      item_key: edition.reprintOf,
+    };
+
+    const currentClusterItem: ClusterItem = {
+      cluster_key: newClusterKey,
+      item_key: edition.key,
+    };
+
+    upsertCsvRow(CSV_PATH_CLUSTERS, newClusterKey, newCluster);
+    upsertCsvRow(
+      CSV_PATH_CLUSTER_ITEMS,
+      `${newClusterKey}_${edition.reprintOf}`,
+      parentClusterItem,
+    );
+    upsertCsvRow(
+      CSV_PATH_CLUSTER_ITEMS,
+      `${newClusterKey}_${edition.key}`,
+      currentClusterItem,
+    );
+  }
+};
+
 const deleteEdition = (key: string): void => {
   logInfo("Starting edition deletion", { key });
 
@@ -311,6 +399,7 @@ const deleteEdition = (key: string): void => {
   deleteCsvRow(CSV_PATH_TRANSLATIONS, key);
   deleteCsvRow(CSV_PATH_CORPUSES, key);
   deleteCsvRow(CSV_PATH_BIBLIOGRAPHY, key);
+  deleteCsvRow(CSV_PATH_CLUSTER_ITEMS, key);
 
   logInfo("Edition deletion completed", { key });
 };

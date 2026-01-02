@@ -32,6 +32,7 @@ export type EditionRequestBody = {
   }[];
   verified: boolean;
   bibliography: string[];
+  reprintOf: string | null;
 } & (
   | {
       isManuscript: true;
