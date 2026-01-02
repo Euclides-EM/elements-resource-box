@@ -3,9 +3,6 @@ import { Feature } from "../types";
 export const TILE_HEIGHT = 400;
 export const TILE_WIDTH = 400;
 
-export const MIN_YEAR = 1482;
-export const MAX_YEAR = 1705;
-
 export const MACTUTOR_URL = "https://mactutor-index.netlify.app";
 export const EIP_URL = "https://bibsoc.org.uk/euclid-print-1482-1703/";
 
