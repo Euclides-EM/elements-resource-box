@@ -81,7 +81,8 @@ export const batchUpsertCsvRows = <T extends Record<string, string | null>>(
     const newRow = rowsByKey.get(mapKey);
     if (newRow) {
       const hasChanges = Object.keys(newRow).some(
-        (field) => existingRow[field] !== newRow[field],
+        (field) =>
+          !["source"].includes(field) && existingRow[field] !== newRow[field],
       );
       if (hasChanges) {
         updatedData.push(newRow);

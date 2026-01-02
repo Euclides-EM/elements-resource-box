@@ -692,11 +692,14 @@ export const UpsertEdition = () => {
       };
 
       if ((data.authors || [])?.length > 0 && !currentValues.editor?.length) {
-        form.setFieldValue("editor", data.authors!);
+        form.setFieldValue(
+          "editor",
+          data.authors!.map((a) => a.trim()),
+        );
       }
 
       if (data.short_title && !currentValues.shortTitle) {
-        form.setFieldValue("shortTitle", data.short_title);
+        form.setFieldValue("shortTitle", data.short_title.trim());
         form.setFieldValue("shortTitleSource", "Provided by catalog");
       }
 
@@ -704,22 +707,28 @@ export const UpsertEdition = () => {
         (data.publishers || [])?.length > 0 &&
         !currentValues.publisher?.length
       ) {
-        form.setFieldValue("publisher", data.publishers!);
+        form.setFieldValue(
+          "publisher",
+          data.publishers!.map((p) => p.trim()),
+        );
       }
 
       if (data.city && !currentValues.cities.length) {
-        form.setFieldValue("cities", [data.city]);
+        form.setFieldValue("cities", [data.city.trim()]);
       }
 
       if (data.year && !currentValues.year) {
-        form.setFieldValue("year", data.year.toString());
+        form.setFieldValue("year", data.year.toString().trim());
       }
 
       if (
         (data.languages || [])?.length > 0 &&
         !currentValues.languages?.length
       ) {
-        form.setFieldValue("languages", data.languages!);
+        form.setFieldValue(
+          "languages",
+          data.languages!.map((l) => l.trim()),
+        );
       }
 
       if (data.format && !currentValues.format) {
@@ -892,7 +901,9 @@ export const UpsertEdition = () => {
                       <Input
                         type="text"
                         value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                        onChange={(e) =>
+                          field.handleChange(e.target.value.trim())
+                        }
                         onBlur={field.handleBlur}
                       />
                       {!field.state.meta.isValid && (
@@ -923,7 +934,7 @@ export const UpsertEdition = () => {
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(value) =>
-                          field.handleChange((value as string) || "")
+                          field.handleChange(((value as string) || "").trim())
                         }
                         placeholder="Choose how the short title was determined..."
                       />
@@ -1038,7 +1049,9 @@ export const UpsertEdition = () => {
                           <Input
                             type="text"
                             value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
+                            onChange={(e) =>
+                              field.handleChange(e.target.value.trim())
+                            }
                             onBlur={field.handleBlur}
                           />
                           {!field.state.meta.isValid && (
@@ -1075,7 +1088,9 @@ export const UpsertEdition = () => {
                             min={1400}
                             max={2000}
                             value={field.state.value || ""}
-                            onChange={(e) => field.handleChange(e.target.value)}
+                            onChange={(e) =>
+                              field.handleChange(e.target.value.trim())
+                            }
                             onBlur={field.handleBlur}
                           />
                           {!field.state.meta.isValid && (
@@ -1105,7 +1120,13 @@ export const UpsertEdition = () => {
                             name="cities"
                             options={lists?.cities || []}
                             value={field.state.value}
-                            onChange={(values) => field.handleChange(values)}
+                            onChange={(values) =>
+                              field.handleChange(
+                                values.map((v) =>
+                                  typeof v === "string" ? v.trim() : v,
+                                ),
+                              )
+                            }
                             onBlur={field.handleBlur}
                             isCreatable={true}
                             placeholder="Choose or add cities of publication..."
@@ -1137,7 +1158,13 @@ export const UpsertEdition = () => {
                             name="languages"
                             options={LANGUAGES.map((lang) => lang)}
                             value={field.state.value}
-                            onChange={(values) => field.handleChange(values)}
+                            onChange={(values) =>
+                              field.handleChange(
+                                values.map((v) =>
+                                  typeof v === "string" ? v.trim() : v,
+                                ),
+                              )
+                            }
                             onBlur={field.handleBlur}
                             placeholder="Select languages used in the text..."
                           />
@@ -1168,7 +1195,13 @@ export const UpsertEdition = () => {
                             name="editors"
                             options={lists?.editors || []}
                             value={field.state.value}
-                            onChange={(values) => field.handleChange(values)}
+                            onChange={(values) =>
+                              field.handleChange(
+                                values.map((v) =>
+                                  typeof v === "string" ? v.trim() : v,
+                                ),
+                              )
+                            }
                             onBlur={field.handleBlur}
                             isCreatable={true}
                             placeholder="Choose or add editors/authors..."
@@ -1198,7 +1231,13 @@ export const UpsertEdition = () => {
                             name="publishers"
                             options={lists?.publishers || []}
                             value={field.state.value}
-                            onChange={(values) => field.handleChange(values)}
+                            onChange={(values) =>
+                              field.handleChange(
+                                values.map((v) =>
+                                  typeof v === "string" ? v.trim() : v,
+                                ),
+                              )
+                            }
                             onBlur={field.handleBlur}
                             isCreatable={true}
                             placeholder="Choose or add publishers..."
@@ -1281,7 +1320,7 @@ export const UpsertEdition = () => {
                             type="text"
                             value={field.state.value || ""}
                             onChange={(e) =>
-                              field.handleChange(e.target.value || null)
+                              field.handleChange(e.target.value.trim() || null)
                             }
                             onBlur={async (e) => {
                               field.handleBlur();
@@ -1306,7 +1345,9 @@ export const UpsertEdition = () => {
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(value) =>
-                            field.handleChange((value as string) || null)
+                            field.handleChange(
+                              ((value as string) || "").trim() || null,
+                            )
                           }
                           placeholder="Select a previous edition..."
                         />
@@ -1321,7 +1362,7 @@ export const UpsertEdition = () => {
                         <TextArea
                           value={field.state.value || ""}
                           onChange={(e) =>
-                            field.handleChange(e.target.value || null)
+                            field.handleChange(e.target.value.trim() || null)
                           }
                           onBlur={field.handleBlur}
                         />
@@ -1336,7 +1377,7 @@ export const UpsertEdition = () => {
                         <TextArea
                           value={field.state.value || ""}
                           onChange={(e) =>
-                            field.handleChange(e.target.value || null)
+                            field.handleChange(e.target.value.trim() || null)
                           }
                           onBlur={field.handleBlur}
                         />
@@ -1353,7 +1394,7 @@ export const UpsertEdition = () => {
                         <TextArea
                           value={field.state.value || ""}
                           onChange={(e) =>
-                            field.handleChange(e.target.value || null)
+                            field.handleChange(e.target.value.trim() || null)
                           }
                           onBlur={field.handleBlur}
                         />
@@ -1368,7 +1409,7 @@ export const UpsertEdition = () => {
                         <TextArea
                           value={field.state.value || ""}
                           onChange={(e) =>
-                            field.handleChange(e.target.value || null)
+                            field.handleChange(e.target.value.trim() || null)
                           }
                           onBlur={field.handleBlur}
                         />
@@ -1385,7 +1426,7 @@ export const UpsertEdition = () => {
                         <TextArea
                           value={field.state.value || ""}
                           onChange={(e) =>
-                            field.handleChange(e.target.value || null)
+                            field.handleChange(e.target.value.trim() || null)
                           }
                           onBlur={field.handleBlur}
                         />
@@ -1400,7 +1441,7 @@ export const UpsertEdition = () => {
                         <TextArea
                           value={field.state.value || ""}
                           onChange={(e) =>
-                            field.handleChange(e.target.value || null)
+                            field.handleChange(e.target.value.trim() || null)
                           }
                           onBlur={field.handleBlur}
                         />
@@ -1417,7 +1458,7 @@ export const UpsertEdition = () => {
                         <TextArea
                           value={field.state.value || ""}
                           onChange={(e) =>
-                            field.handleChange(e.target.value || null)
+                            field.handleChange(e.target.value.trim() || null)
                           }
                           onBlur={field.handleBlur}
                         />
@@ -1432,7 +1473,7 @@ export const UpsertEdition = () => {
                         <TextArea
                           value={field.state.value || ""}
                           onChange={(e) =>
-                            field.handleChange(e.target.value || null)
+                            field.handleChange(e.target.value.trim() || null)
                           }
                           onBlur={field.handleBlur}
                         />
@@ -1496,7 +1537,13 @@ export const UpsertEdition = () => {
                           name="additionalContent"
                           options={lists?.additionalContents || []}
                           value={field.state.value}
-                          onChange={(values) => field.handleChange(values)}
+                          onChange={(values) =>
+                            field.handleChange(
+                              values.map((v) =>
+                                typeof v === "string" ? v.trim() : v,
+                              ),
+                            )
+                          }
                           onBlur={field.handleBlur}
                           isCreatable={true}
                           placeholder="Choose or add additional content types..."
@@ -1519,7 +1566,13 @@ export const UpsertEdition = () => {
                         c1.label.localeCompare(c2.label),
                       ).map((c) => c.name)}
                       value={field.state.value}
-                      onChange={(values) => field.handleChange(values)}
+                      onChange={(values) =>
+                        field.handleChange(
+                          values.map((v) =>
+                            typeof v === "string" ? v.trim() : v,
+                          ),
+                        )
+                      }
                       onBlur={field.handleBlur}
                       labelFn={(name) =>
                         STUDY_CORPUSES.find((c) => c.name === name)?.label ||
@@ -1598,7 +1651,9 @@ export const UpsertEdition = () => {
                                   type="text"
                                   value={f.state.value || ""}
                                   onChange={(e) =>
-                                    f.handleChange(e.target.value || null)
+                                    f.handleChange(
+                                      e.target.value.trim() || null,
+                                    )
                                   }
                                   onBlur={f.handleBlur}
                                   placeholder="Facsimile URL"
@@ -1619,7 +1674,7 @@ export const UpsertEdition = () => {
                                 type="text"
                                 value={f.state.value || ""}
                                 onChange={(e) =>
-                                  f.handleChange(e.target.value || null)
+                                  f.handleChange(e.target.value.trim() || null)
                                 }
                                 onBlur={f.handleBlur}
                                 placeholder="Shelfmark"
@@ -1732,7 +1787,7 @@ export const UpsertEdition = () => {
                                 type="text"
                                 value={f.state.value || ""}
                                 onChange={(e) =>
-                                  f.handleChange(e.target.value || null)
+                                  f.handleChange(e.target.value.trim() || null)
                                 }
                                 onBlur={f.handleBlur}
                                 placeholder="Copyright"
@@ -1778,7 +1833,9 @@ export const UpsertEdition = () => {
                               <Input
                                 type="text"
                                 value={f.state.value || ""}
-                                onChange={(e) => f.handleChange(e.target.value)}
+                                onChange={(e) =>
+                                  f.handleChange(e.target.value.trim())
+                                }
                                 onBlur={f.handleBlur}
                                 placeholder="Enter citation string..."
                               />
@@ -1804,7 +1861,9 @@ export const UpsertEdition = () => {
                   {(field) => (
                     <TextArea
                       value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
+                      onChange={(e) =>
+                        field.handleChange(e.target.value.trim())
+                      }
                       onBlur={field.handleBlur}
                     />
                   )}
