@@ -19,12 +19,16 @@ import {
   CSV_PATH_CORPUSES,
   CSV_PATH_ITEMS_MANUSCRIPT,
   CSV_PATH_ITEMS_PRINT,
+  CSV_PATH_LOCATORS,
   CSV_PATH_MD_MANUSCRIPT,
   CSV_PATH_MD_PRINT,
   CSV_PATH_REVIEWS,
   CSV_PATH_SHELFMARKS,
   CSV_PATH_TRANSCRIPTIONS,
   CSV_PATH_TRANSLATIONS,
+  CSV_PATH_VISUAL_ELEMENTS,
+  CSV_PATH_VISUAL_ELEMENTS_EXAMPLES,
+  Locator,
   ManuscriptDetails,
   ManuscriptElementsMetadata,
   ParatextTranscriptions,
@@ -34,6 +38,8 @@ import {
   Review,
   Shelfmarks,
   StudyCorpuses,
+  VisualElement,
+  VisualElementExample,
 } from "../../common/csv.ts";
 import { invalidateCsvCache, loadAndParseCsv } from "../utils/csv.ts";
 import { parseBooks } from "../utils/normalizeNames.ts";
@@ -437,6 +443,9 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
     bibliography,
     clusters,
     clusterItems,
+    visualElements,
+    visualElementExamples,
+    locators,
   ] = await Promise.all([
     loadAndParseCsv<ManuscriptDetails>(CSV_PATH_ITEMS_MANUSCRIPT),
     loadAndParseCsv<ManuscriptElementsMetadata>(CSV_PATH_MD_MANUSCRIPT),
@@ -450,6 +459,9 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
     loadAndParseCsv<BibliographyEntry>(CSV_PATH_BIBLIOGRAPHY),
     loadAndParseCsv<ClusterEntry>(CSV_PATH_CLUSTERS),
     loadAndParseCsv<ClusterItem>(CSV_PATH_CLUSTER_ITEMS),
+    loadAndParseCsv<VisualElement>(CSV_PATH_VISUAL_ELEMENTS),
+    loadAndParseCsv<VisualElementExample>(CSV_PATH_VISUAL_ELEMENTS_EXAMPLES),
+    loadAndParseCsv<Locator>(CSV_PATH_LOCATORS),
   ]);
   const manuscriptItem = manuscriptsItems.find((item) => item.key === key);
   const manuscriptMd = manuscriptsMetadata.find((item) => item.key === key);
@@ -494,6 +506,31 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
       .filter((b) => b.key === key)
       .map((b) => b.citation),
     reprintOf: getReprintOf(key, printsItems, clusters, clusterItems),
+    visualElements: visualElements
+      .filter((ve) => ve.key === key)
+      .map((ve) => {
+        const locator = ve.locator_key
+          ? locators.find((l) => l.key === ve.locator_key) || null
+          : null;
+        const examples = visualElementExamples
+          .filter((vee) => vee.key === ve.key)
+          .map((vee) => ({
+            key: vee.key,
+            img: vee.path,
+            locator: vee.locator_key
+              ? locators.find((l) => l.key === vee.locator_key) || null
+              : null,
+          }));
+
+        return {
+          key: ve.key,
+          visual_element_type: ve.visual_element_type,
+          notes: ve.notes || "",
+          locator_type: ve.locator_type,
+          locator,
+          examples,
+        };
+      }),
     ...(isManuscript
       ? {
           isManuscript: true,
@@ -598,6 +635,7 @@ const defaultValues = (): EditionRequestBody => ({
   additionalContent: [],
   bibliography: [],
   reprintOf: null,
+  visualElements: [],
 });
 
 function toOptions<T extends Record<string, string | null>>(
@@ -628,6 +666,8 @@ export const UpsertEdition = () => {
     additionalContents: string[];
     cities: string[];
     reprintOptions: { value: string; label: string }[];
+    visualElementTypes: string[];
+    locatorTypes: string[];
   }>();
   const formContainerRef = useRef<HTMLDivElement>(null);
 
@@ -778,33 +818,60 @@ export const UpsertEdition = () => {
       loadAndParseCsv<ParatextTranscriptions>(CSV_PATH_TRANSCRIPTIONS),
       // @ts-expect-error csv record
       loadAndParseCsv<City>(CSV_PATH_CITIES),
+      loadAndParseCsv<VisualElement>(CSV_PATH_VISUAL_ELEMENTS),
+      loadAndParseCsv<Locator>(CSV_PATH_LOCATORS),
     ])
-      .then(([printItems, elementsMd, transcriptions, cities]) => {
-        const editors = toOptions(printItems, "author_or_editor");
-        const publishers = toOptions(printItems, "publisher");
-        const additionalContents = toOptions(elementsMd, "additional_content");
-        const cityNames = cities.map((c) => c.city).filter(Boolean);
+      .then(
+        ([
+          printItems,
+          elementsMd,
+          transcriptions,
+          cities,
+          visualElements,
+          locators,
+        ]) => {
+          const editors = toOptions(printItems, "author_or_editor");
+          const publishers = toOptions(printItems, "publisher");
+          const additionalContents = toOptions(
+            elementsMd,
+            "additional_content",
+          );
+          const cityNames = cities.map((c) => c.city).filter(Boolean);
 
-        const reprintOptions = printItems
-          .map((item) => {
-            const transcription = transcriptions.find(
-              (t) => t.key === item.key,
-            );
-            return {
-              value: item.key,
-              label: generateCitationWithShortTitle(item, transcription),
-            };
-          })
-          .sort((a, b) => a.label.localeCompare(b.label));
+          const reprintOptions = printItems
+            .map((item) => {
+              const transcription = transcriptions.find(
+                (t) => t.key === item.key,
+              );
+              return {
+                value: item.key,
+                label: generateCitationWithShortTitle(item, transcription),
+              };
+            })
+            .sort((a, b) => a.label.localeCompare(b.label));
 
-        setLists({
-          editors,
-          publishers,
-          additionalContents,
-          cities: cityNames,
-          reprintOptions,
-        });
-      })
+          const visualElementTypes = uniq(
+            visualElements.map((ve) => ve.visual_element_type).filter(Boolean),
+          ).sort();
+          const locatorTypes = uniq([
+            ...locators.map((l) => l.type).filter(Boolean),
+            "Proposition",
+            "Definition",
+            "Common notion",
+            "Scholia of proposition",
+          ]).sort() as string[];
+
+          setLists({
+            editors,
+            publishers,
+            additionalContents,
+            cities: cityNames,
+            reprintOptions,
+            visualElementTypes,
+            locatorTypes,
+          });
+        },
+      )
       .finally(() => setListsLoading(false));
   }, []);
 
@@ -1792,6 +1859,506 @@ export const UpsertEdition = () => {
                             </Row>
                           )}
                         </form.Field>
+                      </FormField>
+                    ))}
+                  </>
+                )}
+              </form.Field>
+
+              <form.Field name="visualElements">
+                {(field) => (
+                  <>
+                    <FormField className="full-width">
+                      <Label isTitle>Visual Elements</Label>
+                      <button
+                        style={{
+                          padding: 4,
+                          width: "fit-content",
+                          cursor: "pointer",
+                        }}
+                        type="button"
+                        onClick={() =>
+                          field.pushValue({
+                            key: getSuggestedKey(),
+                            visual_element_type: "",
+                            notes: "",
+                            locator_type: "uncatalogued",
+                            locator: null,
+                            examples: [],
+                          })
+                        }
+                      >
+                        Add visual element
+                      </button>
+
+                      {!field.state.meta.isValid && (
+                        <em>{field.state.meta.errors.join(", ")}</em>
+                      )}
+                    </FormField>
+                    {field.state.value.map((_, i) => (
+                      <FormField key={i} gap={0.5} bgColor="#D8ECFC">
+                        <FormField>
+                          <Label className="required">
+                            Visual Element Type
+                          </Label>
+                          <form.Field
+                            name={`visualElements[${i}].visual_element_type`}
+                            validators={{
+                              onBlur: ({ value }) =>
+                                !value && "Visual element type is required",
+                            }}
+                          >
+                            {(f) => (
+                              <>
+                                <SingleSelect
+                                  name={`visualElements[${i}].visual_element_type`}
+                                  options={
+                                    lists?.visualElementTypes?.map((t) => ({
+                                      value: t,
+                                      label: t,
+                                    })) || []
+                                  }
+                                  value={f.state.value}
+                                  onChange={(value) => {
+                                    const strValue = (value || "") as string;
+                                    if (
+                                      strValue &&
+                                      !lists?.visualElementTypes?.includes(
+                                        strValue,
+                                      )
+                                    ) {
+                                      setLists(
+                                        (l) =>
+                                          ({
+                                            ...l,
+                                            visualElementTypes: [
+                                              ...(l!.visualElementTypes || []),
+                                              strValue,
+                                            ],
+                                          }) as typeof lists,
+                                      );
+                                    }
+                                    f.handleChange(strValue);
+                                  }}
+                                  onBlur={f.handleBlur}
+                                  isCreatable
+                                  placeholder="e.g., diagram, figure, table"
+                                />
+                                {!f.state.meta.isValid && (
+                                  <em>{f.state.meta.errors.join(", ")}</em>
+                                )}
+                              </>
+                            )}
+                          </form.Field>
+                        </FormField>
+
+                        <FormField>
+                          <Label className="required">
+                            Visual Element Locator
+                          </Label>
+                          <form.Field
+                            name={`visualElements[${i}].locator_type`}
+                          >
+                            {(f) => (
+                              <>
+                                <SingleSelect
+                                  name="locator_type"
+                                  options={[
+                                    { value: "ref", label: "Ref" },
+                                    { value: "many", label: "Many" },
+                                    {
+                                      value: "uncatalogued",
+                                      label: "Uncatalogued",
+                                    },
+                                  ]}
+                                  value={f.state.value}
+                                  onChange={(value) => {
+                                    f.handleChange(
+                                      (value as string | null) || "",
+                                    );
+                                    if (value === "ref") {
+                                      form.setFieldValue(
+                                        `visualElements[${i}].locator`,
+                                        {
+                                          key: getSuggestedKey(),
+                                          first_order_type: null,
+                                          first_order_value: null,
+                                          type: null,
+                                          value: "",
+                                          page_type: "",
+                                          page_value: null,
+                                        },
+                                      );
+                                    } else {
+                                      form.setFieldValue(
+                                        `visualElements[${i}].locator`,
+                                        null,
+                                      );
+                                    }
+                                  }}
+                                  onBlur={f.handleBlur}
+                                />
+                                {!f.state.meta.isValid && (
+                                  <em>{f.state.meta.errors.join(", ")}</em>
+                                )}
+                              </>
+                            )}
+                          </form.Field>
+                        </FormField>
+
+                        {field.state.value[i].locator_type === "ref" && (
+                          <>
+                            <FormField>
+                              <Label>First Order Type</Label>
+                              <form.Field
+                                name={`visualElements[${i}].locator.first_order_type`}
+                              >
+                                {(f) => (
+                                  <SingleSelect
+                                    name="first_order_type"
+                                    options={[
+                                      { value: "book", label: "Book" },
+                                      { value: "section", label: "Section" },
+                                    ]}
+                                    onChange={(value) =>
+                                      f.handleChange(value as string | null)
+                                    }
+                                    value={f.state.value || ""}
+                                    onBlur={f.handleBlur}
+                                  />
+                                )}
+                              </form.Field>
+                            </FormField>
+
+                            <FormField>
+                              <Label>First Order Value</Label>
+                              <form.Field
+                                name={`visualElements[${i}].locator.first_order_value`}
+                                validators={{
+                                  onBlur: ({ value }) => {
+                                    if (
+                                      field.state.value[i].locator
+                                        ?.first_order_type &&
+                                      !value
+                                    ) {
+                                      return "First order value is required when first order type is specified";
+                                    }
+                                    if (
+                                      field.state.value[i].locator &&
+                                      !field.state.value[i].locator
+                                        .first_order_type &&
+                                      value
+                                    ) {
+                                      return "First order value is cannot be set when first order type is not specified";
+                                    }
+                                  },
+                                }}
+                              >
+                                {(f) => (
+                                  <>
+                                    <Input
+                                      type="text"
+                                      value={f.state.value || ""}
+                                      onChange={(e) =>
+                                        f.handleChange(
+                                          e.target.value?.trim() || null,
+                                        )
+                                      }
+                                      onBlur={f.handleBlur}
+                                      placeholder="e.g. book number or name"
+                                    />
+                                    {!f.state.meta.isValid && (
+                                      <em>{f.state.meta.errors.join(", ")}</em>
+                                    )}
+                                  </>
+                                )}
+                              </form.Field>
+                            </FormField>
+
+                            <FormField>
+                              <Label>Locator Type</Label>
+                              <form.Field
+                                name={`visualElements[${i}].locator.type`}
+                              >
+                                {(f) => (
+                                  <SingleSelect
+                                    name="locator_type"
+                                    options={
+                                      lists?.locatorTypes?.map((t) => ({
+                                        value: t,
+                                        label: t,
+                                      })) || []
+                                    }
+                                    onChange={(value) => {
+                                      const strValue = (value || "") as string;
+                                      if (
+                                        strValue &&
+                                        !lists?.locatorTypes?.includes(strValue)
+                                      ) {
+                                        setLists(
+                                          (l) =>
+                                            ({
+                                              ...l,
+                                              locatorTypes: [
+                                                ...(l!.locatorTypes || []),
+                                                strValue,
+                                              ],
+                                            }) as typeof lists,
+                                        );
+                                      }
+                                      f.handleChange(strValue);
+                                    }}
+                                    isCreatable
+                                    value={f.state.value || ""}
+                                    onBlur={f.handleBlur}
+                                  />
+                                )}
+                              </form.Field>
+                            </FormField>
+
+                            <FormField>
+                              <Label className="required">Locator Value</Label>
+                              <form.Field
+                                name={`visualElements[${i}].locator.value`}
+                                validators={{
+                                  onBlur: ({ value }) =>
+                                    field.state.value[i].locator &&
+                                    !value &&
+                                    "Locator value is required when locator is specified",
+                                }}
+                              >
+                                {(f) => (
+                                  <>
+                                    <Input
+                                      type="text"
+                                      value={f.state.value || ""}
+                                      onChange={(e) =>
+                                        f.handleChange(
+                                          e.target.value?.trim() || null,
+                                        )
+                                      }
+                                      onBlur={f.handleBlur}
+                                      placeholder="e.g. book number or name"
+                                    />
+                                    {!f.state.meta.isValid && (
+                                      <em>{f.state.meta.errors.join(", ")}</em>
+                                    )}
+                                  </>
+                                )}
+                              </form.Field>
+                            </FormField>
+
+                            <FormField>
+                              <Label className="required">Page Type</Label>
+                              <form.Field
+                                name={`visualElements[${i}].locator.page_type`}
+                                validators={{
+                                  onBlur: ({ value }) =>
+                                    field.state.value[i].locator &&
+                                    !value &&
+                                    "Page type is required when locator is specified",
+                                }}
+                              >
+                                {(f) => (
+                                  <>
+                                    <SingleSelect
+                                      name="page_type"
+                                      options={[
+                                        { value: "page", label: "Page" },
+                                        { value: "folio", label: "Folio" },
+                                        {
+                                          value: "page_range",
+                                          label: "Page range",
+                                        },
+                                        {
+                                          value: "folio_range",
+                                          label: "Folio range",
+                                        },
+                                        {
+                                          value: "facsimile_page",
+                                          label: "Facsimile Page",
+                                        },
+                                        {
+                                          value: "facsimile_page_range",
+                                          label: "Facsimile Page range",
+                                        },
+                                      ]}
+                                      onChange={(value) => {
+                                        const strValue = value as string | null;
+                                        f.handleChange(strValue);
+                                      }}
+                                      value={f.state.value || ""}
+                                      onBlur={f.handleBlur}
+                                    />
+                                    {!f.state.meta.isValid && (
+                                      <em>{f.state.meta.errors.join(", ")}</em>
+                                    )}
+                                  </>
+                                )}
+                              </form.Field>
+                            </FormField>
+
+                            <FormField>
+                              <Label>Page Value</Label>
+                              <form.Field
+                                name={`visualElements[${i}].locator.page_value`}
+                                validators={{
+                                  onBlur: ({ value }) => {
+                                    if (
+                                      ["page", "facsimile_page"].includes(
+                                        field.state.value[i].locator
+                                          ?.page_type || "",
+                                      ) &&
+                                      !/^(\d+(-\d+)?)(,(\d+(-\d+)?))*$/.test(
+                                        value || "",
+                                      )
+                                    ) {
+                                      return "Value must be a comma separated list of page numbers or ranges (e.g., 12,14-16,18)";
+                                    }
+                                    if (
+                                      [
+                                        "page_range",
+                                        "facsimile_page_range",
+                                      ].includes(
+                                        field.state.value[i].locator
+                                          ?.page_type || "",
+                                      ) &&
+                                      !/^\d+v?$/.test(value || "")
+                                    ) {
+                                      return "Value must be a single folio or page number (e.g., 12 or 12v)";
+                                    }
+                                    return (
+                                      !field.state.value[i].locator
+                                        ?.page_type &&
+                                      !value &&
+                                      "Page value cannot be set when page type is not specified"
+                                    );
+                                  },
+                                }}
+                              >
+                                {(f) => (
+                                  <>
+                                    {" "}
+                                    <Input
+                                      type="text"
+                                      value={f.state.value || ""}
+                                      onChange={(e) =>
+                                        f.handleChange(e.target.value || null)
+                                      }
+                                      onBlur={f.handleBlur}
+                                      placeholder="Page number or reference"
+                                    />
+                                    {!f.state.meta.isValid && (
+                                      <em>{f.state.meta.errors.join(", ")}</em>
+                                    )}
+                                  </>
+                                )}
+                              </form.Field>
+                            </FormField>
+                          </>
+                        )}
+
+                        <form.Field name={`visualElements[${i}].examples`}>
+                          {(examplesField) => (
+                            <>
+                              <FormField className="full-width">
+                                <Label>Examples</Label>
+                                <button
+                                  style={{
+                                    padding: 4,
+                                    width: "fit-content",
+                                    cursor: "pointer",
+                                  }}
+                                  type="button"
+                                  onClick={() =>
+                                    examplesField.pushValue({
+                                      key: getSuggestedKey(),
+                                      img: "",
+                                      locator: null,
+                                    })
+                                  }
+                                >
+                                  Add example
+                                </button>
+                              </FormField>
+                              {examplesField.state.value.map((_, j) => (
+                                <FormField key={j} gap={0.5} bgColor="#F0F8FF">
+                                  <FormField>
+                                    <form.Field
+                                      name={`visualElements[${i}].examples[${j}].img`}
+                                    >
+                                      {(f) => (
+                                        <>
+                                          <Label>
+                                            Example Image{" "}
+                                            {f.state.value && (
+                                              <SelectedImage>
+                                                Image is set
+                                              </SelectedImage>
+                                            )}
+                                          </Label>
+                                          <FileInput
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                              if (!e.target.files?.[0]) {
+                                                f.handleChange("");
+                                              } else {
+                                                const id = uniqueId();
+                                                setImages((m) => ({
+                                                  ...m,
+                                                  [id]: e.target.files![0],
+                                                }));
+                                                f.handleChange(id);
+                                              }
+                                            }}
+                                          />
+                                          {f.state.value &&
+                                            images[f.state.value] && (
+                                              <div>
+                                                <SelectedImage>
+                                                  Selected:{" "}
+                                                  {images[f.state.value].name}
+                                                </SelectedImage>
+                                              </div>
+                                            )}
+                                        </>
+                                      )}
+                                    </form.Field>
+                                  </FormField>
+
+                                  <RemoveButton
+                                    type="button"
+                                    onClick={() => examplesField.removeValue(j)}
+                                  >
+                                    Remove Example
+                                  </RemoveButton>
+                                </FormField>
+                              ))}
+                            </>
+                          )}
+                        </form.Field>
+
+                        <FormField>
+                          <Label>Notes</Label>
+                          <form.Field name={`visualElements[${i}].notes`}>
+                            {(f) => (
+                              <TextArea
+                                value={f.state.value}
+                                onChange={(e) => f.handleChange(e.target.value)}
+                                onBlur={f.handleBlur}
+                                placeholder="Additional notes about this visual element"
+                              />
+                            )}
+                          </form.Field>
+                        </FormField>
+
+                        <RemoveButton
+                          type="button"
+                          onClick={() => field.removeValue(i)}
+                        >
+                          Remove Visual Element
+                        </RemoveButton>
                       </FormField>
                     ))}
                   </>
