@@ -93,12 +93,17 @@ export const itemProperties: {
     displayName: "Wardhaugh Class",
     filterGroup: "Elements",
   },
-  diagrams_extracted: {
+  diagramsExtracted: {
     displayName: "Diagrams Extracted",
     filterGroup: "Diagrams",
   },
-  has_diagrams: {
+  hasDiagrams: {
     displayName: "Has Diagrams",
+    filterGroup: "Diagrams",
+  },
+  visualElementsTypes: {
+    displayName: "Visual Elements Types",
+    isArray: true,
     filterGroup: "Diagrams",
   },
   dotted_lines_b79_cases: {

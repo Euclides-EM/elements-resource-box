@@ -93,8 +93,9 @@ export type Item = {
   explicitLanguageReferences: string[] | null;
   institutions: string[] | null;
   otherNames: string[] | null;
-  diagrams_extracted: string;
-  has_diagrams: string;
+  diagramsExtracted: string;
+  hasDiagrams: string;
+  visualElementsTypes: string[];
   dotted_lines_b79_cases: string;
   dotted_lines_b10_case: string;
   dotted_lines_b2_cases: string[];
