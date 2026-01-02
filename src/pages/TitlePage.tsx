@@ -26,6 +26,7 @@ import styled from "@emotion/styled";
 import Switch from "react-switch";
 import { LAND_COLOR, MARKER_3 } from "../utils/colors.ts";
 import { Stats } from "../components/Stats.tsx";
+import { searchWithSpecialChars } from "../utils/normalizeNames";
 
 const NoteLine = styled(Row)`
   opacity: 0.8;
@@ -84,35 +85,19 @@ function TitlePage() {
       return filteredItems;
     }
 
-    const searchLower = searchText.toLowerCase();
     return filteredItems.filter((item) => {
-      const title = item.title?.toLowerCase() || "";
-      const imprint = item.imprint?.toLowerCase() || "";
-      const titleEn = item.titleEn?.toLowerCase() || "";
       return (
-        title
-          .replaceAll("\n", " ")
-          .replaceAll("  ", " ")
-          .replaceAll("-", "")
-          .includes(searchLower) ||
-        titleEn
-          .replaceAll("\n", " ")
-          .replaceAll("  ", " ")
-          .replaceAll("-", "")
-          .includes(searchLower) ||
-        imprint
-          .replaceAll("\n", " ")
-          .replaceAll("  ", " ")
-          .replaceAll("-", "")
-          .includes(searchLower) ||
+        searchWithSpecialChars(searchText, item.title || "") ||
+        searchWithSpecialChars(searchText, item.titleEn || "") ||
+        searchWithSpecialChars(searchText, item.imprint || "") ||
         item.authors?.some((author) =>
-          author.toLowerCase().includes(searchLower),
+          searchWithSpecialChars(searchText, author),
         ) ||
-        item.cities.some((city) => city.toLowerCase().includes(searchLower)) ||
+        item.cities.some((city) => searchWithSpecialChars(searchText, city)) ||
         item.languages.some((lang) =>
-          lang.toLowerCase().includes(searchLower),
+          searchWithSpecialChars(searchText, lang),
         ) ||
-        item.year?.toLowerCase().includes(searchLower)
+        searchWithSpecialChars(searchText, item.year || "")
       );
     });
   }, [filteredItems, searchText, titlePagesModeOn]);

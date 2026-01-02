@@ -13,6 +13,7 @@ import { isArray, isEmpty, isNil } from "lodash";
 import { loadCitiesAsync, loadEditionsData } from "../utils/dataUtils";
 import { Point } from "react-simple-maps";
 import { NO_CITY } from "../constants";
+import { searchWithSpecialChars } from "../utils/normalizeNames";
 
 type FilterContextType = {
   data: Item[];
@@ -35,6 +36,10 @@ type FilterContextType = {
   minYear: number;
   maxYear: number;
   resetFilters: () => void;
+  textSearch: string;
+  setTextSearch: React.Dispatch<React.SetStateAction<string>>;
+  textSearchFields: (keyof Item)[];
+  setTextSearchFields: React.Dispatch<React.SetStateAction<(keyof Item)[]>>;
 };
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined);
@@ -53,7 +58,19 @@ const filterRecord = (
   filters: Record<string, FilterValue[] | undefined>,
   filtersInclude: Record<string, boolean>,
   includeUndated: boolean,
+  textSearch: string,
+  textSearchFields: (keyof Item)[],
 ): boolean => {
+  if (textSearch && textSearchFields.length > 0) {
+    const matchesText = textSearchFields.some((field) => {
+      const value = t[field as keyof Item];
+      if (!value || typeof value !== "string") {
+        return false;
+      }
+      return searchWithSpecialChars(textSearch, value);
+    });
+    if (!matchesText) return false;
+  }
   const year = t.year ? parseInt(t.year.split("/")[0]) : null;
   if (range[0] > 0 && range[1] > 0) {
     if (!year) {
@@ -137,6 +154,13 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
     "include-undated",
     true,
   );
+  const [textSearch, setTextSearch] = useLocalStorage<string>(
+    "text-search",
+    "",
+  );
+  const [textSearchFields, setTextSearchFields] = useLocalStorage<
+    (keyof Item)[]
+  >("text-search-fields", ["shortTitle", "title", "titleEn"]);
 
   useEffect(() => {
     loadEditionsData(setData, true);
@@ -146,9 +170,25 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
   const filteredItems = useMemo(
     () =>
       data.filter((t) =>
-        filterRecord(t, range, filters, filtersInclude, includeUndated),
+        filterRecord(
+          t,
+          range,
+          filters,
+          filtersInclude,
+          includeUndated,
+          textSearch,
+          textSearchFields,
+        ),
       ),
-    [data, range, filters, filtersInclude, includeUndated],
+    [
+      data,
+      range,
+      filters,
+      filtersInclude,
+      includeUndated,
+      textSearch,
+      textSearchFields,
+    ],
   );
 
   const resetFilters = () => {
@@ -163,6 +203,8 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
     setFiltersInclude({});
     setRange([minYear, maxYear]);
     setIncludeUndated(true);
+    setTextSearch("");
+    setTextSearchFields(["shortTitle", "title", "titleEn"]);
   };
 
   const value = {
@@ -182,6 +224,10 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
     minYear,
     maxYear,
     resetFilters,
+    textSearch,
+    setTextSearch,
+    textSearchFields,
+    setTextSearchFields,
   };
 
   return (

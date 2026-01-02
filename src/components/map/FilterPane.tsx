@@ -7,6 +7,7 @@ import RangeSlider from "../tps/filters/RangeSlider";
 import { FilterButton } from "../layout/FilterButton.tsx";
 import { itemProperties } from "../../constants/itemProperties.ts";
 import { NAVBAR_HEIGHT } from "../layout/routes.ts";
+import { TextSearchFilter } from "./TextSearchFilter";
 
 const Pane = styled.div`
   display: flex;
@@ -89,6 +90,10 @@ export const FilterPane = () => {
     minYear,
     maxYear,
     resetFilters,
+    textSearch,
+    setTextSearch,
+    textSearchFields,
+    setTextSearchFields,
   } = useFilter();
   if (!filterOpen) {
     return null;
@@ -114,6 +119,13 @@ export const FilterPane = () => {
         />
         <label htmlFor="include-undated">Include undated</label>
       </CheckboxContainer>
+
+      <TextSearchFilter
+        textSearch={textSearch}
+        setTextSearch={setTextSearch}
+        textSearchFields={textSearchFields}
+        setTextSearchFields={setTextSearchFields}
+      />
 
       <FiltersGroup
         data={data}
