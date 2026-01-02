@@ -1,7 +1,5 @@
 import { Tooltip } from "react-tooltip";
 import styled from "@emotion/styled";
-import { Link } from "./Link.tsx";
-import { EIP_URL } from "../../constants";
 
 export const TOOLTIP_FEATURES_HIGHLIGHT = "features-highlight";
 export const TOOLTIP_RESET = "reset";
@@ -14,7 +12,6 @@ export const TOOLTIP_TIMELINE_BUTTON = "timeline-button";
 export const TOOLTIP_HELP = "help";
 export const TOOLTIP_MARKER_ARROW = "marker-arrow";
 export const TOOLTIP_SCAN = "view-scan";
-export const TOOLTIP_WCLASS = "w-class";
 export const TOOLTIP_BOOK_TYPE = "book-type";
 export const TOOLTIP_TRANSCRIPTION = "transcription";
 export const TOOLTIP_EN_TRANSLATION = "en-translation";
@@ -44,12 +41,6 @@ export const MapTooltips = () => (
     <Tooltip id={TOOLTIP_BOOK_TYPE}>
       The classification of a book as a distinct edition or as a translation of
       Elements is not always clear and can be challenged.
-    </Tooltip>
-    <Tooltip id={TOOLTIP_WCLASS} clickable>
-      <div>
-        Classification according to{" "}
-        <Link url={EIP_URL} text="Euclid in print" />
-      </div>
     </Tooltip>
     <Tooltip anchorSelect={`#${TOOLTIP_MARKER_ARROW}`} offset={-14}>
       <LimitedWidthDiv>

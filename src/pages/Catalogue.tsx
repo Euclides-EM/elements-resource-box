@@ -28,10 +28,7 @@ import { AiFillEdit } from "react-icons/ai";
 import { SEA_COLOR } from "../utils/colors.ts";
 import { AuthContext } from "../contexts/Auth.ts";
 import { authorDisplayName } from "../utils/dataUtils.ts";
-import {
-  TOOLTIP_BOOK_TYPE,
-  TOOLTIP_WCLASS,
-} from "../components/map/MapTooltips.tsx";
+import { TOOLTIP_BOOK_TYPE } from "../components/map/MapTooltips.tsx";
 import { HelpTip } from "../components/map/Filter.tsx";
 import { Stats } from "../components/Stats.tsx";
 import { exportCitationsAsRTF } from "../utils/chicagoCitationExport";
@@ -383,17 +380,6 @@ function Catalogue() {
           cell: (info) => info.getValue(),
           size: 40,
         }),
-        showElementsColumns &&
-          columnHelper.accessor("class", {
-            header: () => (
-              <Row gap={0.5}>
-                W-Class <StyledHelpTip tooltipId={TOOLTIP_WCLASS} />
-              </Row>
-            ),
-            enableSorting: false,
-            cell: (info) => info.getValue(),
-            size: 120,
-          }),
         showElementsColumns &&
           columnHelper.accessor("additionalContent", {
             header: "Additional Content",

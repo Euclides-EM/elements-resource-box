@@ -3,7 +3,7 @@ import { LAND_COLOR, SEA_COLOR } from "../../utils/colors";
 import styled from "@emotion/styled";
 import { MdQuestionMark } from "react-icons/md";
 import { Item } from "../../types";
-import { TOOLTIP_BOOK_TYPE, TOOLTIP_WCLASS } from "./MapTooltips.tsx";
+import { TOOLTIP_BOOK_TYPE } from "./MapTooltips.tsx";
 import { Switch, SwitchOption } from "./Switch.tsx";
 
 export type FilterValue = { label: string; value: string };
@@ -91,7 +91,6 @@ export const Filter = ({
           <span className="gothic">{label[0]}</span>
           {label.slice(1)}
         </FilterTitle>
-        {field === "class" && <HelpTip tooltipId={TOOLTIP_WCLASS} />}
         {field === "type" && <HelpTip tooltipId={TOOLTIP_BOOK_TYPE} />}
         <Filler />
         <Switch>
