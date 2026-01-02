@@ -590,7 +590,7 @@ export const UpsertEdition = () => {
 
       if (data.short_title && !currentValues.shortTitle) {
         form.setFieldValue("shortTitle", data.short_title);
-        form.setFieldValue("shortTitleSource", "Specified in source");
+        form.setFieldValue("shortTitleSource", "Provided by catalog");
       }
 
       if (
