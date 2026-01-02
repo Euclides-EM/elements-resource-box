@@ -217,7 +217,11 @@ export const loadEditionsData = (
                   : "Black"
                 : null,
               titlePageDesign: hasTitleImage
-                ? startCase(tpFeatures["print_technique"]?.toLowerCase())
+                ? startCase(
+                    (
+                      tpFeatures["print_technique"] as string | null
+                    )?.toLowerCase(),
+                  )
                 : null,
               titlePageNumberOfTypes: hasTitleImage
                 ? tpFeatures["number_of_types"]
@@ -293,11 +297,15 @@ export const loadEditionsData = (
                   )
                 : null,
               institutions: hasTitle
-                ? parseInstitutions(tpFeatures["institutions"] || "")
+                ? parseInstitutions(
+                    (tpFeatures["institutions"] as string) || "",
+                  )
                 : null,
               otherNames: hasTitle
                 ? parseOtherNames(
-                    tpFeatures["educational_authorities_references"] || "",
+                    (tpFeatures[
+                      "educational_authorities_references"
+                    ] as string) || "",
                   )
                 : null,
               features: Object.keys(FeatureToColumnName).reduce(
