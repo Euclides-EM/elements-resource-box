@@ -179,7 +179,7 @@ export const FilterAppliedProvider = ({
       setIsFiltering(true);
       workerRef.current.postMessage(message);
     }
-  }, [appliedFilters, isFiltering]);
+  }, [appliedFilters]);
 
   const filteredItems = internalFilteredItems;
 
@@ -204,21 +204,23 @@ export const FilterAppliedProvider = ({
           },
         ],
       };
-      setters.setFilters(defaultFilters);
-      setters.setFiltersInclude({});
-      setters.setRange([minYear, maxYear]);
-      setters.setIncludeUndated(true);
-      setters.setTextSearch("");
-      setters.setTextSearchFields(["shortTitle", "title", "titleEn"]);
-
-      setAppliedFilters({
+      const defaultState = {
         filters: defaultFilters,
         filtersInclude: {},
-        range: [minYear, maxYear],
+        range: [minYear, maxYear] as [number, number],
         includeUndated: true,
         textSearch: "",
-        textSearchFields: ["shortTitle", "title", "titleEn"],
-      });
+        textSearchFields: ["shortTitle", "title", "titleEn"] as (keyof Item)[],
+      };
+
+      setters.setFilters(defaultState.filters);
+      setters.setFiltersInclude(defaultState.filtersInclude);
+      setters.setRange(defaultState.range);
+      setters.setIncludeUndated(defaultState.includeUndated);
+      setters.setTextSearch(defaultState.textSearch);
+      setters.setTextSearchFields(defaultState.textSearchFields);
+
+      setAppliedFilters(defaultState);
       setHasUnappliedChanges(false);
     },
     [maxYear, minYear, setAppliedFilters],
