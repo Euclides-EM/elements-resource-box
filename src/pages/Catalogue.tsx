@@ -9,6 +9,8 @@ import {
   getSortedRowModel,
   SortingState,
   useReactTable,
+  ExpandedState,
+  getExpandedRowModel,
 } from "@tanstack/react-table";
 import styled from "@emotion/styled";
 import { SiMaterialdesign } from "react-icons/si";
@@ -23,15 +25,24 @@ import {
 import ItemModal from "../components/tps/modal/ItemModal";
 import { NO_AUTHOR, NO_CITY, NO_YEAR } from "../constants";
 import { joinArr } from "../utils/util.ts";
-import { FaBookReader } from "react-icons/fa";
+import { FaBookReader, FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { AiFillEdit } from "react-icons/ai";
 import { SEA_COLOR } from "../utils/colors.ts";
 import { AuthContext } from "../contexts/Auth.ts";
 import { authorDisplayName } from "../utils/dataUtils.ts";
 import { TOOLTIP_BOOK_TYPE } from "../components/map/MapTooltips.tsx";
 import { HelpTip } from "../components/map/Filter.tsx";
+import { Switch, SwitchOption } from "../components/map/Switch.tsx";
 import { Stats } from "../components/Stats.tsx";
 import { exportCitationsAsRTF } from "../utils/chicagoCitationExport";
+import {
+  ClusterEntry,
+  ClusterItem,
+  CSV_PATH_CLUSTERS,
+  CSV_PATH_CLUSTER_ITEMS,
+} from "../../common/csv";
+import { loadAndParseCsv } from "../utils/csv";
+import { useLocalStorage } from "usehooks-ts";
 
 const TableContainer = styled.div`
   ${ScrollbarStyle};
@@ -58,6 +69,15 @@ const StyledTable = styled.table`
     white-space: wrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  td:empty {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  td:has([data-collapsible]) {
+    padding-right: 0;
   }
 
   td:has(.language-container) {
@@ -170,13 +190,44 @@ const ExportButton = styled.button`
   padding: 0.5rem 1rem;
   cursor: pointer;
   font-size: 0.9rem;
-  align-self: end;
-  margin: -1.5rem 10vw -1rem 0;
 
   &:hover {
     opacity: 0.9;
   }
 `;
+
+const ViewModeToggle = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+`;
+
+const ExpandIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  color: ${SEA_COLOR};
+`;
+
+const ChildRow = styled.tr`
+  background-color: #f8f9fa !important;
+
+  &:hover {
+    background-color: #e9ecef !important;
+  }
+`;
+
+type ViewMode = "flat" | "reprint";
+
+type ItemWithCluster = Item & {
+  isClusterRoot?: boolean;
+  clusterKey?: string;
+  clusterMembers?: Item[];
+  isReprintOf?: string;
+};
 
 function Catalogue() {
   const { filteredItems, filters } = useAppliedFilter();
@@ -187,6 +238,13 @@ function Catalogue() {
   const [columnResizeMode] = useState<ColumnResizeMode>("onChange");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [viewMode, setViewMode] = useLocalStorage<ViewMode>(
+    "catalogue-view-mode",
+    "reprint",
+  );
+  const [expanded, setExpanded] = useState<ExpandedState>({});
+  const [clusters, setClusters] = useState<ClusterEntry[]>([]);
+  const [clusterItems, setClusterItems] = useState<ClusterItem[]>([]);
 
   const handleScroll = () => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -210,7 +268,79 @@ function Catalogue() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const columnHelper = createColumnHelper<Item>();
+  useEffect(() => {
+    const loadClusterData = async () => {
+      try {
+        const [clustersData, clusterItemsData] = await Promise.all([
+          loadAndParseCsv<ClusterEntry>(CSV_PATH_CLUSTERS),
+          loadAndParseCsv<ClusterItem>(CSV_PATH_CLUSTER_ITEMS),
+        ]);
+        setClusters(clustersData);
+        setClusterItems(clusterItemsData);
+      } catch (error) {
+        console.error("Failed to load cluster data:", error);
+      }
+    };
+
+    loadClusterData();
+  }, []);
+
+  const processedItems = useMemo(() => {
+    if (viewMode === "flat") {
+      return filteredItems;
+    }
+
+    const reprintClusters = clusters.filter((c) => c.type === "reprint");
+    const itemMap = new Map(filteredItems.map((item) => [item.key, item]));
+    const processedItemsMap = new Map<string, ItemWithCluster>();
+
+    for (const item of filteredItems) {
+      const clusterItem = clusterItems.find((ci) => ci.item_key === item.key);
+
+      if (clusterItem) {
+        const cluster = reprintClusters.find(
+          (c) => c.key === clusterItem.cluster_key,
+        );
+
+        if (cluster) {
+          const itemsInCluster = clusterItems
+            .filter((ci) => ci.cluster_key === cluster.key)
+            .map((ci) => itemMap.get(ci.item_key))
+            .filter(Boolean) as Item[];
+
+          if (itemsInCluster.length > 1) {
+            const sortedByYear = itemsInCluster.sort((a, b) => {
+              const yearA = a.year ? parseInt(a.year) : 9999;
+              const yearB = b.year ? parseInt(b.year) : 9999;
+              return yearA - yearB;
+            });
+
+            const rootItem = sortedByYear[0];
+
+            if (item.key === rootItem.key) {
+              const clusterMembers = sortedByYear.slice(1);
+              processedItemsMap.set(item.key, {
+                ...item,
+                isClusterRoot: true,
+                clusterKey: cluster.key,
+                clusterMembers,
+              } as ItemWithCluster);
+            }
+          } else {
+            processedItemsMap.set(item.key, item as ItemWithCluster);
+          }
+        } else {
+          processedItemsMap.set(item.key, item as ItemWithCluster);
+        }
+      } else {
+        processedItemsMap.set(item.key, item as ItemWithCluster);
+      }
+    }
+
+    return Array.from(processedItemsMap.values());
+  }, [filteredItems, viewMode, clusters, clusterItems]);
+
+  const columnHelper = createColumnHelper<ItemWithCluster>();
 
   const showOtherColumns =
     !filters?.type ||
@@ -225,6 +355,34 @@ function Catalogue() {
   const columns = useMemo(
     () =>
       [
+        viewMode === "reprint" &&
+          columnHelper.accessor((row) => row, {
+            id: "expand",
+            header: "",
+            enableSorting: false,
+            cell: ({ row }) => {
+              if (
+                row.original.isClusterRoot &&
+                row.original.clusterMembers?.length
+              ) {
+                return (
+                  <ExpandIcon
+                    onClick={row.getToggleExpandedHandler()}
+                    data-collapsible
+                    title={row.getIsExpanded() ? "Collapse" : "Expand"}
+                  >
+                    {row.getIsExpanded() ? (
+                      <FaChevronDown />
+                    ) : (
+                      <FaChevronRight />
+                    )}
+                  </ExpandIcon>
+                );
+              }
+              return null;
+            },
+            size: 5,
+          }),
         columnHelper.accessor((row) => row, {
           id: "actions",
           header: "",
@@ -394,19 +552,24 @@ function Catalogue() {
           ),
           size: 120,
         }),
-      ].filter(Boolean) as ColumnDef<Item>[],
-    [columnHelper, showOtherColumns, showElementsColumns, token],
+      ].filter(Boolean) as ColumnDef<ItemWithCluster>[],
+    [columnHelper, showOtherColumns, showElementsColumns, token, viewMode],
   );
 
-  const table = useReactTable({
-    data: filteredItems,
+  const table = useReactTable<ItemWithCluster>({
+    data: processedItems,
     columns,
     state: {
       sorting,
+      expanded,
     },
     onSortingChange: setSorting,
+    onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    getSubRows: (row) =>
+      viewMode === "reprint" ? row.clusterMembers || [] : undefined,
     columnResizeMode,
     sortDescFirst: false,
   });
@@ -421,9 +584,29 @@ function Catalogue() {
 
       <Stats />
 
-      <ExportButton onClick={handleExportCitations}>
-        Export Citations (Chicago Style)
-      </ExportButton>
+      <Row gap={4}>
+        <ViewModeToggle>
+          <span>View Mode:</span>
+          <Switch>
+            <SwitchOption
+              selected={viewMode === "flat"}
+              onClick={() => setViewMode("flat")}
+            >
+              Flat
+            </SwitchOption>
+            <SwitchOption
+              selected={viewMode === "reprint"}
+              onClick={() => setViewMode("reprint")}
+            >
+              Group Reprints
+            </SwitchOption>
+          </Switch>
+        </ViewModeToggle>
+
+        <ExportButton onClick={handleExportCitations}>
+          Export Citations (Chicago Style)
+        </ExportButton>
+      </Row>
 
       <TableContainer>
         <StyledTable>
@@ -474,20 +657,28 @@ function Catalogue() {
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    style={{
-                      width: cell.column.getSize(),
-                    }}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {table.getRowModel().rows.map((row) => {
+              const isChildRow = row.depth > 0;
+              const RowComponent = isChildRow ? ChildRow : "tr";
+
+              return (
+                <RowComponent key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      style={{
+                        width: cell.column.getSize(),
+                      }}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </td>
+                  ))}
+                </RowComponent>
+              );
+            })}
           </tbody>
         </StyledTable>
       </TableContainer>

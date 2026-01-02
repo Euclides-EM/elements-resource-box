@@ -776,6 +776,7 @@ export const UpsertEdition = () => {
       loadAndParseCsv<PrintDetails>(CSV_PATH_ITEMS_PRINT),
       loadAndParseCsv<PrintElementsMetadata>(CSV_PATH_MD_PRINT),
       loadAndParseCsv<ParatextTranscriptions>(CSV_PATH_TRANSCRIPTIONS),
+      // @ts-expect-error csv record
       loadAndParseCsv<City>(CSV_PATH_CITIES),
     ])
       .then(([printItems, elementsMd, transcriptions, cities]) => {

@@ -271,7 +271,6 @@ export const FilterPane = () => {
           $hasChanges={hasUnappliedChanges}
         >
           {isFiltering ? "Applying..." : "Apply Filters"}
-          {hasUnappliedChanges && !isFiltering && " *"}
         </ApplyButton>
       </ButtonRow>
       <StyledRangeSlider
