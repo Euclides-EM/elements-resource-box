@@ -27,7 +27,7 @@ export const saveCsvData = <T>(filePath: string, data: T[]): void => {
   fs.writeFileSync(csvPath, updatedCsv);
 };
 
-export const upsertCsvRow = <T extends Record<string, string | boolean | null>>(
+export const upsertCsvRow = <T extends Record<string, string | null>>(
   filePath: string,
   key: string,
   rowData: T,

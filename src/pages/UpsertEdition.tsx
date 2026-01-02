@@ -643,16 +643,13 @@ const defaultValues = (): EditionRequestBody => ({
   visualElements: [],
 });
 
-function toOptions<T extends Record<string, string | boolean | null>>(
+function toOptions<T extends Record<string, string | null>>(
   items: T[],
   field: keyof T,
 ): string[] {
   return uniq(
     items
-      .flatMap(
-        (item) =>
-          (item[field] as string | null)?.split(",").map((s) => s.trim()) || [],
-      )
+      .flatMap((item) => item[field]?.split(",").map((s) => s.trim()) || [])
       .filter(Boolean)
       .sort(),
   );

@@ -217,11 +217,7 @@ export const loadEditionsData = (
                   : "Black"
                 : null,
               titlePageDesign: hasTitleImage
-                ? startCase(
-                    (
-                      tpFeatures["print_technique"] as string | null
-                    )?.toLowerCase(),
-                  )
+                ? startCase(tpFeatures["print_technique"]?.toLowerCase())
                 : null,
               titlePageNumberOfTypes: hasTitleImage
                 ? tpFeatures["number_of_types"]
@@ -229,34 +225,26 @@ export const loadEditionsData = (
                   : null
                 : null,
               titlePageFrameType: hasTitleImage
-                ? startCase(
-                    (tpFeatures["frame_type"] as string | null)?.toLowerCase(),
-                  )
+                ? startCase(tpFeatures["frame_type"]?.toLowerCase())
                 : null,
               titlePageEngraving: hasTitleImage
-                ? startCase(
-                    (tpFeatures["engraving"] as string | null)?.toLowerCase(),
-                  )
+                ? startCase(tpFeatures["engraving"]?.toLowerCase())
                 : null,
               hasPrintersDevice: hasTitleImage
                 ? toYesNo(tpFeatures["printer_device"] as string)
                 : null,
               fontTypes: hasTitleImage
-                ? (tpFeatures["font_types"] as string | null)
+                ? tpFeatures["font_types"]
                     ?.split(", ")
                     .map((type) => startCase(type.toLowerCase()))
                     .filter(Boolean) || []
                 : [],
               calligraphicFeatures: hasTitleImage
-                ? startCase(
-                    (
-                      tpFeatures["calligraphic_features"] as string | null
-                    )?.toLowerCase(),
-                  )
+                ? startCase(tpFeatures["calligraphic_features"]?.toLowerCase())
                 : null,
               notes: printDetails.notes,
               otherNamesClassification: hasTitle
-                ? ((tpFeatures["other_names_classification"] as string | null)
+                ? (tpFeatures["other_names_classification"]
                     ?.split(", ")
                     .map((s) => mapOtherName(s))
                     .concat(
@@ -337,9 +325,9 @@ export const loadEditionsData = (
               diagrams_extracted: startCase(
                 diagramDirectories.has(key).toString(),
               ),
-              has_diagrams:
-                startCase(dottedLinesMap[key]?.hasDiagrams.toString()) ||
-                "Uncatalogued",
+              has_diagrams: printDetails.has_diagrams
+                ? toYesNo(printDetails.has_diagrams)
+                : "Uncatalogued",
               dotted_lines_cases: dottedLinesMap[key]?.all.map(toDisplay) || [
                 "Uncatalogued",
               ],
