@@ -103,3 +103,9 @@ export type Review = {
   researcher: string;
   timestamp: string;
 };
+
+export const CSV_PATH_BIBLIOGRAPHY = "/docs/bibliography.csv";
+export type BibliographyEntry = {
+  key: string;
+  citation: string;
+};

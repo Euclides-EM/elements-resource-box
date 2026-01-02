@@ -6,9 +6,11 @@ import { deleteEdition, upsertEdition, ustcLookup } from "../api/editionApi";
 import { EditionRequestBody } from "../../common/api.ts";
 import { AuthContext } from "../contexts/Auth.ts";
 import { CATALOGUE_ROUTE } from "../components/layout/routes.ts";
-import { startCase, uniq, uniqueId } from "lodash";
+import { isNil, startCase, uniq, uniqueId } from "lodash";
 import {
+  BibliographyEntry,
   City,
+  CSV_PATH_BIBLIOGRAPHY,
   CSV_PATH_CITIES,
   CSV_PATH_CORPUSES,
   CSV_PATH_ITEMS_MANUSCRIPT,
@@ -173,6 +175,7 @@ const Input = styled.input`
   font-size: 0.875rem;
   background-color: #fafafa;
   color: black;
+  flex: 1;
 
   &:focus {
     outline: none;
@@ -243,7 +246,7 @@ const SubmitButton = styled(Button)`
   color: white;
 `;
 
-const RemoveButton = styled.button`
+const RemoveButton = styled.button<{ marginTop?: number }>`
   padding: 0.5rem;
   border: none;
   border-radius: 4px;
@@ -252,7 +255,7 @@ const RemoveButton = styled.button`
   transition: opacity 0.2s;
   background-color: #e74c3c;
   color: white;
-  margin-top: 0.5rem;
+  margin-top: ${(props) => (isNil(props.marginTop) ? 0.5 : props.marginTop)}rem;
 
   &:hover {
     opacity: 0.8;
@@ -341,6 +344,7 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
     translations,
     shelfmarks,
     reviews,
+    bibliography,
   ] = await Promise.all([
     loadAndParseCsv<ManuscriptDetails>(CSV_PATH_ITEMS_MANUSCRIPT),
     loadAndParseCsv<ManuscriptElementsMetadata>(CSV_PATH_MD_MANUSCRIPT),
@@ -351,6 +355,7 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
     loadAndParseCsv<ParatextTranslations>(CSV_PATH_TRANSLATIONS),
     loadAndParseCsv<Shelfmarks>(CSV_PATH_SHELFMARKS),
     loadAndParseCsv<Review>(CSV_PATH_REVIEWS),
+    loadAndParseCsv<BibliographyEntry>(CSV_PATH_BIBLIOGRAPHY),
   ]);
   const manuscriptItem = manuscriptsItems.find((item) => item.key === key);
   const manuscriptMd = manuscriptsMetadata.find((item) => item.key === key);
@@ -391,6 +396,9 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
         copyright: s.copyright,
       })) satisfies EditionRequestBody["shelfmarks"],
     verified: reviews.some((r) => r.key === key),
+    bibliography: bibliography
+      .filter((b) => b.key === key)
+      .map((b) => b.citation),
     ...(isManuscript
       ? {
           isManuscript: true,
@@ -493,6 +501,7 @@ const defaultValues = (): EditionRequestBody => ({
   isElements: true,
   books: [],
   additionalContent: [],
+  bibliography: [],
 });
 
 function toOptions<T extends Record<string, string | null>>(
@@ -532,6 +541,7 @@ export const UpsertEdition = () => {
         return;
       }
       try {
+        value.bibliography = value.bibliography.filter((b) => b);
         await upsertEdition(value, images, token);
         invalidateCsvCache();
         navigate(CATALOGUE_ROUTE);
@@ -1611,6 +1621,51 @@ export const UpsertEdition = () => {
                         >
                           Remove Source
                         </RemoveButton>
+                      </FormField>
+                    ))}
+                  </>
+                )}
+              </form.Field>
+
+              <form.Field name="bibliography">
+                {(field) => (
+                  <>
+                    <FormField className="full-width">
+                      <Label isTitle>Bibliography</Label>
+                      <button
+                        style={{
+                          padding: 4,
+                          width: "fit-content",
+                          cursor: "pointer",
+                        }}
+                        type="button"
+                        onClick={() => field.pushValue("")}
+                      >
+                        Add citation
+                      </button>
+                    </FormField>
+                    {field.state.value.map((_, i) => (
+                      <FormField key={i} className="full-width">
+                        <form.Field name={`bibliography[${i}]`}>
+                          {(f) => (
+                            <Row justifyStart width="50%">
+                              <Input
+                                type="text"
+                                value={f.state.value || ""}
+                                onChange={(e) => f.handleChange(e.target.value)}
+                                onBlur={f.handleBlur}
+                                placeholder="Enter citation string..."
+                              />
+                              <RemoveButton
+                                type="button"
+                                onClick={() => field.removeValue(i)}
+                                marginTop={0}
+                              >
+                                Remove citation
+                              </RemoveButton>
+                            </Row>
+                          )}
+                        </form.Field>
                       </FormField>
                     ))}
                   </>

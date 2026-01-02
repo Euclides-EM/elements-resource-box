@@ -1,5 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "http";
 import {
+  BibliographyEntry,
+  CSV_PATH_BIBLIOGRAPHY,
   CSV_PATH_CORPUSES,
   CSV_PATH_ITEMS_MANUSCRIPT,
   CSV_PATH_ITEMS_PRINT,
@@ -74,6 +76,7 @@ const upsertEdition = (edition: EditionRequestBody, user: string): void => {
   updateShelfmarks(edition);
   updateTranslations(edition);
   updateCorpuses(edition);
+  updateBibliography(edition);
 
   if (edition.verified) {
     logInfo("Creating review record for verified edition", {
@@ -250,6 +253,51 @@ const updateCorpuses = (edition: EditionRequestBody): void => {
   } satisfies StudyCorpuses);
 };
 
+const updateBibliography = (edition: EditionRequestBody): void => {
+  const bibliographyRows: BibliographyEntry[] = edition.bibliography.map(
+    (citation) => ({
+      key: edition.key,
+      citation,
+    }),
+  );
+
+  const parsed = loadCsvData<BibliographyEntry>(CSV_PATH_BIBLIOGRAPHY);
+  const existingRows = parsed.filter((row) => row.key === edition.key);
+
+  const hasChanges =
+    bibliographyRows.length !== existingRows.length ||
+    bibliographyRows.some((newRow, index) => {
+      const existingRow = existingRows[index];
+      if (!existingRow) return true;
+      return newRow.citation !== existingRow.citation;
+    });
+
+  if (!hasChanges) {
+    return;
+  }
+
+  const firstIndex = parsed.findIndex((row) => row.key === edition.key);
+  const updatedData: BibliographyEntry[] = [];
+
+  if (firstIndex === -1) {
+    updatedData.push(...parsed, ...bibliographyRows);
+  } else {
+    let replacementDone = false;
+    for (let i = 0; i < parsed.length; i++) {
+      if (parsed[i].key === edition.key) {
+        if (!replacementDone) {
+          updatedData.push(...bibliographyRows);
+          replacementDone = true;
+        }
+      } else {
+        updatedData.push(parsed[i]);
+      }
+    }
+  }
+
+  saveCsvData(CSV_PATH_BIBLIOGRAPHY, updatedData);
+};
+
 const deleteEdition = (key: string): void => {
   logInfo("Starting edition deletion", { key });
 
@@ -262,6 +310,7 @@ const deleteEdition = (key: string): void => {
   deleteCsvRow(CSV_PATH_TRANSCRIPTIONS, key);
   deleteCsvRow(CSV_PATH_TRANSLATIONS, key);
   deleteCsvRow(CSV_PATH_CORPUSES, key);
+  deleteCsvRow(CSV_PATH_BIBLIOGRAPHY, key);
 
   logInfo("Edition deletion completed", { key });
 };

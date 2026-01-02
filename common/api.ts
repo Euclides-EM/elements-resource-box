@@ -31,6 +31,7 @@ export type EditionRequestBody = {
     copyright: string | null;
   }[];
   verified: boolean;
+  bibliography: string[];
 } & (
   | {
       isManuscript: true;
