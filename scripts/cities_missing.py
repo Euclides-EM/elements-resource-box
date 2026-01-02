@@ -1,11 +1,10 @@
 import os
 import csv
 
-DOCS_DIR = os.path.dirname(os.path.abspath(__file__))
+DOCS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "public", "docs")
 
 ENTRIES_CSVS = [
-    os.path.join(DOCS_DIR, 'EiP.csv'),
-    os.path.join(DOCS_DIR, 'EiP-secondary.csv')
+    os.path.join(DOCS_DIR, 'items_print.csv')
 ]
 
 CITIES_CSV = os.path.join(DOCS_DIR, 'cities.csv')
@@ -17,9 +16,8 @@ for csv_file in ENTRIES_CSVS:
         reader = csv.DictReader(f)
         for row in reader:
             if row['city']:
-                cities_from_csvs.add(row['city'])
-            if row['city 2']:
-                cities_from_csvs.add(row['city 2'])
+                for city in row['city'].split(','):
+                    cities_from_csvs.add(city.strip())
 
 cities_in_reference = set()
 
