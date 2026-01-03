@@ -155,7 +155,7 @@ export const ItemInfo = ({
                 <FaBookReader />
               </StyledAnchor>
             ))}
-            {showDiagramsLink && item.diagrams_extracted === "True" && (
+            {showDiagramsLink && item.diagramsExtracted === "True" && (
               <StyledAnchor
                 href={`/diagrams?key=${item.key}`}
                 target="_blank"

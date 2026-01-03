@@ -15,6 +15,7 @@ export const upsertEdition = async (
 
   const uploads: Promise<void>[] = [];
 
+  // Handle shelfmark images
   for (let i = 0; i < data.shelfmarks.length; i++) {
     const shelfmark = data.shelfmarks[i];
     if (shelfmark.title_page_img) {
@@ -48,6 +49,30 @@ export const upsertEdition = async (
           );
         })(),
       );
+    }
+  }
+
+  // Handle visual element example images
+  for (let i = 0; i < data.visualElements.length; i++) {
+    const visualElement = data.visualElements[i];
+    for (let j = 0; j < visualElement.examples.length; j++) {
+      const example = visualElement.examples[j];
+      if (example.img) {
+        const file = images[example.img];
+        if (!file) {
+          continue;
+        }
+        uploads.push(
+          (async () => {
+            example.img = await uploadImage(
+              data.key,
+              file,
+              `visEl_${i + 1}_ex_${j + 1}`,
+              authToken,
+            );
+          })(),
+        );
+      }
     }
   }
 

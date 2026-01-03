@@ -6,6 +6,7 @@ export type ManuscriptDetails = {
   year_from: string | null;
   year_to: string | null;
   notes: string | null;
+  has_diagrams: string | null;
 };
 
 export const CSV_PATH_MD_MANUSCRIPT = "/docs/metadata_elements_manuscripts.csv";
@@ -50,6 +51,7 @@ export type PrintDetails = {
   volumes: string | null;
   ustc_id: string | null;
   notes: string | null;
+  has_diagrams: string | null;
 };
 
 export const CSV_PATH_TRANSCRIPTIONS = "/docs/paratext_transcriptions.csv";
@@ -120,4 +122,32 @@ export const CSV_PATH_CLUSTER_ITEMS = "/docs/cluster_items.csv";
 export type ClusterItem = {
   cluster_key: string;
   item_key: string;
+};
+
+export const CSV_PATH_VISUAL_ELEMENTS = "/docs/visual_elements.csv";
+export type VisualElement = {
+  key: string;
+  visual_element_type: string;
+  locator_type: string;
+  locator_key: string | null;
+  notes: string | null;
+};
+
+export const CSV_PATH_VISUAL_ELEMENTS_EXAMPLES =
+  "/docs/visual_elements_examples.csv";
+export type VisualElementExample = {
+  key: string;
+  path: string;
+  locator_key: string | null;
+};
+
+export const CSV_PATH_LOCATORS = "/docs/locators.csv";
+export type Locator = {
+  key: string;
+  first_order_type: string | null;
+  first_order_value: string | null;
+  type: string | null;
+  value: string;
+  page_type: string;
+  page_value: string | null;
 };

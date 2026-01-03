@@ -509,9 +509,9 @@ const Diagrams = () => {
 
         {item && (
           <Row justifyStart>
-            {item.has_diagrams && item.has_diagrams !== "Uncatalogued" && (
+            {item.hasDiagrams && item.hasDiagrams !== "Uncatalogued" && (
               <DocumentDescription>
-                <strong>Has Diagrams:</strong> {item.has_diagrams}
+                <strong>Has Diagrams:</strong> {item.hasDiagrams}
               </DocumentDescription>
             )}
             {item.dotted_lines_cases && item.dotted_lines_cases.length > 0 && (

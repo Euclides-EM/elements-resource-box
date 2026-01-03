@@ -10,6 +10,7 @@ import {
   CSV_PATH_TITLE_PAGE_FEATURES,
   CSV_PATH_TRANSCRIPTIONS,
   CSV_PATH_TRANSLATIONS,
+  CSV_PATH_VISUAL_ELEMENTS,
   DottedLine,
   ParatextTranscriptions,
   ParatextTranslations,
@@ -17,6 +18,7 @@ import {
   PrintElementsMetadata,
   Shelfmarks,
   StudyCorpuses,
+  VisualElement,
 } from "../../common/csv.ts";
 import { groupBy, isEmpty, startCase, uniq } from "lodash";
 import { Dispatch, SetStateAction } from "react";
@@ -99,6 +101,7 @@ export const loadEditionsData = (
     loadAndParseCsv(CSV_PATH_TITLE_PAGE_FEATURES),
     loadAndParseCsv<ParatextTranslations>(CSV_PATH_TRANSLATIONS),
     loadAndParseCsv<Shelfmarks>(CSV_PATH_SHELFMARKS),
+    loadAndParseCsv<VisualElement>(CSV_PATH_VISUAL_ELEMENTS),
     fetchDiagramDirectories(),
     loadDottedLinesAsync(),
   ])
@@ -111,6 +114,7 @@ export const loadEditionsData = (
         tpFeatures,
         translations,
         shelfmarks,
+        visualElements,
         diagramDirectories,
         dottedLinesMap,
       ]) => {
@@ -119,6 +123,7 @@ export const loadEditionsData = (
         const corpusesByKey = groupByKey(corpuses);
         const tpFeaturesByKey = groupByKey(tpFeatures);
         const translationsByKey = groupByKeyMany(translations);
+        const visualElementsByKey = groupByKeyMany(visualElements);
         const shelfmarksByKey = groupByKeyMany(shelfmarks);
         return printItems
           .filter((i) => i.key)
@@ -225,34 +230,26 @@ export const loadEditionsData = (
                   : null
                 : null,
               titlePageFrameType: hasTitleImage
-                ? startCase(
-                    (tpFeatures["frame_type"] as string | null)?.toLowerCase(),
-                  )
+                ? startCase(tpFeatures["frame_type"]?.toLowerCase())
                 : null,
               titlePageEngraving: hasTitleImage
-                ? startCase(
-                    (tpFeatures["engraving"] as string | null)?.toLowerCase(),
-                  )
+                ? startCase(tpFeatures["engraving"]?.toLowerCase())
                 : null,
               hasPrintersDevice: hasTitleImage
                 ? toYesNo(tpFeatures["printer_device"] as string)
                 : null,
               fontTypes: hasTitleImage
-                ? (tpFeatures["font_types"] as string | null)
+                ? tpFeatures["font_types"]
                     ?.split(", ")
                     .map((type) => startCase(type.toLowerCase()))
                     .filter(Boolean) || []
                 : [],
               calligraphicFeatures: hasTitleImage
-                ? startCase(
-                    (
-                      tpFeatures["calligraphic_features"] as string | null
-                    )?.toLowerCase(),
-                  )
+                ? startCase(tpFeatures["calligraphic_features"]?.toLowerCase())
                 : null,
               notes: printDetails.notes,
               otherNamesClassification: hasTitle
-                ? ((tpFeatures["other_names_classification"] as string | null)
+                ? (tpFeatures["other_names_classification"]
                     ?.split(", ")
                     .map((s) => mapOtherName(s))
                     .concat(
@@ -293,11 +290,15 @@ export const loadEditionsData = (
                   )
                 : null,
               institutions: hasTitle
-                ? parseInstitutions(tpFeatures["institutions"] || "")
+                ? parseInstitutions(
+                    (tpFeatures["institutions"] as string) || "",
+                  )
                 : null,
               otherNames: hasTitle
                 ? parseOtherNames(
-                    tpFeatures["educational_authorities_references"] || "",
+                    (tpFeatures[
+                      "educational_authorities_references"
+                    ] as string) || "",
                   )
                 : null,
               features: Object.keys(FeatureToColumnName).reduce(
@@ -326,12 +327,16 @@ export const loadEditionsData = (
                 },
                 {} as Partial<Record<Feature, string[]>>,
               ),
-              diagrams_extracted: startCase(
+              diagramsExtracted: startCase(
                 diagramDirectories.has(key).toString(),
               ),
-              has_diagrams:
-                startCase(dottedLinesMap[key]?.hasDiagrams.toString()) ||
-                "Uncatalogued",
+              hasDiagrams: printDetails.has_diagrams
+                ? toYesNo(printDetails.has_diagrams)
+                : "Uncatalogued",
+              visualElementsTypes: uniq(
+                visualElementsByKey[key]?.map((v) => v.visual_element_type) ||
+                  [],
+              ),
               dotted_lines_cases: dottedLinesMap[key]?.all.map(toDisplay) || [
                 "Uncatalogued",
               ],

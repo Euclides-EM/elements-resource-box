@@ -1,3 +1,5 @@
+import { Locator } from "./csv.ts";
+
 export const NOTES_API_PATH = "/api/notes/";
 
 export interface NotesRequestBody {
@@ -33,6 +35,17 @@ export type EditionRequestBody = {
   verified: boolean;
   bibliography: string[];
   reprintOf: string | null;
+  visualElements: {
+    visual_element_type: string;
+    notes: string;
+    locator_type: string;
+    locator: Locator | null;
+    examples: {
+      img: string;
+      has_locator: boolean;
+      locator: Locator | null;
+    }[];
+  }[];
 } & (
   | {
       isManuscript: true;
