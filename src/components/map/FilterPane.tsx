@@ -188,7 +188,7 @@ export const FilterPane = () => {
   >("filter-include", {});
   const [includeUndated, setIncludeUndated] = useLocalStorage<boolean>(
     "include-undated",
-    true,
+    false,
   );
   const [textSearch, setTextSearch] = useLocalStorage<string>(
     "text-search",

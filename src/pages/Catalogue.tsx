@@ -43,6 +43,7 @@ import {
 } from "../../common/csv";
 import { loadAndParseCsv } from "../utils/csv";
 import { useLocalStorage } from "usehooks-ts";
+import { PiArrowBendDownRightBold } from "react-icons/pi";
 
 const TableContainer = styled.div`
   ${ScrollbarStyle};
@@ -379,6 +380,13 @@ function Catalogue() {
                   </ExpandIcon>
                 );
               }
+              if (row.depth > 0) {
+                return (
+                  <div style={{ marginLeft: 20 }} title="Reprint of">
+                    <PiArrowBendDownRightBold />
+                  </div>
+                );
+              }
               return null;
             },
             size: 5,
@@ -598,7 +606,7 @@ function Catalogue() {
               selected={viewMode === "reprint"}
               onClick={() => setViewMode("reprint")}
             >
-              Group Reprints
+              Group by publication
             </SwitchOption>
           </Switch>
         </ViewModeToggle>
