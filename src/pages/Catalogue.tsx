@@ -44,6 +44,7 @@ import {
 import { loadAndParseCsv } from "../utils/csv";
 import { useLocalStorage } from "usehooks-ts";
 import { PiArrowBendDownRightBold } from "react-icons/pi";
+import { inEuclidesMode } from "../utils/mode.ts";
 
 const TableContainer = styled.div`
   ${ScrollbarStyle};
@@ -552,14 +553,21 @@ function Catalogue() {
             cell: (info) => joinArr(info.getValue()),
             size: 140,
           }),
-        columnHelper.accessor("type", {
-          header: () => (
-            <Row gap={0.5}>
-              Classification <StyledHelpTip tooltipId={TOOLTIP_BOOK_TYPE} />
-            </Row>
-          ),
-          size: 120,
-        }),
+        !inEuclidesMode() &&
+          columnHelper.accessor("type", {
+            header: () => (
+              <Row gap={0.5}>
+                Classification <StyledHelpTip tooltipId={TOOLTIP_BOOK_TYPE} />
+              </Row>
+            ),
+            size: 120,
+          }),
+        inEuclidesMode() &&
+          columnHelper.accessor("study_corpora", {
+            header: () => <Row gap={0.5}>Study Corpus</Row>,
+            cell: (info) => joinArr(info.getValue().sort()),
+            size: 120,
+          }),
       ].filter(Boolean) as ColumnDef<ItemWithCluster>[],
     [columnHelper, showOtherColumns, showElementsColumns, token, viewMode],
   );

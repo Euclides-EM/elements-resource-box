@@ -1,6 +1,7 @@
 import { FilterGroup, Range } from "../types";
 import { compareBookStatementRef } from "../types/book_statement_ref.ts";
 import { NO_CITY } from "./index.ts";
+import { inEuclidesMode } from "../utils/mode.ts";
 
 export type ItemProperty = {
   displayName: string;
@@ -31,9 +32,17 @@ function parseRangeIfNeeded(a: Range | string): Range {
 export const itemProperties: {
   [key: string]: ItemProperty;
 } = {
-  type: {
-    displayName: "Book Classification",
+  study_corpora: {
+    displayName: "Study Corpus",
+    isArray: true,
   },
+  ...(inEuclidesMode()
+    ? {}
+    : {
+        type: {
+          displayName: "Book Classification",
+        },
+      }),
   languages: {
     displayName: "Languages",
     isArray: true,
@@ -138,10 +147,6 @@ export const itemProperties: {
     isArray: true,
     notFilterable: true,
     customCompareFn: compareBookStatementRef,
-  },
-  study_corpora: {
-    displayName: "Study Corpus",
-    isArray: true,
   },
   format: {
     displayName: "Edition Format",

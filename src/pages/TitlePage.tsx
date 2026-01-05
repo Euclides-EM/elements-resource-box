@@ -26,6 +26,7 @@ import styled from "@emotion/styled";
 import Switch from "react-switch";
 import { LAND_COLOR, MARKER_3 } from "../utils/colors.ts";
 import { Stats } from "../components/Stats.tsx";
+import { inEuclidesMode } from "../utils/mode.ts";
 
 const NoteLine = styled(Row)`
   opacity: 0.8;
@@ -153,7 +154,7 @@ function TitlePage() {
       )}
       <Column minWidth="min(820px, 90%)">
         <Stats />
-        {filteredBySearchItems.length > 0 && (
+        {!inEuclidesMode() && filteredBySearchItems.length > 0 && (
           <>
             <Row gap={0.5}>
               Title Pages Experiment View{" "}

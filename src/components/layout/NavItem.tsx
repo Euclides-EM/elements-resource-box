@@ -12,11 +12,13 @@ import {
 } from "./routes.ts";
 import { MACTUTOR_URL } from "../../constants";
 import { ActionsMenu } from "./ActionsMenu.tsx";
+import { inEditMode, inEuclidesMode } from "../../utils/mode.ts";
 
 const StyledNavItem = styled.li<{ active: boolean; mobile: boolean }>`
   a {
     text-decoration: none;
-    color: ${({ active }) => (active ? "#ffffff" : "#aaaaaa")};
+    color: ${({ active }) =>
+      active ? "#ffffff" : inEuclidesMode() ? "#cecece" : "#aaaaaa"};
     font-weight: ${({ active }) => (active ? "bold" : "normal")};
     font-size: 1.2rem;
     transition: color 0.3s ease;
@@ -139,10 +141,12 @@ export const NavItems = ({ mobile }: { mobile: boolean }) => {
         >
           Map
         </NavItem>
-        <NavItem to={MACTUTOR_URL} active={false} external mobile={mobile}>
-          MacTutor Index Graph
-        </NavItem>
-        {import.meta.env.DEV && (
+        {!inEuclidesMode() && (
+          <NavItem to={MACTUTOR_URL} active={false} external mobile={mobile}>
+            MacTutor Index Graph
+          </NavItem>
+        )}
+        {inEditMode() && (
           <DevNavItem mobile={mobile}>
             <ActionsMenu
               mobile={mobile}

@@ -7,6 +7,7 @@ import { BsBoundingBoxCircles } from "react-icons/bs";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { NavItems } from "./NavItem";
 import { Row } from "../common.ts";
+import { inEuclidesMode } from "../../utils/mode.ts";
 
 const NavContainer = styled.nav`
   position: fixed;
@@ -82,7 +83,9 @@ function MobileNavigation() {
         <Row gap={4}>
           <TitleContainer>
             <SiteTitle onClick={() => navigate(HOME_ROUTE)}>
-              Euclid's Elements: A Resource Box
+              {inEuclidesMode()
+                ? "Early Modern Euclid's Elements"
+                : "Euclid's Elements: A Resource Box"}
             </SiteTitle>
             <StyledBoxIcon onClick={() => navigate(HOME_ROUTE)} />
           </TitleContainer>

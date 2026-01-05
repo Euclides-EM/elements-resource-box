@@ -29,6 +29,8 @@ import Presentation from "./pages/Presentation.tsx";
 import Diagrams from "./pages/Diagrams.tsx";
 import { useLocalStorage } from "usehooks-ts";
 import { AuthContext } from "./contexts/Auth.ts";
+import { inEuclidesMode } from "./utils/mode.ts";
+import { Row } from "./components/common.ts";
 
 function App() {
   const [authToken, setAuthToken] = useLocalStorage<string | null>(
@@ -39,7 +41,10 @@ function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<Layout />}>
-        <Route path={HOME_ROUTE} element={<Home />} />
+        <Route
+          path={HOME_ROUTE}
+          element={inEuclidesMode() ? <Row>TBD</Row> : <Home />}
+        />
         <Route path={TITLE_PAGES_ROUTE} element={<TitlePage />} />
         <Route path={CATALOGUE_ROUTE} element={<Catalogue />} />
         <Route path={TRENDS_ROUTE} element={<Trends />} />

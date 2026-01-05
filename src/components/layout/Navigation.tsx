@@ -13,6 +13,7 @@ import { FilterButton } from "./FilterButton";
 import MobileNavigation from "./MobileNavigation";
 import { NavItems } from "./NavItem";
 import { useIsMobile } from "./isMobile.ts";
+import { inEuclidesMode } from "../../utils/mode.ts";
 
 const Placeholder = styled.div`
   height: ${NAVBAR_HEIGHT}px;
@@ -24,7 +25,7 @@ const NavContainer = styled.nav`
   width: 100vw;
   padding: 1rem;
   height: calc(${NAVBAR_HEIGHT}px - 2rem);
-  background-color: black;
+  background-color: ${inEuclidesMode() ? "DarkSlateGray" : "black"};
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   z-index: 1001;
 `;
@@ -91,7 +92,9 @@ function Navigation() {
       <NavContainer>
         <NavContent>
           <SiteTitle onClick={() => navigate(HOME_ROUTE)}>
-            Euclid's Elements: A Resource Box
+            {inEuclidesMode()
+              ? "Early Modern Euclid's Elements"
+              : "Euclid's Elements: A Resource Box"}
           </SiteTitle>
           <StyledBoxIcon onClick={() => navigate(HOME_ROUTE)} />
           <VerticalLine />
