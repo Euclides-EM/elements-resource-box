@@ -57,6 +57,7 @@ export type Item = {
   cities: string[];
   languages: string[];
   authors: string[];
+  publishers: string[];
   imageUrl: string | null;
   hasTitle: string;
   shortTitle: string | null;

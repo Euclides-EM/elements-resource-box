@@ -172,6 +172,9 @@ export const loadEditionsData = (
                 printDetails.author_or_editor
                   ?.split(",")
                   .map((name) => name.trim()) || [],
+              publishers:
+                printDetails.publisher?.split(",").map((name) => name.trim()) ||
+                [],
               imageUrl:
                 firstOrNull(
                   shelfmarks.map((s) => s.title_page_img).filter(Boolean),

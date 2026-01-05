@@ -98,10 +98,12 @@ function formatTitle(title: string | null): string {
   if (!title) return "[No Title]";
 
   const formatted = title
+    .replace(/[\r\n]+/g, " ")
     .replaceAll(/-\s+/gi, "")
     .replaceAll(/\[vol\. 1]:?\s*/gi, "")
     .replaceAll(/\[general title page]:?\s*/gi, "")
     .replace(/\.\s*$/g, "")
+    .replace(/\s+/g, " ")
     .trim();
 
   if (formatted === "?" || formatted === "") {
@@ -145,19 +147,30 @@ function formatTitle(title: string | null): string {
   return titleCased.join(" ");
 }
 
-function formatPublishers(cities: string[]): string {
-  if (!cities || cities.length === 0) {
+function formatPublishers(cities: string[], publishers: string[]): string {
+  if (
+    (!cities || cities.length === 0) &&
+    (!publishers || publishers.length === 0)
+  ) {
     return `${NO_CITY}: [Publisher Unknown]`;
   }
 
-  if (cities.length === 1) {
-    return `${cities[0]}: [Publisher]`;
+  const cityList = cities && cities.length > 0 ? cities : [NO_CITY];
+  const publisherList =
+    publishers && publishers.length > 0 ? publishers : ["[Publisher Unknown]"];
+
+  if (cityList.length === 1 && publisherList.length === 1) {
+    return `${cityList[0]}: ${publisherList[0]}`;
   }
 
-  const publisherPairs = cities.map((city) => `${city}: [Publisher]`);
+  const maxLength = Math.max(cityList.length, publisherList.length);
+  const publisherPairs: string[] = [];
 
-  if (publisherPairs.length === 2) {
-    return publisherPairs.join("; ");
+  for (let i = 0; i < maxLength; i++) {
+    const city = cityList[i] || cityList[cityList.length - 1];
+    const publisher =
+      publisherList[i] || publisherList[publisherList.length - 1];
+    publisherPairs.push(`${city}: ${publisher}`);
   }
 
   return publisherPairs.join("; ");
@@ -181,7 +194,7 @@ function formatCitationEntry(
   const authors = formatAuthorForCitation(item.authors, isMultiEntry);
   const title = formatTitle(item.title || item.shortTitle);
   const volumes = formatVolumes(item.volumesCount);
-  const publishers = formatPublishers(item.cities);
+  const publishers = formatPublishers(item.cities, item.publishers);
   const year = formatYear(item.year);
 
   return `${authors}. ${title}. ${volumes}${publishers}, ${year}.`;
@@ -311,13 +324,24 @@ export function exportCitationsAsRTF(
   const citationLines = citations.split("\n\n");
   const rtfContent = citationLines
     .map((line) => {
-      const escapedLine = line
-        .replace(/\\/g, "\\\\")
-        .replace(/{/g, "\\{")
-        .replace(/}/g, "\\}")
-        .replace(/—/g, "\\emdash ")
-        .replace(/"/g, '\\"')
-        .replace(/'/g, "\\'");
+      const escapedLine = Array.from(line)
+        .map((char) => {
+          const code = char.charCodeAt(0);
+          if (code > 127) {
+            return `\\u${code}?`;
+          }
+          switch (char) {
+            case "\\":
+              return "\\\\";
+            case "{":
+              return "\\{";
+            case "}":
+              return "\\}";
+            default:
+              return char;
+          }
+        })
+        .join("");
 
       return `\\li720\\fi-720 ${escapedLine}\\par\\par`;
     })
