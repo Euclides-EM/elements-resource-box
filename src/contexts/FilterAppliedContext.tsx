@@ -13,6 +13,7 @@ import { FilterValue } from "../components/map/Filter";
 import { loadCitiesAsync, loadEditionsData } from "../utils/dataUtils";
 import { Point } from "react-simple-maps";
 import { NO_CITY } from "../constants";
+import { itemProperties } from "../constants/itemProperties";
 
 type FilterAppliedContextType = {
   data: Item[];
@@ -196,7 +197,7 @@ export const FilterAppliedProvider = ({
       setTextSearch: React.Dispatch<React.SetStateAction<string>>;
       setTextSearchFields: React.Dispatch<React.SetStateAction<(keyof Item)[]>>;
     }) => {
-      const defaultFilters = {
+      const defaultFilters: Record<string, FilterValue[] | undefined> = {
         type: [
           {
             label: "Elements",
@@ -204,17 +205,28 @@ export const FilterAppliedProvider = ({
           },
         ],
       };
+
+      const allFilterKeys = Object.keys(itemProperties).filter(
+        (key) => !itemProperties[key].notFilterable,
+      );
+
+      allFilterKeys.forEach((key) => {
+        if (key !== "type") {
+          defaultFilters[key] = undefined;
+        }
+      });
+
       const defaultState = {
         filters: defaultFilters,
         filtersInclude: {},
         range: [minYear, maxYear] as [number, number],
-        includeUndated: true,
+        includeUndated: false,
         textSearch: "",
         textSearchFields: ["shortTitle", "title", "titleEn"] as (keyof Item)[],
       };
 
-      setters.setFilters(defaultState.filters);
-      setters.setFiltersInclude(defaultState.filtersInclude);
+      setters.setFilters(() => defaultState.filters);
+      setters.setFiltersInclude(() => ({}));
       setters.setRange(defaultState.range);
       setters.setIncludeUndated(defaultState.includeUndated);
       setters.setTextSearch(defaultState.textSearch);

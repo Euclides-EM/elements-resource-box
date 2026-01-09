@@ -111,7 +111,7 @@ export const Filter = ({
         </Switch>
       </Row>
       <Select
-        value={value}
+        value={value || []}
         options={options}
         isMulti
         onChange={(value) => setValue(value)}
