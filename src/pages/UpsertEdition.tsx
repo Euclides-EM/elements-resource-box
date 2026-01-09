@@ -2786,9 +2786,7 @@ export const UpsertEdition = () => {
                   {(field) => (
                     <TextArea
                       value={field.state.value}
-                      onChange={(e) =>
-                        field.handleChange(e.target.value.trim())
-                      }
+                      onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
                     />
                   )}
