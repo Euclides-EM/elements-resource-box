@@ -32,12 +32,12 @@ const ContentContainer = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 3.5rem;
+  font-size: 4.5rem;
   color: white;
   margin: 0;
   margin-bottom: 0.8rem;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
-  font-weight: 300;
+  font-weight: 600;
   letter-spacing: -0.02em;
 
   @media (max-width: 768px) {
@@ -49,7 +49,7 @@ const Subtitle = styled.p`
   font-size: 2rem;
   color: rgba(255, 255, 255, 0.85);
   margin: 0;
-  max-width: 80%;
+  max-width: 60%;
   line-height: 1.4;
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
 
@@ -126,8 +126,8 @@ export const HomeCommentaria = () => {
       <ContentContainer>
         <Title>Commentaria in Euclidem</Title>
         <Subtitle>
-          A research platform for studying modern editions and commentaries of
-          Euclid's Elements
+          A platform for studying modern editions and commentaries of Euclid's
+          Elements
         </Subtitle>
         <BrowseButton onClick={() => navigate(CATALOGUE_ROUTE)}>
           Browse the Catalogue
