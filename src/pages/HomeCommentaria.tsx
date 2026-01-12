@@ -37,7 +37,7 @@ const Title = styled.h1`
   margin: 0;
   margin-bottom: 0.8rem;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.02em;
 
   @media (max-width: 768px) {
@@ -59,14 +59,15 @@ const Subtitle = styled.p`
 `;
 
 const BrowseButton = styled.button`
-  margin-top: 2rem;
+  margin-top: 4rem;
   background: white;
   opacity: 0.8;
   color: #333;
   border: none;
-  padding: 0.8rem 2rem;
-  font-size: 1.05rem;
-  border-radius: 4px;
+  padding: 1.1rem 2.6rem;
+  font-size: 1.2rem;
+  border-radius: 6px;
+  font-weight: 900;
   cursor: pointer;
   transition:
     transform 0.3s ease,
