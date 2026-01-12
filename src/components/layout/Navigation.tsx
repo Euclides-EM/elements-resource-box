@@ -93,7 +93,7 @@ function Navigation() {
         <NavContent>
           <SiteTitle onClick={() => navigate(HOME_ROUTE)}>
             {inEuclidesMode()
-              ? "Early Modern Euclid's Elements"
+              ? "Commentaria in Euclidem"
               : "Euclid's Elements: A Resource Box"}
           </SiteTitle>
           <StyledBoxIcon onClick={() => navigate(HOME_ROUTE)} />
