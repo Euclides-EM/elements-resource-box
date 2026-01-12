@@ -1,11 +1,6 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import styled from "@emotion/styled";
-import {
-  HOME_ROUTE,
-  ITEM_EDIT_ROUTE,
-  NAVBAR_HEIGHT,
-  PRESENTATION_ROUTE,
-} from "./routes.ts";
+import { HOME_ROUTE, NAVBAR_HEIGHT, NO_FILTER_ROUTES } from "./routes.ts";
 import { MARKER_5 } from "../../utils/colors.ts";
 import { useLayoutEffect } from "react";
 import { BsBoundingBoxCircles } from "react-icons/bs";
@@ -14,6 +9,7 @@ import MobileNavigation from "./MobileNavigation";
 import { NavItems } from "./NavItem";
 import { useIsMobile } from "./isMobile.ts";
 import { inEuclidesMode } from "../../utils/mode.ts";
+import { useNavigateWithQuery } from "../../utils/navigationUtils";
 
 const Placeholder = styled.div`
   height: ${NAVBAR_HEIGHT}px;
@@ -64,10 +60,8 @@ const FixedFilterButtonContainer = styled.div`
 
 function Navigation() {
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const isMobile = useIsMobile();
-
-  const noFilterRoutes = [HOME_ROUTE, PRESENTATION_ROUTE, ITEM_EDIT_ROUTE];
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
@@ -78,7 +72,7 @@ function Navigation() {
       <>
         <MobileNavigation />
         <Placeholder />
-        {!noFilterRoutes.includes(location.pathname) && (
+        {!NO_FILTER_ROUTES.includes(location.pathname) && (
           <FixedFilterButtonContainer>
             <FilterButton />
           </FixedFilterButtonContainer>
@@ -91,18 +85,18 @@ function Navigation() {
     <>
       <NavContainer>
         <NavContent>
-          <SiteTitle onClick={() => navigate(HOME_ROUTE)}>
+          <SiteTitle onClick={() => navigateWithQuery(HOME_ROUTE)}>
             {inEuclidesMode()
               ? "Early Modern Euclid's Elements"
               : "Euclid's Elements: A Resource Box"}
           </SiteTitle>
-          <StyledBoxIcon onClick={() => navigate(HOME_ROUTE)} />
+          <StyledBoxIcon onClick={() => navigateWithQuery(HOME_ROUTE)} />
           <VerticalLine />
           <NavItems mobile={false} />
         </NavContent>
       </NavContainer>
       <Placeholder />
-      {!noFilterRoutes.includes(location.pathname) && (
+      {!NO_FILTER_ROUTES.includes(location.pathname) && (
         <FixedFilterButtonContainer>
           <FilterButton />
         </FixedFilterButtonContainer>

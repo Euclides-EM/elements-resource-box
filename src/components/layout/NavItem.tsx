@@ -13,6 +13,7 @@ import {
 import { MACTUTOR_URL } from "../../constants";
 import { ActionsMenu } from "./ActionsMenu.tsx";
 import { inEditMode, inEuclidesMode } from "../../utils/mode.ts";
+import { preserveQueryParams } from "../../utils/navigationUtils";
 
 const StyledNavItem = styled.li<{ active: boolean; mobile: boolean }>`
   a {
@@ -71,6 +72,8 @@ function NavItem({
   className,
   mobile,
 }: NavItemProps) {
+  const location = useLocation();
+
   if (external) {
     return (
       <StyledNavItem active={active} className={className} mobile={mobile}>
@@ -81,9 +84,11 @@ function NavItem({
     );
   }
 
+  const pathWithQuery = preserveQueryParams(to, location.search);
+
   return (
     <StyledNavItem active={active} className={className} mobile={mobile}>
-      <Link to={to}>{children}</Link>
+      <Link to={pathWithQuery}>{children}</Link>
     </StyledNavItem>
   );
 }
@@ -150,7 +155,9 @@ export const NavItems = ({ mobile }: { mobile: boolean }) => {
           <DevNavItem mobile={mobile}>
             <ActionsMenu
               mobile={mobile}
-              onShowCreateModal={() => (window.location.href = ITEM_EDIT_ROUTE)}
+              onShowCreateModal={() => {
+                window.location.href = ITEM_EDIT_ROUTE;
+              }}
             />
           </DevNavItem>
         )}

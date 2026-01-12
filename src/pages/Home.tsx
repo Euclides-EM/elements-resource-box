@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import { Container, Row, Text } from "../components/common";
-import { useNavigate } from "react-router-dom";
 import { LAND_COLOR, MARKER_4, MARKER_5, PANE_COLOR } from "../utils/colors.ts";
 import {
   CATALOGUE_ROUTE,
@@ -14,6 +13,7 @@ import { css } from "@emotion/react";
 import { EIP_URL, MACTUTOR_URL } from "../constants";
 import { TbMathMaxMin } from "react-icons/tb";
 import { useEditFilter } from "../contexts/FilterEditContext.tsx";
+import { useNavigateWithQuery } from "../utils/navigationUtils";
 
 const ParallaxBackground = styled.div`
   position: fixed;
@@ -154,7 +154,7 @@ const Card = ({
 };
 
 function Home() {
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const [imageHeight, setImageHeight] = useState(0);
   const { setFilterOpen } = useEditFilter();
 
@@ -268,7 +268,7 @@ function Home() {
         />
         <Card
           title="Title Pages Experiment"
-          onClick={() => navigate(CATALOGUE_ROUTE)}
+          onClick={() => navigateWithQuery(CATALOGUE_ROUTE)}
           icon={<GiHolySymbol />}
           color={MARKER_5}
           imageSrc="/tps/Paris_1622_tp.jpeg"
@@ -293,7 +293,7 @@ function Home() {
           }
         />
         <Card
-          onClick={() => navigate(TITLE_PAGES_ROUTE)}
+          onClick={() => navigateWithQuery(TITLE_PAGES_ROUTE)}
           imageSrc="/modal.png"
           imageOnLeft={false}
           text={

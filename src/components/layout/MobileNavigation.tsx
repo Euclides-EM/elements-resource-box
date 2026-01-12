@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import styled from "@emotion/styled";
 import { HOME_ROUTE, NAVBAR_HEIGHT } from "./routes.ts";
 import { MARKER_5 } from "../../utils/colors.ts";
@@ -8,6 +8,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { NavItems } from "./NavItem";
 import { Row } from "../common.ts";
 import { inEuclidesMode } from "../../utils/mode.ts";
+import { useNavigateWithQuery } from "../../utils/navigationUtils";
 
 const NavContainer = styled.nav`
   position: fixed;
@@ -65,7 +66,7 @@ const MobileMenu = styled.div<{ isOpen: boolean }>`
 
 function MobileNavigation() {
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useLayoutEffect(() => {
@@ -82,12 +83,12 @@ function MobileNavigation() {
       <NavContainer>
         <Row gap={4}>
           <TitleContainer>
-            <SiteTitle onClick={() => navigate(HOME_ROUTE)}>
+            <SiteTitle onClick={() => navigateWithQuery(HOME_ROUTE)}>
               {inEuclidesMode()
                 ? "Early Modern Euclid's Elements"
                 : "Euclid's Elements: A Resource Box"}
             </SiteTitle>
-            <StyledBoxIcon onClick={() => navigate(HOME_ROUTE)} />
+            <StyledBoxIcon onClick={() => navigateWithQuery(HOME_ROUTE)} />
           </TitleContainer>
           <MenuButton onClick={toggleMenu}>
             {isMenuOpen ? <FaTimes /> : <FaBars />}
