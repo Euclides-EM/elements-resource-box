@@ -1,11 +1,11 @@
 import {
   createBrowserRouter,
-  RouterProvider,
+  createRoutesFromElements,
   Navigate,
   Route,
-  createRoutesFromElements,
+  RouterProvider,
 } from "react-router-dom";
-import Home from "./pages/Home";
+import { HomeResourceBox } from "./pages/HomeResourceBox.tsx";
 import TitlePage from "./pages/TitlePage";
 import Layout from "./components/layout/Layout";
 import { TourProvider } from "@reactour/tour";
@@ -14,14 +14,14 @@ import { PANE_COLOR_ALT } from "./utils/colors.ts";
 import Map from "./pages/Map.tsx";
 import { UpsertEdition } from "./pages/UpsertEdition.tsx";
 import {
-  HOME_ROUTE,
-  MAP_ROUTE,
-  TITLE_PAGES_ROUTE,
   CATALOGUE_ROUTE,
-  TRENDS_ROUTE,
-  ITEM_EDIT_ROUTE,
-  PRESENTATION_ROUTE,
   DIAGRAMS_ROUTE,
+  HOME_ROUTE,
+  ITEM_EDIT_ROUTE,
+  MAP_ROUTE,
+  PRESENTATION_ROUTE,
+  TITLE_PAGES_ROUTE,
+  TRENDS_ROUTE,
 } from "./components/layout/routes.ts";
 import Catalogue from "./pages/Catalogue.tsx";
 import Trends from "./pages/Trends.tsx";
@@ -30,7 +30,7 @@ import Diagrams from "./pages/Diagrams.tsx";
 import { useLocalStorage } from "usehooks-ts";
 import { AuthContext } from "./contexts/Auth.ts";
 import { inEuclidesMode } from "./utils/mode.ts";
-import { Row } from "./components/common.ts";
+import { HomeCommentaria } from "./pages/HomeCommentaria.tsx";
 
 function App() {
   const [authToken, setAuthToken] = useLocalStorage<string | null>(
@@ -43,7 +43,7 @@ function App() {
       <Route element={<Layout />}>
         <Route
           path={HOME_ROUTE}
-          element={inEuclidesMode() ? <Row>TBD</Row> : <Home />}
+          element={inEuclidesMode() ? <HomeCommentaria /> : <HomeResourceBox />}
         />
         <Route path={TITLE_PAGES_ROUTE} element={<TitlePage />} />
         <Route path={CATALOGUE_ROUTE} element={<Catalogue />} />

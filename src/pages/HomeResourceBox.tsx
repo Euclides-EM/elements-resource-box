@@ -153,7 +153,7 @@ const Card = ({
   );
 };
 
-function Home() {
+export function HomeResourceBox() {
   const navigateWithQuery = useNavigateWithQuery();
   const [imageHeight, setImageHeight] = useState(0);
   const { setFilterOpen } = useEditFilter();
@@ -354,5 +354,3 @@ function Home() {
     </>
   );
 }
-
-export default Home;

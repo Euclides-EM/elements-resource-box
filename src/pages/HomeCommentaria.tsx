@@ -1,0 +1,139 @@
+import styled from "@emotion/styled";
+import { useNavigate } from "react-router-dom";
+import { CATALOGUE_ROUTE, NAVBAR_HEIGHT } from "../components/layout/routes";
+
+const BackgroundContainer = styled.div`
+  position: fixed;
+  top: ${NAVBAR_HEIGHT}px;
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - ${NAVBAR_HEIGHT}px);
+  background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0)),
+    url("public/athens.jpg");
+  background-size: cover;
+  background-position: center 40%;
+  background-repeat: no-repeat;
+  z-index: -1;
+`;
+
+const ContentContainer = styled.div`
+  height: calc(100vh - ${NAVBAR_HEIGHT}px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  padding-top: 20vh;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  box-sizing: border-box;
+`;
+
+const Title = styled.h1`
+  font-size: 3.5rem;
+  color: white;
+  margin: 0;
+  margin-bottom: 0.8rem;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
+`;
+
+const Subtitle = styled.p`
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
+  margin-bottom: 2rem;
+  max-width: 80%;
+  line-height: 1.4;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+`;
+
+const BrowseButton = styled.button`
+  background: white;
+  color: #333;
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 1.05rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+    padding: 0.7rem 1.8rem;
+  }
+`;
+
+const Features = styled.div`
+  margin-top: 10vh;
+  display: flex;
+  gap: 1.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+  width: 100%;
+  padding: 0.5rem;
+  justify-content: center;
+  align-content: center;
+  background-color: rgba(34, 34, 34, 0.6);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    bottom: 1rem;
+  }
+
+  span:not(:last-child)::after {
+    content: "·";
+    margin-left: 2rem;
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+`;
+
+export const HomeCommentaria = () => {
+  const navigate = useNavigate();
+
+  return (
+    <>
+      <BackgroundContainer />
+      <ContentContainer>
+        <Title>Commentaria in Euclidem</Title>
+        <Subtitle>
+          A research platform for studying modern editions and commentaries of
+          Euclid's Elements
+        </Subtitle>
+        <BrowseButton onClick={() => navigate(CATALOGUE_ROUTE)}>
+          Browse the Catalogue
+        </BrowseButton>
+        <Features>
+          <span>Searchable Texts</span>
+          <span>Structured Metadata</span>
+          <span>Comparison and Analysis Tools</span>
+        </Features>
+      </ContentContainer>
+    </>
+  );
+};
