@@ -11,12 +11,13 @@ const BackgroundContainer = styled.div`
   background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0)),
     url("public/athens.jpg");
   background-size: cover;
-  background-position: center 40%;
   background-repeat: no-repeat;
+  background-position: center bottom;
   z-index: -1;
 `;
 
 const ContentContainer = styled.div`
+  font-family: "Manrope", "Helvetica Neue", Arial, sans-serif;
   height: calc(100vh - ${NAVBAR_HEIGHT}px);
   display: flex;
   flex-direction: column;
@@ -45,22 +46,22 @@ const Title = styled.h1`
 `;
 
 const Subtitle = styled.p`
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.95);
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.85);
   margin: 0;
-  margin-bottom: 2rem;
   max-width: 80%;
   line-height: 1.4;
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
 
   @media (max-width: 768px) {
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
   }
 `;
 
 const BrowseButton = styled.button`
+  margin-top: 2rem;
   background: white;
+  opacity: 0.8;
   color: #333;
   border: none;
   padding: 0.8rem 2rem;
@@ -73,11 +74,13 @@ const BrowseButton = styled.button`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
   &:hover {
+    opacity: 1;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
   }
 
   @media (max-width: 768px) {
+    margin-top: 1.5rem;
     font-size: 0.95rem;
     padding: 0.7rem 1.8rem;
   }
@@ -88,18 +91,19 @@ const Features = styled.div`
   display: flex;
   gap: 1.5rem;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 0.95rem;
+  font-size: 1.5rem;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
   width: 100%;
-  padding: 0.5rem;
+  padding: 1rem;
   justify-content: center;
   align-content: center;
   background-color: rgba(34, 34, 34, 0.6);
 
   @media (max-width: 768px) {
+    padding: 0.5rem;
     flex-direction: column;
     gap: 0.3rem;
-    font-size: 0.85rem;
+    font-size: 1.2rem;
     bottom: 1rem;
   }
 
