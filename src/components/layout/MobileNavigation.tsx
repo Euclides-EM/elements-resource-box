@@ -85,7 +85,7 @@ function MobileNavigation() {
           <TitleContainer>
             <SiteTitle onClick={() => navigateWithQuery(HOME_ROUTE)}>
               {inEuclidesMode()
-                ? "Early Modern Euclid's Elements"
+                ? "Commentaria in Euclidem"
                 : "Euclid's Elements: A Resource Box"}
             </SiteTitle>
             <StyledBoxIcon onClick={() => navigateWithQuery(HOME_ROUTE)} />
