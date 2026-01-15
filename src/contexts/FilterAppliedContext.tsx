@@ -413,14 +413,7 @@ export const FilterAppliedProvider = ({
       setTextSearch: React.Dispatch<React.SetStateAction<string>>;
       setTextSearchFields: React.Dispatch<React.SetStateAction<(keyof Item)[]>>;
     }) => {
-      const defaultFilters: Record<string, FilterValue[] | undefined> = {
-        type: [
-          {
-            label: "Elements",
-            value: "Elements",
-          },
-        ],
-      };
+      const defaultFilters: Record<string, FilterValue[] | undefined> = {};
 
       const allFilterKeys = Object.keys(itemProperties).filter(
         (key) => !itemProperties[key].notFilterable,
