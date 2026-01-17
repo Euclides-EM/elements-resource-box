@@ -48,6 +48,13 @@ function formatAuthorForCitation(
 
   if (authors.length === 1) {
     const author = parseAuthorName(authors[0]);
+    if (author.name.endsWith(" (?)")) {
+      const cleanName = author.name.slice(0, -4).trim();
+      const cleanAuthor = parseAuthorName(cleanName);
+      return cleanAuthor.lastName && cleanAuthor.firstName
+        ? `[${cleanAuthor.lastName}, ${cleanAuthor.firstName}?]`
+        : `[${cleanName}?]`;
+    }
     return author.lastName && author.firstName
       ? `${author.lastName}, ${author.firstName}`
       : author.name || NO_AUTHOR;
@@ -212,7 +219,10 @@ function getAuthorSortKey(authors: string[]): string {
     return "zzz" + NO_AUTHOR;
   }
 
-  const firstAuthor = parseAuthorName(authors[0]);
+  const firstAuthorName = authors[0].endsWith(" (?)")
+    ? authors[0].slice(0, -4).trim()
+    : authors[0];
+  const firstAuthor = parseAuthorName(firstAuthorName);
   const lastName = firstAuthor.lastName.toLowerCase();
   const firstName = firstAuthor.firstName.toLowerCase();
 
@@ -220,7 +230,10 @@ function getAuthorSortKey(authors: string[]): string {
 
   const coauthors = authors
     .slice(1)
-    .map((a) => parseAuthorName(a).lastName.toLowerCase())
+    .map((a) => {
+      const cleanName = a.endsWith(" (?)") ? a.slice(0, -4).trim() : a;
+      return parseAuthorName(cleanName).lastName.toLowerCase();
+    })
     .join("_");
 
   return `${lastName}_${firstName}_${authorCount}_${coauthors}`;
