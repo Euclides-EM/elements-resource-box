@@ -16,7 +16,7 @@ export const Stats = ({ verb }: { verb?: string }) => {
     const authorsSet = new Set<string>();
     const citiesSet = new Set<string>();
     const languagesSet = new Set<string>();
-    filteredItems.forEach((item) => {
+    filteredItems?.forEach((item) => {
       item.authors?.forEach((author) =>
         authorsSet.add(authorDisplayName(author)),
       );
@@ -29,6 +29,10 @@ export const Stats = ({ verb }: { verb?: string }) => {
       languagesCount: languagesSet.size,
     };
   }, [filteredItems]);
+
+  if (filteredItems == null) {
+    return null;
+  }
 
   return (
     <Row>

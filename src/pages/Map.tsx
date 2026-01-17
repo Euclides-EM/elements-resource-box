@@ -28,6 +28,7 @@ import { CityDetails } from "../components/map/CityDetails.tsx";
 import { NAVBAR_HEIGHT } from "../components/layout/routes.ts";
 import { useIsMobile } from "../components/layout/isMobile.ts";
 import { useEditFilter } from "../contexts/FilterEditContext.tsx";
+import { Item } from "../types";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -146,20 +147,22 @@ const Map = () => {
 
   const itemsByCity = useMemo(() => {
     const res = {} as Record<string, typeof filteredItems>;
-    filteredItems.forEach((item) => {
-      item.cities.forEach((city) => {
-        if (!res[city]) {
-          res[city] = [];
-        }
-        res[city].push(item);
+    if (filteredItems) {
+      filteredItems.forEach((item) => {
+        item.cities.forEach((city) => {
+          if (!res[city]) {
+            res[city] = [];
+          }
+          res[city].push(item);
+        });
       });
-    });
+    }
     return res;
   }, [filteredItems]);
 
   const selectedRecord = useMemo(
     () =>
-      selectedRecordKey
+      selectedRecordKey && filteredItems
         ? filteredItems.filter((d) => d.key === selectedRecordKey)[0]
         : undefined,
     [filteredItems, selectedRecordKey],
@@ -183,7 +186,7 @@ const Map = () => {
             markers={
               <CityMarkers
                 cities={cities}
-                data={itemsByCity}
+                data={itemsByCity as Record<string, Item[]>}
                 selectedCity={selectedCity}
                 setSelectedCity={(selected) =>
                   !isMobile && setSelectedCity(selected)
@@ -220,7 +223,7 @@ const Map = () => {
           </CollapseFiltersButton>
           <CityDetails
             city={selectedCity!}
-            data={itemsByCity[selectedCity!]}
+            data={itemsByCity[selectedCity!] || []}
             selectedRecordId={selectedRecordKey}
             setSelectedRecordKey={setSelectedRecordId}
           />

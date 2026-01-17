@@ -86,7 +86,7 @@ function TitlePage() {
     }
 
     const searchLower = searchText.toLowerCase();
-    return filteredItems.filter((item) => {
+    return filteredItems?.filter((item) => {
       const title = item.title?.toLowerCase() || "";
       const imprint = item.imprint?.toLowerCase() || "";
       const titleEn = item.titleEn?.toLowerCase() || "";
@@ -154,7 +154,7 @@ function TitlePage() {
       )}
       <Column minWidth="min(820px, 90%)">
         <Stats />
-        {!inEuclidesMode() && filteredBySearchItems.length > 0 && (
+        {!inEuclidesMode() && (filteredBySearchItems || []).length > 0 && (
           <>
             <Row gap={0.5}>
               Title Pages Experiment View{" "}
@@ -229,7 +229,8 @@ function TitlePage() {
         )}
       </Column>
       <Row rowGap={6}>
-        {(filteredBySearchItems?.length || 0) > 0 ? (
+        {filteredBySearchItems == null ||
+        (filteredBySearchItems?.length || 0) > 0 ? (
           filteredBySearchItems
             ?.sort((a, b) => {
               if (!a.year) return 1;

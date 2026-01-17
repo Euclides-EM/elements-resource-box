@@ -116,6 +116,8 @@ export const RangeSlider = ({
     }
   }, [value]);
 
+  console.error("valie", value);
+
   return (
     <Row justifyStart noWrap noWrapAlsoOnMobile className={className}>
       {name && <div>{name}:</div>}

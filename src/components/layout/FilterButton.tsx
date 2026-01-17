@@ -4,6 +4,7 @@ import { useEditFilter } from "../../contexts/FilterEditContext";
 import { TOOLTIP_FILTERS } from "../map/MapTooltips";
 import React, { useRef } from "react";
 import { FILTER_TOGGLE_BUTTON_ID } from "../map/Tour.tsx";
+import { useAppliedFilter } from "../../contexts/FilterAppliedContext.tsx";
 
 const FilterButtonContainer = styled.div`
   font-size: 1.5rem;
@@ -24,7 +25,12 @@ const FilterButtonContainer = styled.div`
 
 export const FilterButton = () => {
   const { filterOpen, setFilterOpen } = useEditFilter();
+  const { data } = useAppliedFilter();
   const buttonRef = useRef<HTMLDivElement>(null);
+
+  if (!data) {
+    return null;
+  }
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();

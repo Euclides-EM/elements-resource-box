@@ -169,10 +169,10 @@ export const FilterPane = () => {
 
   const { filterOpen } = useEditFilter();
 
-  const [range, setRange] = useLocalStorage<[number, number]>(
-    "time-range",
-    [0, 9999],
-  );
+  const [range, setRange] = useLocalStorage<[number, number]>("time-range", [
+    minYear,
+    maxYear,
+  ]);
   const [filters, setFilters] = useLocalStorage<
     Record<string, FilterValue[] | undefined>
   >("filters", {
@@ -197,6 +197,10 @@ export const FilterPane = () => {
   const [textSearchFields, setTextSearchFields] = useLocalStorage<
     (keyof Item)[]
   >("text-search-fields", ["shortTitle", "title", "titleEn"]);
+
+  useEffect(() => {
+    setRange([minYear, maxYear]);
+  }, [maxYear, minYear, setRange]);
 
   useEffect(() => {
     const hasChanges =

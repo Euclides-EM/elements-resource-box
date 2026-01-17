@@ -111,7 +111,7 @@ export function useTrendsData() {
   };
 
   const timeWindows = useMemo(() => {
-    if (!filteredItems.length) return [];
+    if (!filteredItems || !filteredItems.length) return [];
 
     const [minYear, maxYear] = range;
     const windowsCount = Math.ceil((maxYear - minYear) / windowSize);
@@ -130,7 +130,7 @@ export function useTrendsData() {
       },
     );
 
-    filteredItems.forEach((item) => {
+    filteredItems?.forEach((item) => {
       if (!item.year) return;
 
       const year = parseInt(item.year.split("/")[0]);
@@ -183,12 +183,12 @@ export function useTrendsData() {
   }, [timeWindows, groupBy]);
 
   const pieChartData = useMemo(() => {
-    if (!groupBy.key || !filteredItems.length) return [];
+    if (!groupBy.key || !filteredItems || !filteredItems.length) return [];
 
     const groupCounts: Record<string, number> = {};
     let totalCount = 0;
 
-    filteredItems.forEach((item) => {
+    filteredItems?.forEach((item) => {
       const value = item[groupBy.key as keyof Item];
 
       countItem(groupBy, value, (key, count) => {

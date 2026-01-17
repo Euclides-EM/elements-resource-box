@@ -261,6 +261,9 @@ function Catalogue() {
   };
 
   const handleExportCitations = () => {
+    if (!filteredItems) {
+      return;
+    }
     const timestamp = new Date().toISOString().slice(0, 10);
     exportCitationsAsRTF(filteredItems, `chicago_citations_${timestamp}.rtf`);
   };
@@ -293,10 +296,10 @@ function Catalogue() {
     }
 
     const reprintClusters = clusters.filter((c) => c.type === "reprint");
-    const itemMap = new Map(filteredItems.map((item) => [item.key, item]));
+    const itemMap = new Map(filteredItems?.map((item) => [item.key, item]));
     const processedItemsMap = new Map<string, ItemWithCluster>();
 
-    for (const item of filteredItems) {
+    for (const item of filteredItems ?? []) {
       const clusterItem = clusterItems.find((ci) => ci.item_key === item.key);
 
       if (clusterItem) {
@@ -573,7 +576,7 @@ function Catalogue() {
   );
 
   const table = useReactTable<ItemWithCluster>({
-    data: processedItems,
+    data: processedItems || [],
     columns,
     state: {
       sorting,

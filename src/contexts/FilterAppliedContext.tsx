@@ -201,7 +201,7 @@ const updateQueryParams = (state: FilterState, defaultState: FilterState) => {
 type FilterAppliedContextType = {
   data: Item[];
   cities: Record<string, Point>;
-  filteredItems: Item[];
+  filteredItems: Item[] | null;
   filters: Record<string, FilterValue[] | undefined>;
   filtersInclude: Record<string, boolean>;
   range: [number, number];
@@ -257,9 +257,9 @@ export const FilterAppliedProvider = ({
   }, [data]);
 
   const [isFiltering, setIsFiltering] = useState(false);
-  const [internalFilteredItems, setInternalFilteredItems] = useState<Item[]>(
-    [],
-  );
+  const [internalFilteredItems, setInternalFilteredItems] = useState<
+    Item[] | null
+  >(null);
   const workerRef = useRef<Worker | null>(null);
   const pendingMessageRef = useRef<MessageEvent | null>(null);
   const dataRef = useRef<Item[]>([]);

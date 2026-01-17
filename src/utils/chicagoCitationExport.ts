@@ -246,8 +246,8 @@ function groupItemsByAuthor(items: Item[]): CitationGroup[] {
 
   groups.forEach((group) => {
     group.items.sort((a, b) => {
-      const yearA = a.year || "9999";
-      const yearB = b.year || "9999";
+      const yearA = a.year || "";
+      const yearB = b.year || "";
 
       if (yearA !== yearB) {
         return yearA.localeCompare(yearB);
