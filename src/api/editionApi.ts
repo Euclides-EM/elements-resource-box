@@ -11,7 +11,7 @@ export const upsertEdition = async (
   images: Record<string, File>,
   authToken: string,
 ): Promise<void> => {
-  console.log("Upsertting edition:", data);
+  console.log("Upserting edition:", data);
 
   const uploads: Promise<void>[] = [];
 
