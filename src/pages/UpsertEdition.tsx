@@ -95,21 +95,24 @@ const STUDY_CORPUSES = [
 const ANNOTATIONS = ["none", "a few", "some", "many", "uncatalogued"];
 
 const PageContainer = styled.div`
-  padding: 1rem 2rem;
+  padding-right: 1rem;
   width: 100%;
   margin: 0 auto;
+  max-width: 100vw;
+  box-sizing: border-box;
   min-height: calc(100vh - 120px);
   background-color: aliceblue;
 `;
 
 const FormContainer = styled.div`
   width: 100%;
-  max-width: 90%;
-  max-height: 80vh;
+  padding: 1rem;
+  padding-right: 0;
+  max-height: calc(100vh - 140px);
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
+  overscroll-behavior: auto;
   color: black;
-  padding-right: 1rem;
 
   em {
     font-size: 0.875rem;
@@ -148,8 +151,10 @@ const FormGrid = styled.div`
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.5rem;
   margin-bottom: 1rem;
-  min-width: 60vw;
-  overflow-x: auto;
+  width: 100%;
+  max-width: calc(100vw - 3rem);
+  min-width: 1024px;
+  overscroll-behavior: auto;
 `;
 
 const FormField = styled.div<{
@@ -237,6 +242,7 @@ const ButtonContainer = styled.div`
   justify-content: flex-end;
   margin-top: 2rem;
   padding-top: 1rem;
+  margin-right: 1rem;
   border-top: 1px solid #eee;
 `;
 
