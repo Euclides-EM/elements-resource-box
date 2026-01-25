@@ -98,16 +98,18 @@ const PageContainer = styled.div`
   padding: 1rem 2rem;
   width: 100%;
   margin: 0 auto;
+  max-width: 100vw;
+  box-sizing: border-box;
   min-height: calc(100vh - 120px);
   background-color: aliceblue;
 `;
 
 const FormContainer = styled.div`
   width: 100%;
-  max-width: 90%;
-  max-height: 80vh;
+  height: 100%;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
+  overscroll-behavior: auto;
   color: black;
   padding-right: 1rem;
 
@@ -148,8 +150,10 @@ const FormGrid = styled.div`
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.5rem;
   margin-bottom: 1rem;
-  min-width: 60vw;
-  overflow-x: auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overscroll-behavior: auto;
 `;
 
 const FormField = styled.div<{

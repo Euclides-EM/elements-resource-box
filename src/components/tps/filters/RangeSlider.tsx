@@ -101,8 +101,12 @@ export const RangeSlider = ({
   max,
   onChange,
 }: RangeSliderProps) => {
-  const [minInputValue, setMinInputValue] = useState(value[0].toString());
-  const [maxInputValue, setMaxInputValue] = useState(value[1].toString());
+  const [minInputValue, setMinInputValue] = useState(
+    value[0]?.toString() || String(min),
+  );
+  const [maxInputValue, setMaxInputValue] = useState(
+    value[1]?.toString() || String(max),
+  );
   const prevValueRef = useRef<[number, number]>(value);
 
   useEffect(() => {
@@ -115,8 +119,6 @@ export const RangeSlider = ({
       prevValueRef.current = value;
     }
   }, [value]);
-
-  console.error("valie", value);
 
   return (
     <Row justifyStart noWrap noWrapAlsoOnMobile className={className}>
