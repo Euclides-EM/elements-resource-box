@@ -263,6 +263,7 @@ export const FilterAppliedProvider = ({
   }, [data]);
 
   const [isFiltering, setIsFiltering] = useState(false);
+  const isFilteringRef = useRef(false);
   const [internalFilteredItems, setInternalFilteredItems] = useState<
     Item[] | null
   >(null);
@@ -356,6 +357,7 @@ export const FilterAppliedProvider = ({
 
     workerRef.current.addEventListener("message", (e: MessageEvent) => {
       setInternalFilteredItems(e.data);
+      isFilteringRef.current = false;
       setIsFiltering(false);
 
       if (pendingMessageRef.current) {
@@ -363,6 +365,7 @@ export const FilterAppliedProvider = ({
         pendingMessageRef.current = null;
         setTimeout(() => {
           workerRef.current?.postMessage(pending.data);
+          isFilteringRef.current = true;
           setIsFiltering(true);
         }, 0);
       }
@@ -396,9 +399,10 @@ export const FilterAppliedProvider = ({
       NO_CITY,
     };
 
-    if (isFiltering) {
+    if (isFilteringRef.current) {
       pendingMessageRef.current = { data: message } as MessageEvent;
     } else {
+      isFilteringRef.current = true;
       setIsFiltering(true);
       workerRef.current.postMessage(message);
     }
