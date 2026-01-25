@@ -101,6 +101,19 @@ export const RangeSlider = ({
   max,
   onChange,
 }: RangeSliderProps) => {
+  if (!min) {
+    min = 1482;
+  }
+  if (!max) {
+    max = 1883;
+  }
+  if (!value[0]) {
+    value[0] = min;
+  }
+  if (!value[1]) {
+    value[1] = max;
+  }
+
   const [minInputValue, setMinInputValue] = useState(
     value[0]?.toString() || String(min),
   );
