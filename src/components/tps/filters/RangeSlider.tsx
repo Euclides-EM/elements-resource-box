@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { Row } from "../../common.ts";
 import { useEffect, useRef, useState } from "react";
 import { RANGE_FILL, SEA_COLOR } from "../../../utils/colors.ts";
+import { MAX_YEAR, MIN_YEAR } from "../../../types";
 
 export type RangeSliderProps = {
   className?: string;
@@ -102,10 +103,10 @@ export const RangeSlider = ({
   onChange,
 }: RangeSliderProps) => {
   if (!min) {
-    min = 1482;
+    min = MIN_YEAR;
   }
   if (!max) {
-    max = 1883;
+    max = MAX_YEAR;
   }
   if (!value[0]) {
     value[0] = min;

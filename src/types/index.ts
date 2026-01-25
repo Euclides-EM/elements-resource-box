@@ -45,6 +45,9 @@ export type Range = {
 
 type YesNoBool = "Yes" | "No";
 
+export const MIN_YEAR = 1482;
+export const MAX_YEAR = 1883;
+
 export const FLOATING_CITY_ENTRY: City = {
   city: NO_CITY,
   lon: -16,

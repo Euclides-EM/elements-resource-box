@@ -229,7 +229,7 @@ export const FilterPane = () => {
     updateHasUnappliedChanges,
   ]);
 
-  if (!filterOpen) {
+  if (!filterOpen || !range[0] || !range[1]) {
     return null;
   }
 
