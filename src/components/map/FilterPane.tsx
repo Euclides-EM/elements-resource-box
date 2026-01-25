@@ -170,7 +170,6 @@ export const FilterPane = () => {
   } = useAppliedFilter();
   const location = useLocation();
 
-
   const { filterOpen } = useEditFilter();
 
   const [range, setRange] = useLocalStorage<[number, number]>("time-range", [
@@ -233,7 +232,13 @@ export const FilterPane = () => {
     updateHasUnappliedChanges,
   ]);
 
-  if (!filterOpen || !range[0] || !range[1] || filteredItems == null || NO_FILTER_ROUTES.includes(location.pathname)) {
+  if (
+    !filterOpen ||
+    !range[0] ||
+    !range[1] ||
+    filteredItems == null ||
+    NO_FILTER_ROUTES.includes(location.pathname)
+  ) {
     return null;
   }
 

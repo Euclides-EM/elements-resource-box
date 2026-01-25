@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Row } from "../../common.ts";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { RANGE_FILL, SEA_COLOR } from "../../../utils/colors.ts";
 import { MAX_YEAR, MIN_YEAR } from "../../../types";
 
@@ -102,109 +102,166 @@ export const RangeSlider = ({
   max,
   onChange,
 }: RangeSliderProps) => {
-  if (!min) {
-    min = MIN_YEAR;
-  }
-  if (!max) {
-    max = MAX_YEAR;
-  }
-  if (!value[0]) {
-    value[0] = min;
-  }
-  if (!value[1]) {
-    value[1] = max;
-  }
+  const resolvedMin = Number.isFinite(min) ? min : MIN_YEAR;
+  const resolvedMax = Number.isFinite(max) ? max : MAX_YEAR;
+  const initialMin = Number.isFinite(value?.[0]) ? value[0] : resolvedMin;
+  const initialMax = Number.isFinite(value?.[1]) ? value[1] : resolvedMax;
 
-  const [minInputValue, setMinInputValue] = useState(
-    value[0]?.toString() || String(min),
+  const [minInputValue, setMinInputValue] = useState(initialMin.toString());
+  const [maxInputValue, setMaxInputValue] = useState(initialMax.toString());
+  const [localValue, setLocalValue] = useState<[number, number]>([
+    initialMin,
+    initialMax,
+  ]);
+  const localValueRef = useRef<[number, number]>([initialMin, initialMax]);
+  const prevValueRef = useRef<[number, number]>([initialMin, initialMax]);
+  const pendingChangeRef = useRef<[number, number] | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  const emitChange = useCallback(
+    (nextValue: [number, number]) => {
+      pendingChangeRef.current = nextValue;
+      if (rafRef.current === null) {
+        rafRef.current = requestAnimationFrame(() => {
+          rafRef.current = null;
+          if (pendingChangeRef.current) {
+            onChange(pendingChangeRef.current);
+            pendingChangeRef.current = null;
+          }
+        });
+      }
+    },
+    [onChange],
   );
-  const [maxInputValue, setMaxInputValue] = useState(
-    value[1]?.toString() || String(max),
-  );
-  const prevValueRef = useRef<[number, number]>(value);
+
+  const commitChange = useCallback(() => {
+    const nextValue = localValueRef.current;
+    if (
+      nextValue[0] !== prevValueRef.current[0] ||
+      nextValue[1] !== prevValueRef.current[1]
+    ) {
+      emitChange(nextValue);
+    }
+  }, [emitChange]);
 
   useEffect(() => {
+    const nextMin = Number.isFinite(value?.[0]) ? value[0] : resolvedMin;
+    const nextMax = Number.isFinite(value?.[1]) ? value[1] : resolvedMax;
     if (
-      value[0] !== prevValueRef.current[0] ||
-      value[1] !== prevValueRef.current[1]
+      nextMin !== prevValueRef.current[0] ||
+      nextMax !== prevValueRef.current[1]
     ) {
-      setMinInputValue(value[0].toString());
-      setMaxInputValue(value[1].toString());
-      prevValueRef.current = value;
+      setLocalValue([nextMin, nextMax]);
+      setMinInputValue(nextMin.toString());
+      setMaxInputValue(nextMax.toString());
+      localValueRef.current = [nextMin, nextMax];
+      prevValueRef.current = [nextMin, nextMax];
     }
-  }, [value]);
+  }, [value, resolvedMin, resolvedMax]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
 
   return (
     <Row justifyStart noWrap noWrapAlsoOnMobile className={className}>
       {name && <div>{name}:</div>}
       <ValueInput
         type="number"
-        min={min}
-        max={value[1]}
+        min={resolvedMin}
+        max={localValue[1]}
         value={minInputValue}
         onChange={(e) => setMinInputValue(e.target.value)}
         onBlur={() => {
           const newMin = parseInt(minInputValue);
           if (!isNaN(newMin)) {
-            const clampedMin = Math.max(min, Math.min(newMin, value[1]));
+            const clampedMin = Math.max(
+              resolvedMin,
+              Math.min(newMin, localValue[1]),
+            );
             setMinInputValue(clampedMin.toString());
-            if (clampedMin !== value[0]) {
-              onChange([clampedMin, value[1]]);
+            if (clampedMin !== localValue[0]) {
+              const nextValue: [number, number] = [clampedMin, localValue[1]];
+              setLocalValue(nextValue);
+              localValueRef.current = nextValue;
+              emitChange(nextValue);
             }
           } else {
-            setMinInputValue(value[0].toString());
+            setMinInputValue(localValue[0].toString());
           }
         }}
       />
       <SliderContainer>
         <SliderTrack id="range-slider-track" />
         <SliderRange
-          left={value[0]}
-          width={value[1] - value[0]}
-          min={min}
-          max={max}
+          left={localValue[0]}
+          width={localValue[1] - localValue[0]}
+          min={resolvedMin}
+          max={resolvedMax}
         />
         <MinInput
           type="range"
-          min={min}
-          max={max}
-          value={value[0]}
+          min={resolvedMin}
+          max={resolvedMax}
+          value={localValue[0]}
           onChange={(e) => {
             const newMin = parseInt(e.target.value);
-            if (newMin <= value[1] && newMin !== value[0]) {
-              onChange([newMin, value[1]]);
+            const clampedMin = Math.min(newMin, localValue[1]);
+            if (clampedMin !== localValue[0]) {
+              const nextValue: [number, number] = [clampedMin, localValue[1]];
+              setLocalValue(nextValue);
+              localValueRef.current = nextValue;
             }
           }}
+          onMouseUp={commitChange}
+          onTouchEnd={commitChange}
+          onKeyUp={commitChange}
         />
         <MaxInput
           type="range"
-          min={min}
-          max={max}
-          value={value[1]}
+          min={resolvedMin}
+          max={resolvedMax}
+          value={localValue[1]}
           onChange={(e) => {
             const newMax = parseInt(e.target.value);
-            if (newMax >= value[0] && newMax !== value[1]) {
-              onChange([value[0], newMax]);
+            const clampedMax = Math.max(newMax, localValue[0]);
+            if (clampedMax !== localValue[1]) {
+              const nextValue: [number, number] = [localValue[0], clampedMax];
+              setLocalValue(nextValue);
+              localValueRef.current = nextValue;
             }
           }}
+          onMouseUp={commitChange}
+          onTouchEnd={commitChange}
+          onKeyUp={commitChange}
         />
       </SliderContainer>
       <ValueInput
         type="number"
-        min={value[0]}
-        max={max}
+        min={localValue[0]}
+        max={resolvedMax}
         value={maxInputValue}
         onChange={(e) => setMaxInputValue(e.target.value)}
         onBlur={() => {
           const newMax = parseInt(maxInputValue);
           if (!isNaN(newMax)) {
-            const clampedMax = Math.min(max, Math.max(newMax, value[0]));
+            const clampedMax = Math.min(
+              resolvedMax,
+              Math.max(newMax, localValue[0]),
+            );
             setMaxInputValue(clampedMax.toString());
-            if (clampedMax !== value[1]) {
-              onChange([value[0], clampedMax]);
+            if (clampedMax !== localValue[1]) {
+              const nextValue: [number, number] = [localValue[0], clampedMax];
+              setLocalValue(nextValue);
+              localValueRef.current = nextValue;
+              emitChange(nextValue);
             }
           } else {
-            setMaxInputValue(value[1].toString());
+            setMaxInputValue(localValue[1].toString());
           }
         }}
       />
