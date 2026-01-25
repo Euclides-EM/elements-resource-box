@@ -8,7 +8,7 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { Item } from "../types";
+import { Item, MAX_YEAR, MIN_YEAR } from "../types";
 import { FilterValue } from "../components/map/Filter";
 import { loadCitiesAsync, loadEditionsData } from "../utils/dataUtils";
 import { Point } from "react-simple-maps";
@@ -242,6 +242,9 @@ export const useAppliedFilter = () => {
   return context;
 };
 
+const finiteFallback = (value: number, fallback: number) =>
+  Number.isFinite(value) ? value : fallback;
+
 export const FilterAppliedProvider = ({
   children,
 }: {
@@ -253,7 +256,10 @@ export const FilterAppliedProvider = ({
     const years = data
       .filter((t) => !!t.year)
       .map((t) => parseInt(t.year!.split("/")[0]));
-    return [Math.min(...years), Math.max(...years)];
+    return [
+      finiteFallback(Math.min(...years), MIN_YEAR),
+      finiteFallback(Math.max(...years), MAX_YEAR),
+    ];
   }, [data]);
 
   const [isFiltering, setIsFiltering] = useState(false);
