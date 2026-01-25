@@ -436,7 +436,9 @@ const loadDottedLinesAsync = async (): Promise<
 export const authorDisplayName = (author: string) => {
   author = author.replace("(?)", "").replace("?", "").trim();
   const parts = author.split(/\s+/).filter(Boolean);
-  if (parts.length === 1) return author;
+  if (parts.length === 1) {
+    return author;
+  }
 
   const separators = [
     "de",
@@ -461,6 +463,7 @@ export const authorDisplayName = (author: string) => {
     "le",
     "el",
     "of",
+    "lefèvre",
   ];
   const lowerParts = parts.map((p) => p.toLowerCase());
 
