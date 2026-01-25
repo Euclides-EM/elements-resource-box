@@ -7,13 +7,14 @@ import { ScrollbarStyle } from "../common";
 import RangeSlider from "../tps/filters/RangeSlider";
 import { FilterButton as FilterToggleButton } from "../layout/FilterButton.tsx";
 import { itemProperties } from "../../constants/itemProperties.ts";
-import { NAVBAR_HEIGHT } from "../layout/routes.ts";
+import { NAVBAR_HEIGHT, NO_FILTER_ROUTES } from "../layout/routes.ts";
 import { TextSearchFilter } from "./TextSearchFilter";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FilterValue } from "./Filter";
 import { useLocalStorage } from "usehooks-ts";
 import { Item } from "../../types";
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const Pane = styled.div<{ isLoading?: boolean }>`
   display: flex;
@@ -151,6 +152,7 @@ const LoadingText = styled.div`
 
 export const FilterPane = () => {
   const {
+    filteredItems,
     data,
     minYear,
     maxYear,
@@ -166,6 +168,8 @@ export const FilterPane = () => {
     textSearch: appliedTextSearch,
     textSearchFields: appliedTextSearchFields,
   } = useAppliedFilter();
+  const location = useLocation();
+
 
   const { filterOpen } = useEditFilter();
 
@@ -229,7 +233,7 @@ export const FilterPane = () => {
     updateHasUnappliedChanges,
   ]);
 
-  if (!filterOpen || !range[0] || !range[1]) {
+  if (!filterOpen || !range[0] || !range[1] || filteredItems == null || NO_FILTER_ROUTES.includes(location.pathname)) {
     return null;
   }
 
