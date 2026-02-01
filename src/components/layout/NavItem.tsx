@@ -4,6 +4,7 @@ import { FaExternalLinkAlt } from "react-icons/fa";
 import { css } from "@emotion/react";
 import {
   CATALOGUE_ROUTE,
+  FEATURES_ROUTE,
   HOME_ROUTE,
   MAP_ROUTE,
   TITLE_PAGES_ROUTE,
@@ -14,6 +15,8 @@ import { MACTUTOR_URL } from "../../constants";
 import { ActionsMenu } from "./ActionsMenu.tsx";
 import { inEditMode, inEuclidesMode } from "../../utils/mode.ts";
 import { preserveQueryParams } from "../../utils/navigationUtils";
+import { AuthContext } from "../../contexts/Auth.ts";
+import { useContext } from "react";
 
 const separatorStyles = css`
   &::after {
@@ -151,6 +154,7 @@ const NavList = styled.ul<{ mobile: boolean }>`
 
 export const NavItems = ({ mobile }: { mobile: boolean }) => {
   const location = useLocation();
+  const { token } = useContext(AuthContext);
 
   return (
     <>
@@ -190,6 +194,15 @@ export const NavItems = ({ mobile }: { mobile: boolean }) => {
         >
           Map
         </NavItem>
+        {inEditMode() && token && (
+          <NavItem
+            to={FEATURES_ROUTE}
+            active={location.pathname === FEATURES_ROUTE}
+            mobile={mobile}
+          >
+            Features
+          </NavItem>
+        )}
         {!inEuclidesMode() && (
           <NavItem
             to={MACTUTOR_URL}
