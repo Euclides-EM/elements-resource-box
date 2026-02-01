@@ -106,12 +106,12 @@ Amsterdam_1618,origin_eip_csv
 Arnhem_1605,origin_eip_csv
 Vicenza_1491,origin_eip_csv
 Venice_1498a,origin_eip_csv
-Venice_1505,"origin_eip_csv, dh, axiomatics_16"
+Venice_1505,"origin_eip_csv, dh, axiomatics_16, Angela_metadata"
 Frankfurt_1506,origin_eip_csv
 Venice_1509,"origin_eip_csv, axiomatics_16"
 Venice_1510,origin_eip_csv
 Paris_1516,"origin_eip_csv, axiomatics_16"
-Basel_1533,"origin_eip_csv, dh, axiomatics_16"
+Basel_1533,"Angela_metadata, dh, axiomatics_16, origin_eip_csv"
 Basel_1537,origin_eip_csv
 Strasbourg_1538,origin_eip_csv
 Venice_1543,"origin_eip_csv, dh, axiomatics_16"
