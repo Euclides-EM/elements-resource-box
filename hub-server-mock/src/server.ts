@@ -21,7 +21,9 @@ type ExecutionInput = {
   dataset: string;
   keys?: string[];
   apply: Array<{ feature: string; revision?: string }>;
-  policy?: { skip_if?: Array<"feature_exist" | "revision_exist" | "human_reviewed"> };
+  policy?: {
+    skip_if?: Array<"feature_exist" | "revision_exist" | "human_reviewed">;
+  };
 };
 
 type ResultInput = {
@@ -358,7 +360,9 @@ const server = http.createServer(async (req, res) => {
 
       let executions = Array.from(store.executions.values());
       if (datasetFilter) {
-        executions = executions.filter((exec) => exec.dataset === datasetFilter);
+        executions = executions.filter(
+          (exec) => exec.dataset === datasetFilter,
+        );
       }
       if (featureFilter.size > 0) {
         executions = executions.filter((exec) =>

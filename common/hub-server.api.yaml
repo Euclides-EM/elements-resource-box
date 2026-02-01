@@ -26,14 +26,14 @@ paths:
           description: Comma-separated list of fields to expand (latest_revision, revisions)
           example: latest_revision,revisions
       responses:
-        '200':
+        "200":
           description: List of features
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Feature'
+                  $ref: "#/components/schemas/Feature"
 
     post:
       summary: Create a new feature
@@ -48,14 +48,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FeatureInput'
+              $ref: "#/components/schemas/FeatureInput"
       responses:
-        '201':
+        "201":
           description: Feature created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Feature'
+                $ref: "#/components/schemas/Feature"
 
   /dataset/{dataset_id}/features/{feature_id}:
     get:
@@ -79,12 +79,12 @@ paths:
             type: string
           description: Comma-separated list of fields to expand (latest_revision, revisions)
       responses:
-        '200':
+        "200":
           description: Feature details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Feature'
+                $ref: "#/components/schemas/Feature"
 
     put:
       summary: Update a feature
@@ -104,14 +104,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FeatureInput'
+              $ref: "#/components/schemas/FeatureInput"
       responses:
-        '200':
+        "200":
           description: Feature updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Feature'
+                $ref: "#/components/schemas/Feature"
 
     delete:
       summary: Delete a feature
@@ -133,7 +133,7 @@ paths:
             type: boolean
           description: If true, delete is performed even if there are results
       responses:
-        '204':
+        "204":
           description: Feature deleted
 
   /dataset/{dataset_id}/features/{feature_id}/revisions:
@@ -151,14 +151,14 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: List of revisions
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/FeatureRevision'
+                  $ref: "#/components/schemas/FeatureRevision"
 
     post:
       summary: Create a new revision for a feature
@@ -178,14 +178,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FeatureRevisionInput'
+              $ref: "#/components/schemas/FeatureRevisionInput"
       responses:
-        '201':
+        "201":
           description: Revision created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FeatureRevision'
+                $ref: "#/components/schemas/FeatureRevision"
 
   /dataset/{dataset_id}/features/{feature_id}/revisions/{revision_id}:
     get:
@@ -208,12 +208,12 @@ paths:
             type: string
           example: rev_5
       responses:
-        '200':
+        "200":
           description: Revision details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FeatureRevision'
+                $ref: "#/components/schemas/FeatureRevision"
 
   /executions:
     get:
@@ -240,14 +240,14 @@ paths:
           description: Comma-separated list of statuses
           example: success,in_progress
       responses:
-        '200':
+        "200":
           description: List of executions
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Execution'
+                  $ref: "#/components/schemas/Execution"
 
     post:
       summary: Create a new execution
@@ -256,14 +256,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ExecutionInput'
+              $ref: "#/components/schemas/ExecutionInput"
       responses:
-        '201':
+        "201":
           description: Execution created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Execution'
+                $ref: "#/components/schemas/Execution"
 
   /executions/{execution_id}:
     get:
@@ -276,12 +276,12 @@ paths:
             type: string
           example: exe_5
       responses:
-        '200':
+        "200":
           description: Execution details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Execution'
+                $ref: "#/components/schemas/Execution"
 
   /executions/{execution_id}/cancel:
     put:
@@ -293,12 +293,12 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Execution cancellation initiated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Execution'
+                $ref: "#/components/schemas/Execution"
 
   /results/{key}:
     get:
@@ -318,14 +318,14 @@ paths:
           description: Comma-separated list of feature IDs
           example: fea_67gf89,fea_98hd76
       responses:
-        '200':
+        "200":
           description: Results for the key
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Result'
+                  $ref: "#/components/schemas/Result"
 
     post:
       summary: Create or update results for a key
@@ -340,14 +340,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ResultInput'
+              $ref: "#/components/schemas/ResultInput"
       responses:
-        '201':
+        "201":
           description: Result created or updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Result'
+                $ref: "#/components/schemas/Result"
 
   /dataset/{dataset_id}/tei:
     get:
@@ -372,7 +372,7 @@ paths:
           description: Comma-separated list of feature IDs
           example: feature1,feature2
       responses:
-        '200':
+        "200":
           description: TEI XML representation
           content:
             application/octet-stream:
@@ -403,18 +403,18 @@ components:
         created_at:
           type: string
           format: date-time
-          example: '2024-06-20T12:00:00Z'
+          example: "2024-06-20T12:00:00Z"
         updated_at:
           type: string
           format: date-time
-          example: '2024-06-20T12:00:00Z'
+          example: "2024-06-20T12:00:00Z"
         latest_revision:
-          $ref: '#/components/schemas/FeatureRevision'
+          $ref: "#/components/schemas/FeatureRevision"
           description: Only included if expand=latest_revision
         revisions:
           type: array
           items:
-            $ref: '#/components/schemas/FeatureRevision'
+            $ref: "#/components/schemas/FeatureRevision"
           description: Only included if expand=revisions
 
     FeatureInput:
@@ -465,7 +465,7 @@ components:
         created_at:
           type: string
           format: date-time
-          example: '2023-10-10T12:00:00Z'
+          example: "2023-10-10T12:00:00Z"
 
     FeatureRevisionInput:
       type: object
@@ -502,11 +502,11 @@ components:
         created_at:
           type: string
           format: date-time
-          example: '2023-10-10T12:00:00Z'
+          example: "2023-10-10T12:00:00Z"
         completed_at:
           type: string
           format: date-time
-          example: '2023-10-10T12:00:00Z'
+          example: "2023-10-10T12:00:00Z"
         dataset:
           type: string
           example: title_pages

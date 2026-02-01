@@ -1,8 +1,9 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import {
   DefaultService,
   Feature,
+  FeatureRevision,
   FeatureRevisionInput,
   OpenAPI,
 } from "../../common/hub-api";
@@ -350,15 +351,13 @@ const defaultRevisionForm: RevisionFormState = {
   note: "",
 };
 
-const getRevisionDefaults = (
-  revision?: {
-    execution_strategy?: "prompt" | "regex";
-    type?: "annotation" | "ner";
-    prompt?: string;
-    regex?: string;
-    note?: string;
-  },
-): RevisionFormState => ({
+const getRevisionDefaults = (revision?: {
+  execution_strategy?: "prompt" | "regex";
+  type?: "annotation" | "ner";
+  prompt?: string;
+  regex?: string;
+  note?: string;
+}): RevisionFormState => ({
   execution_strategy: revision?.execution_strategy ?? "prompt",
   type: revision?.type ?? "annotation",
   prompt: revision?.prompt ?? "",
@@ -441,26 +440,7 @@ function Features() {
     });
   }, [searchQuery, sortedFeatures]);
 
-  const hydrateForms = (nextFeatures: Feature[]) => {
-    const nextEdits: Record<string, FeatureEditState> = {};
-    const nextRevisionForms: Record<string, RevisionFormState> = {};
-    nextFeatures.forEach((feature) => {
-      if (!feature.id) {
-        return;
-      }
-      nextEdits[feature.id] = {
-        name: feature.name || "",
-        description: feature.description || "",
-      };
-      nextRevisionForms[feature.id] = revisionForms[feature.id] ?? {
-        ...defaultRevisionForm,
-      };
-    });
-    setFeatureEdits(nextEdits);
-    setRevisionForms(nextRevisionForms);
-  };
-
-  const loadFeatures = async () => {
+  const loadFeatures = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -469,18 +449,35 @@ function Features() {
         expand: "revisions",
       });
       setFeatures(response);
-      hydrateForms(response);
+      const nextEdits: Record<string, FeatureEditState> = {};
+      setRevisionForms((prev) => {
+        const nextRevisionForms: Record<string, RevisionFormState> = {};
+        response.forEach((feature) => {
+          if (!feature.id) {
+            return;
+          }
+          nextEdits[feature.id] = {
+            name: feature.name || "",
+            description: feature.description || "",
+          };
+          nextRevisionForms[feature.id] = prev[feature.id] ?? {
+            ...defaultRevisionForm,
+          };
+        });
+        setFeatureEdits(nextEdits);
+        return nextRevisionForms;
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load features.");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     configureHubApi(token);
     void loadFeatures();
-  }, [token]);
+  }, [token, loadFeatures]);
 
   const handleUpdateFeature = async (
     feature: Feature,
@@ -565,9 +562,7 @@ function Features() {
 
   const handleToggleCreateRevision = (
     featureId: string,
-    latestRevision?: Feature["revisions"] extends Array<infer T>
-      ? T
-      : never,
+    latestRevision?: FeatureRevision,
   ) => {
     setCreateRevisionOpen((prev) => {
       const nextOpen = !prev[featureId];
