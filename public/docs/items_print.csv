@@ -103,7 +103,6 @@ Amsterdam_1634,"Die sechs ersten Bücher Euclidis, Deß Hochgelährten weitberü
 London_1686,"Euclid's Elements. The whole fifteen books compendiously demonstrated by Mr. Isaac Barrow, Fellow of Trinity Colledge in Cambridge. And translated out of the Latin.",Provided by catalog,1686,London,ENGLISH,Isaac Barrow,Christopher Hussey and E. P.,12,1,3107650,,
 London_1660,,,1660,London,ENGLISH,Isaac Barrow,William Nealand,8,1,,,
 Amsterdam_1618,,,1618,Amsterdam,GERMAN,"Jan Pietersz Dou, Sebastian Curtius",Wilhelm Janss,4,1,,,
-Venice_1482,"Preclarissimus liber elementorum Euclidis perspicacissimi, in artem geometrie incipit quam foelicissime",Specified in source,1482,Venice,LATIN,Erhard Ratdolt,Erhard Ratdolt,2,1,,DeRisi marked author as Campano,True
 Arnhem_1605,,,1605,Arnhem,LATIN,Christoffer Dybvad,,4,1,-,,
 Vicenza_1491,,,1491,Vicenza,LATIN,Leonardo Achati,,2,1,-,"We don't have the title page, and from the wording of the title we do have, I suspect there is no title page� The EiP title is: Preclarissimus liber elementorum Euclidis perspicacissimi: in artem Geometrie incipit quamfœlicissime:",
 Venice_1498a,,,1498,Venice,LATIN,Giorgio Valla,Simon Papiensem,2,3,,,True
@@ -834,4 +833,4 @@ YUHFFF,"Arithmeticae, musicae et geometriae compendia. Guilelmo xylandro interpr
 JTZKPV,"Pictoribus, fabris erariis ac lignariis quatuor his suarum institutionum geometricarum libris, lineas, superficies et solida corpora tractavit",Specified in source,1532,Paris,LATIN,"Albrecht Dürer, Joachim Camerarius",Chrestien Wechel,2,1,181404,,
 BKH4JK,Operum mathematicorum Johannes Wallisi,Provided by catalog,1656,Oxford,LATIN,John Wallis,"Leonard Lichfield, Thomas Robinson",4,1,3071409,,True
 L3XLGB,"La maniere de fere les solaires, que communement on appelle quadrans",Provided by catalog,1564,Poitiers,FRENCH,Elie Vinet,Enguilbert de Marnef,4,1,15346,,
-Z1AO6P,Preclarissimum opus Elementorum Euclidis,Invented by enterer,1482,Venice,LATIN,Campano da Novara,Erhard Ratdolt,8,1,,,
+Z1AO6P,"Preclarissimus liber elementorum Euclidis perspicacissimi, in artem geometrie incipit quam foelicissime",Specified in source,1482,Venice,LATIN,Campano da Novara,Erhard Ratdolt,2,1,,"Erhard Rathold edited the Campano da Novara edition and published it. ",

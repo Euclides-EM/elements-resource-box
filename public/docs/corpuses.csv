@@ -103,7 +103,6 @@ Amsterdam_1634,origin_eip_csv
 London_1686,origin_eip_csv
 London_1660,origin_eip_csv
 Amsterdam_1618,origin_eip_csv
-Venice_1482,"origin_eip_csv, dh, axiomatics_16"
 Arnhem_1605,origin_eip_csv
 Vicenza_1491,origin_eip_csv
 Venice_1498a,origin_eip_csv
@@ -296,4 +295,4 @@ BQ96WF,axiomatics_16
 6XTAVU,axiomatics_16
 KVSFF1,axiomatics_16
 6PMNRZ,dotted_lines
-Z1AO6P,Angela_metadata
+Z1AO6P,"Angela_metadata, origin_eip_csv, dh, axiomatics_16"
