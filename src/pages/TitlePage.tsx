@@ -7,7 +7,7 @@ import {
   useContext,
 } from "react";
 import useLocalStorageState from "use-local-storage-state";
-import { Feature, Mode } from "../types";
+import { Mode } from "../types";
 import {
   Column,
   Container,
@@ -77,16 +77,6 @@ function TitlePage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [apiReady, setApiReady] = useState(false);
   const [featuresLoaded, setFeaturesLoaded] = useState(false);
-
-  const featureById = useMemo(() => {
-    const map: Record<string, featureplat_Feature> = {};
-    availableFeatures.forEach((feature) => {
-      if (feature.id) {
-        map[feature.id] = feature;
-      }
-    });
-    return map;
-  }, [availableFeatures]);
 
   const featureNameCounts = useMemo(() => {
     const counts: Record<string, number> = {};

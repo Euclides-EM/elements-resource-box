@@ -149,7 +149,7 @@ const ItemModal = ({
                         features={[]}
                         itemKey={item.key}
                         apiReady={apiReady}
-                        useTei={false}
+                        showFeatureHighlights={false}
                       />
                     </Suspense>
                     {item.imprintEn && (
@@ -161,7 +161,7 @@ const ItemModal = ({
                             features={[]}
                             itemKey={item.key}
                             apiReady={apiReady}
-                            useTei={false}
+                            showFeatureHighlights={false}
                           />
                         </Suspense>
                       </>
