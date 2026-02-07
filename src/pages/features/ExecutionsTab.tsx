@@ -43,12 +43,14 @@ interface ExecutionsTabProps {
   features: featureplat_Feature[];
   sortedFeatures: featureplat_Feature[];
   loading: boolean;
+  apiReady: boolean;
 }
 
 export function ExecutionsTab({
   features,
   sortedFeatures,
   loading,
+  apiReady,
 }: ExecutionsTabProps) {
   const [executions, setExecutions] = useState<featureplat_FeatureExecution[]>(
     [],
@@ -109,6 +111,9 @@ export function ExecutionsTab({
   }, [corpusEditionItems, editionSearch]);
 
   const loadExecutions = useCallback(async () => {
+    if (!apiReady) {
+      return;
+    }
     setExecutionsLoading(true);
     setExecutionsError(null);
     try {
@@ -123,15 +128,18 @@ export function ExecutionsTab({
     } finally {
       setExecutionsLoading(false);
     }
-  }, []);
+  }, [apiReady]);
 
   useEffect(() => {
+    if (!apiReady) {
+      return;
+    }
     void loadExecutions();
     if (editionItems.length === 0 && !editionItemsLoading) {
       setEditionItemsLoading(true);
       loadEditionsData(setEditionItems);
     }
-  }, []);
+  }, [apiReady, editionItems.length, editionItemsLoading, loadExecutions]);
 
   useEffect(() => {
     if (editionItems.length > 0) {
@@ -140,6 +148,9 @@ export function ExecutionsTab({
   }, [editionItems]);
 
   const handleCancelExecution = async (executionId: string) => {
+    if (!apiReady) {
+      return;
+    }
     setCancelingExecutionId(executionId);
     try {
       await ExecutionsService.putExecutionsCancel({ executionId });
@@ -181,6 +192,9 @@ export function ExecutionsTab({
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+    if (!apiReady) {
+      return;
+    }
     if (selectedFeatureIds.size === 0) {
       setExecutionsError("Select at least one feature.");
       return;

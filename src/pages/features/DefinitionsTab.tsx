@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FeaturesService,
   FeatureRevisionsService,
@@ -52,6 +52,7 @@ interface DefinitionsTabProps {
   loading: boolean;
   error: string | null;
   loadFeatures: () => Promise<void>;
+  apiReady: boolean;
 }
 
 export function DefinitionsTab({
@@ -60,6 +61,7 @@ export function DefinitionsTab({
   loading,
   error: parentError,
   loadFeatures,
+  apiReady,
 }: DefinitionsTabProps) {
   const [featureEdits, setFeatureEdits] = useState<
     Record<string, FeatureEditState>
@@ -101,27 +103,6 @@ export function DefinitionsTab({
     });
   }, [searchQuery, sortedFeatures]);
 
-  const syncEdits = useCallback((response: featureplat_Feature[]) => {
-    const nextEdits: Record<string, FeatureEditState> = {};
-    setRevisionForms((prev) => {
-      const nextRevisionForms: Record<string, RevisionFormState> = {};
-      response.forEach((feature) => {
-        if (!feature.id) {
-          return;
-        }
-        nextEdits[feature.id] = {
-          name: feature.name || "",
-          description: feature.description || "",
-        };
-        nextRevisionForms[feature.id] = prev[feature.id] ?? {
-          ...defaultRevisionForm,
-        };
-      });
-      setFeatureEdits(nextEdits);
-      return nextRevisionForms;
-    });
-  }, []);
-
   const reloadFeatures = useCallback(async () => {
     await loadFeatures();
   }, [loadFeatures]);
@@ -130,7 +111,7 @@ export function DefinitionsTab({
     await reloadFeatures();
   }, [reloadFeatures]);
 
-  useState(() => {
+  useEffect(() => {
     const nextEdits: Record<string, FeatureEditState> = {};
     const nextRevisionForms: Record<string, RevisionFormState> = {};
     features.forEach((feature) => {
@@ -143,13 +124,16 @@ export function DefinitionsTab({
     });
     setFeatureEdits(nextEdits);
     setRevisionForms(nextRevisionForms);
-  });
+  }, [features]);
 
   const handleUpdateFeature = async (
     feature: featureplat_Feature,
     event?: React.FormEvent<HTMLFormElement>,
   ) => {
     event?.preventDefault();
+    if (!apiReady) {
+      return;
+    }
     if (!feature.id) {
       return;
     }
@@ -186,6 +170,9 @@ export function DefinitionsTab({
   };
 
   const handleDeleteFeature = async (feature: featureplat_Feature) => {
+    if (!apiReady) {
+      return;
+    }
     if (!feature.id) {
       return;
     }
@@ -255,6 +242,9 @@ export function DefinitionsTab({
     event?: React.FormEvent<HTMLFormElement>,
   ) => {
     event?.preventDefault();
+    if (!apiReady) {
+      return;
+    }
     if (!createForm.name.trim()) {
       setError("Feature name is required.");
       return;
@@ -288,6 +278,9 @@ export function DefinitionsTab({
     event?: React.FormEvent<HTMLFormElement>,
   ) => {
     event?.preventDefault();
+    if (!apiReady) {
+      return;
+    }
     if (!feature.id) {
       return;
     }

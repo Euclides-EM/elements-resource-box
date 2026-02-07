@@ -14,6 +14,7 @@ export function FeaturesPage() {
     "features-active-tab",
     "definitions",
   );
+  const [apiReady, setApiReady] = useState(false);
   const [features, setFeatures] = useState<featureplat_Feature[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +30,9 @@ export function FeaturesPage() {
   );
 
   const loadFeatures = useCallback(async () => {
+    if (!apiReady) {
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -46,8 +50,15 @@ export function FeaturesPage() {
 
   useEffect(() => {
     configureHubApi(token);
+    setApiReady(true);
+  }, [token]);
+
+  useEffect(() => {
+    if (!apiReady) {
+      return;
+    }
     void loadFeatures();
-  }, [token, loadFeatures]);
+  }, [apiReady, loadFeatures]);
 
   return (
     <PageContainer>
@@ -77,6 +88,7 @@ export function FeaturesPage() {
           loading={loading}
           error={error}
           loadFeatures={loadFeatures}
+          apiReady={apiReady}
         />
       )}
       {activeTab === "executions" && (
@@ -84,6 +96,7 @@ export function FeaturesPage() {
           features={features}
           sortedFeatures={sortedFeatures}
           loading={loading}
+          apiReady={apiReady}
         />
       )}
     </PageContainer>
