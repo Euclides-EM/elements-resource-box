@@ -32,7 +32,7 @@ import { useLocalStorage } from "usehooks-ts";
 import { AuthContext } from "./contexts/Auth.ts";
 import { inEuclidesMode } from "./utils/mode.ts";
 import { HomeCommentaria } from "./pages/HomeCommentaria.tsx";
-import Features from "./pages/Features.tsx";
+import { FeaturesPage } from "./pages/features/FeaturesPage";
 
 function App() {
   const [authToken, setAuthToken] = useLocalStorage<string | null>(
@@ -53,7 +53,7 @@ function App() {
         <Route path={PRESENTATION_ROUTE} element={<Presentation />} />
         <Route path={DIAGRAMS_ROUTE} element={<Diagrams />} />
         <Route path={ITEM_EDIT_ROUTE} element={<UpsertEdition />} />
-        <Route path={FEATURES_ROUTE} element={<Features />} />
+        <Route path={FEATURES_ROUTE} element={<FeaturesPage />} />
         <Route
           path={MAP_ROUTE}
           element={
