@@ -12,10 +12,12 @@ import {
   defaultRevisionForm,
 } from "./types";
 import { getRevisionDefaults, formatDate } from "./helpers";
+import { HexColorPicker } from "react-colorful";
 import {
   Section,
   Card,
   FeatureHeader,
+  FeatureTitleRow,
   FeatureTitle,
   CollapseButton,
   Form,
@@ -44,7 +46,60 @@ import {
   RevisionCard,
   InlineValue,
   LatestTag,
+  ColorSwatch,
+  ColorPickerRow,
+  ColorPickerPanel,
+  ColorHexInput,
 } from "./styles";
+
+const createRandomPastelColor = () => {
+  const hue = Math.floor(Math.random() * 360);
+  const saturation = 60 + Math.random() * 20;
+  const lightness = 78 + Math.random() * 10;
+  const s = saturation / 100;
+  const l = lightness / 100;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const m = l - c / 2;
+  let r = 0;
+  let g = 0;
+  let b = 0;
+
+  if (hue < 60) {
+    r = c;
+    g = x;
+  } else if (hue < 120) {
+    r = x;
+    g = c;
+  } else if (hue < 180) {
+    g = c;
+    b = x;
+  } else if (hue < 240) {
+    g = x;
+    b = c;
+  } else if (hue < 300) {
+    r = x;
+    b = c;
+  } else {
+    r = c;
+    b = x;
+  }
+
+  const toHex = (value: number) =>
+    Math.round((value + m) * 255)
+      .toString(16)
+      .padStart(2, "0");
+
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase();
+};
+
+const normalizeHexInput = (value: string) => {
+  const cleaned = value.trim().replace(/^#/, "");
+  if (!cleaned) {
+    return "";
+  }
+  return `#${cleaned.toLowerCase()}`;
+};
 
 interface DefinitionsTabProps {
   features: featureplat_Feature[];
@@ -66,10 +121,11 @@ export function DefinitionsTab({
   const [featureEdits, setFeatureEdits] = useState<
     Record<string, FeatureEditState>
   >({});
-  const [createForm, setCreateForm] = useState<FeatureEditState>({
+  const [createForm, setCreateForm] = useState<FeatureEditState>(() => ({
     name: "",
     description: "",
-  });
+    color: createRandomPastelColor(),
+  }));
   const [revisionForms, setRevisionForms] = useState<
     Record<string, RevisionFormState>
   >({});
@@ -119,6 +175,7 @@ export function DefinitionsTab({
       nextEdits[feature.id] = {
         name: feature.name || "",
         description: feature.description || "",
+        color: feature.color || "",
       };
       nextRevisionForms[feature.id] = { ...defaultRevisionForm };
     });
@@ -151,6 +208,7 @@ export function DefinitionsTab({
         feature: {
           name: form.name.trim(),
           description: form.description.trim() || undefined,
+          color: form.color.trim() || undefined,
           is_root: feature.is_root ?? false,
           is_default: feature.is_default ?? false,
         },
@@ -205,6 +263,7 @@ export function DefinitionsTab({
       [feature.id as string]: {
         name: feature.name || "",
         description: feature.description || "",
+        color: feature.color || "",
       },
     }));
     setEditingFeatures((prev) => ({
@@ -257,11 +316,16 @@ export function DefinitionsTab({
         feature: {
           name: createForm.name.trim(),
           description: createForm.description.trim() || undefined,
+          color: createForm.color.trim() || undefined,
           is_root: false,
           is_default: false,
         },
       });
-      setCreateForm({ name: "", description: "" });
+      setCreateForm({
+        name: "",
+        description: "",
+        color: createRandomPastelColor(),
+      });
       await syncAndReload();
       setCreateFormOpen(false);
     } catch (err) {
@@ -399,6 +463,34 @@ export function DefinitionsTab({
                     disabled={creatingFeature}
                   />
                 </Field>
+                <Field>
+                  <Label>Color</Label>
+                  <ColorPickerRow>
+                    <ColorSwatch color={createForm.color} />
+                    <ColorPickerPanel>
+                      <HexColorPicker
+                        color={createForm.color || "#f2f2f2"}
+                        onChange={(value) =>
+                          setCreateForm((prev) => ({
+                            ...prev,
+                            color: value,
+                          }))
+                        }
+                      />
+                    </ColorPickerPanel>
+                    <ColorHexInput
+                      value={createForm.color.replace(/^#/, "")}
+                      onChange={(event) =>
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          color: normalizeHexInput(event.target.value),
+                        }))
+                      }
+                      disabled={creatingFeature}
+                      aria-label="New feature color value"
+                    />
+                  </ColorPickerRow>
+                </Field>
               </FormGrid>
               <ButtonRow>
                 <Button type="submit" disabled={creatingFeature}>
@@ -458,7 +550,8 @@ export function DefinitionsTab({
               const isDirty =
                 edits &&
                 (edits.name !== (feature.name || "") ||
-                  edits.description !== (feature.description || ""));
+                  edits.description !== (feature.description || "") ||
+                  edits.color !== (feature.color || ""));
 
               return (
                 <Card key={featureId || feature.name}>
@@ -466,7 +559,12 @@ export function DefinitionsTab({
                     onSubmit={(event) => handleUpdateFeature(feature, event)}
                   >
                     <FeatureHeader>
-                      <FeatureTitle>{feature.name || "Untitled"}</FeatureTitle>
+                      <FeatureTitleRow>
+                        <ColorSwatch color={feature.color} />
+                        <FeatureTitle>
+                          {feature.name || "Untitled"}
+                        </FeatureTitle>
+                      </FeatureTitleRow>
                       <FeatureActions>
                         {feature.is_root && <Tag>Root</Tag>}
                         {feature.is_default && <Tag>Default</Tag>}
@@ -528,6 +626,7 @@ export function DefinitionsTab({
                                   name: event.target.value,
                                   description:
                                     prev[featureId]?.description ?? "",
+                                  color: prev[featureId]?.color ?? "",
                                 },
                               }))
                             }
@@ -546,17 +645,68 @@ export function DefinitionsTab({
                                 [featureId]: {
                                   name: prev[featureId]?.name ?? "",
                                   description: event.target.value,
+                                  color: prev[featureId]?.color ?? "",
                                 },
                               }))
                             }
                             disabled={isSaving}
                           />
                         </Field>
+                        <Field>
+                          <Label>Color</Label>
+                          <ColorPickerRow>
+                            <ColorSwatch
+                              color={edits?.color || feature.color}
+                            />
+                            <ColorPickerPanel>
+                              <HexColorPicker
+                                color={edits?.color || "#f2f2f2"}
+                                onChange={(value) =>
+                                  featureId &&
+                                  setFeatureEdits((prev) => ({
+                                    ...prev,
+                                    [featureId]: {
+                                      name: prev[featureId]?.name ?? "",
+                                      description:
+                                        prev[featureId]?.description ?? "",
+                                      color: value,
+                                    },
+                                  }))
+                                }
+                              />
+                            </ColorPickerPanel>
+                            <ColorHexInput
+                              value={(edits?.color || "").replace(/^#/, "")}
+                              onChange={(event) =>
+                                featureId &&
+                                setFeatureEdits((prev) => ({
+                                  ...prev,
+                                  [featureId]: {
+                                    name: prev[featureId]?.name ?? "",
+                                    description:
+                                      prev[featureId]?.description ?? "",
+                                    color: normalizeHexInput(
+                                      event.target.value,
+                                    ),
+                                  },
+                                }))
+                              }
+                              disabled={isSaving}
+                              aria-label="Feature color value"
+                            />
+                          </ColorPickerRow>
+                        </Field>
                       </FeatureMeta>
                     ) : (
-                      <FeatureDescription>
-                        {feature.description || "No description."}
-                      </FeatureDescription>
+                      <>
+                        <FeatureDescription>
+                          {feature.description || "No description."}
+                        </FeatureDescription>
+                        <SmallText>
+                          Color: <ColorSwatch color={feature.color} />{" "}
+                          {feature.color || "No color assigned"}
+                        </SmallText>
+                      </>
                     )}
                   </Form>
                   <SmallText>

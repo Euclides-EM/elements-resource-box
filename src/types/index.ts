@@ -3,33 +3,7 @@ import { City } from "../../common/csv.ts";
 
 export type Mode = "texts" | "images";
 
-export type Feature =
-  | "Base Content"
-  | "Base Content Description"
-  | "Adapter Attribution"
-  | "Adapter Description"
-  | "Patronage Dedication"
-  | "Edition Statement"
-  | "Supplementary Content"
-  | "Publishing Privileges"
-  | "Euclid References"
-  | "Other Educational Authorities"
-  | "Explicit Language References"
-  | "Euclid Description"
-  | "Verbs"
-  | "Intended Audience"
-  | "Elements Designation"
-  | "Greek designation"
-  | "Institutions"
-  | "Bound With"
-  | "Enriched With"
-  | "Date in Imprint"
-  | "Publisher in Imprint"
-  | "Place in Imprint"
-  | "Privileges in Imprint"
-  | "Dedication in Imprint"
-  | "Adapter Attribution in Imprint"
-  | "Adapter Description in Imprint";
+export type Feature = string;
 
 export type FilterGroup =
   | "General"
@@ -121,4 +95,5 @@ export type ItemProps = {
   width: number;
   mode: Mode;
   features: Feature[] | null;
+  featureColors?: Record<string, string>;
 };

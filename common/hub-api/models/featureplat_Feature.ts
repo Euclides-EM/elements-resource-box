@@ -8,6 +8,10 @@ export type featureplat_Feature = {
      * collection scope
      */
     collection_id?: string;
+    /**
+     * optional UI color (hex)
+     */
+    color?: string;
     readonly created_at?: string;
     description?: string;
     readonly id?: string;

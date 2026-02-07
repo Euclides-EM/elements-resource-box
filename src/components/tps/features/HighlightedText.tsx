@@ -1,5 +1,4 @@
 import { Feature, Item } from "../../../types";
-import { FeatureToColor } from "../../../constants";
 import { trimEnd } from "lodash";
 import { useEffect, useState, useMemo, memo } from "react";
 
@@ -7,12 +6,14 @@ type HighlightedTextProps = {
   text: string;
   features: Feature[];
   mapping: Item["features"];
+  featureColors?: Record<string, string>;
 };
 
 const highlightLayers = (
   text: string,
   features: Feature[],
   mapping: Item["features"],
+  featureColors: Record<string, string> | undefined,
 ): string[] => {
   const layers: string[] = [];
   const allPositions: Array<{
@@ -75,10 +76,11 @@ const highlightLayers = (
             2 + calculateIntersections(feature, featureIndex, allPositions) * 2,
           );
 
+          const color = featureColors?.[feature] || getFeatureColor(feature);
           const style =
             feature === "Verbs"
-              ? `outline: 2px solid ${FeatureToColor[feature]}; outline-offset: 2px; border-radius: 8px;`
-              : `background-color: ${FeatureToColor[feature]}; box-shadow: 0 0 0 ${shadowSize}px ${FeatureToColor[feature]}; border-radius: 8px;`;
+              ? `outline: 2px solid ${color}; outline-offset: 2px; border-radius: 8px;`
+              : `background-color: ${color}; box-shadow: 0 0 0 ${shadowSize}px ${color}; border-radius: 8px;`;
 
           return `<span style="${style}">${match}</span>`;
         });
@@ -131,11 +133,20 @@ function escapeRegExpLoose(str: string): string {
   return str.replace(/([.*+?^${}()|[\]\\])/g, "\\$1");
 }
 
+const getFeatureColor = (feature: string) => {
+  let hash = 0;
+  for (let i = 0; i < feature.length; i += 1) {
+    hash = (hash * 31 + feature.charCodeAt(i)) | 0;
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue} 65% 78%)`;
+};
+
 const getTotalLength = (arr?: string[]) =>
   arr?.reduce((sum, str) => sum + str.length, 0) || 0;
 
 const HighlightedText = memo(
-  ({ text, features, mapping }: HighlightedTextProps) => {
+  ({ text, features, mapping, featureColors }: HighlightedTextProps) => {
     const [isReady, setIsReady] = useState(false);
     const [processedLayers, setProcessedLayers] = useState<string[]>([]);
     const [processedText, setProcessedText] = useState("");
@@ -159,12 +170,13 @@ const HighlightedText = memo(
               formattedText,
               sortedFeatures,
               mapping,
+              featureColors,
             );
             resolve({ layers, processedText: formattedText });
           }, 0);
         },
       );
-    }, [text, features, mapping]);
+    }, [text, features, mapping, featureColors]);
 
     useEffect(() => {
       setIsReady(false);

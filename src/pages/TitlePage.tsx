@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useState, useMemo, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  useContext,
+} from "react";
 import useLocalStorageState from "use-local-storage-state";
 import { Feature, Mode } from "../types";
 import {
@@ -9,14 +16,7 @@ import {
   ScrollToTopButton,
   Text,
 } from "../components/common";
-import {
-  FeaturesNotSelectedByDefault,
-  FeatureToColor,
-  FeatureToColumnName,
-  FeatureToTooltip,
-  TILE_HEIGHT,
-  TILE_WIDTH,
-} from "../constants";
+import { TILE_HEIGHT, TILE_WIDTH } from "../constants";
 import MultiSelect from "../components/tps/filters/MultiSelect";
 import Radio from "../components/tps/filters/Radio";
 import ItemView from "../components/tps/features/ItemView";
@@ -27,6 +27,9 @@ import Switch from "react-switch";
 import { LAND_COLOR, MARKER_3 } from "../utils/colors.ts";
 import { Stats } from "../components/Stats.tsx";
 import { inEuclidesMode } from "../utils/mode.ts";
+import { AuthContext } from "../contexts/Auth";
+import { COLLECTION_ID, configureHubApi } from "../utils/hubApi";
+import { FeaturesService, featureplat_Feature } from "../../common/hub-api";
 
 const NoteLine = styled(Row)`
   opacity: 0.8;
@@ -42,6 +45,7 @@ const SearchInput = styled.input`
 
 function TitlePage() {
   const { filteredItems } = useAppliedFilter();
+  const { token } = useContext(AuthContext);
 
   const [titlePagesModeOn, setTitlePagesModeOn] = useLocalStorageState<boolean>(
     "tp-on",
@@ -52,21 +56,192 @@ function TitlePage() {
   const [mode, setMode] = useLocalStorageState<Mode>("tp-mode", {
     defaultValue: "images",
   });
-  const [features, setFeatures] = useLocalStorageState<Feature[]>(
+  const [availableFeatures, setAvailableFeatures] = useState<
+    featureplat_Feature[]
+  >([]);
+  const [featureColors, setFeatureColors] = useState<Record<string, string>>(
+    {},
+  );
+  const [featureTooltips, setFeatureTooltips] = useState<
+    Record<string, string>
+  >({});
+  const [defaultFeatureIds, setDefaultFeatureIds] = useState<string[]>([]);
+  const [features, setFeatures] = useLocalStorageState<string[]>(
     "tp-features",
     {
-      defaultValue: Object.keys(FeatureToColumnName).sort() as Feature[],
+      defaultValue: [],
     },
   );
   const [searchText, setSearchText] = useState("");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [apiReady, setApiReady] = useState(false);
+  const [featuresLoaded, setFeaturesLoaded] = useState(false);
+
+  const featureById = useMemo(() => {
+    const map: Record<string, featureplat_Feature> = {};
+    availableFeatures.forEach((feature) => {
+      if (feature.id) {
+        map[feature.id] = feature;
+      }
+    });
+    return map;
+  }, [availableFeatures]);
+
+  const featureNameCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    availableFeatures.forEach((feature) => {
+      if (feature.name) {
+        counts[feature.name] = (counts[feature.name] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [availableFeatures]);
+
+  const featureNameById = useMemo(() => {
+    const map: Record<string, string> = {};
+    availableFeatures.forEach((feature) => {
+      if (feature.id && feature.name) {
+        map[feature.id] = feature.name;
+      }
+    });
+    return map;
+  }, [availableFeatures]);
+
+  const sortedFeatureIds = useMemo(() => {
+    return availableFeatures
+      .filter((feature) => feature.id && feature.name)
+      .slice()
+      .sort((a, b) =>
+        (a.name || "").localeCompare(b.name || "", undefined, {
+          sensitivity: "base",
+        }),
+      )
+      .map((feature) => feature.id as string);
+  }, [availableFeatures]);
+
+  const sortFeatureIds = useCallback(
+    (ids: string[]) =>
+      [...ids].sort((a, b) =>
+        (featureNameById[a] || "").localeCompare(
+          featureNameById[b] || "",
+          undefined,
+          { sensitivity: "base" },
+        ),
+      ),
+    [featureNameById],
+  );
+
+  const selectedFeatureNames = useMemo(() => {
+    const names = features
+      .map((featureId) => featureNameById[featureId])
+      .filter(Boolean) as Feature[];
+    return Array.from(new Set(names));
+  }, [features, featureNameById]);
+
+  const featureColorsByName = useMemo(() => {
+    const map: Record<string, string> = {};
+    availableFeatures.forEach((feature) => {
+      if (feature.name && feature.id && feature.color && !map[feature.name]) {
+        map[feature.name] = feature.color;
+      }
+    });
+    return map;
+  }, [availableFeatures]);
 
   useEffect(() => {
     if (!titlePagesModeOn && mode === "texts") {
       setMode("images");
     }
   }, [mode, setMode, titlePagesModeOn]);
+
+  useEffect(() => {
+    configureHubApi(token);
+    setApiReady(true);
+  }, [token]);
+
+  useEffect(() => {
+    const loadFeatures = async () => {
+      if (!apiReady || featuresLoaded) {
+        return;
+      }
+      try {
+        const response = await FeaturesService.getCollectionsFeatures({
+          collectionId: COLLECTION_ID,
+        });
+        const sortedFeatures = (response ?? [])
+          .filter((feature) => feature.id && feature.name)
+          .slice()
+          .sort((a, b) =>
+            (a.name || "").localeCompare(b.name || "", undefined, {
+              sensitivity: "base",
+            }),
+          );
+        const nameById: Record<string, string> = {};
+        sortedFeatures.forEach((feature) => {
+          if (feature.id && feature.name) {
+            nameById[feature.id] = feature.name;
+          }
+        });
+        const sortIdsByName = (ids: string[]) =>
+          [...ids].sort((a, b) =>
+            (nameById[a] || "").localeCompare(nameById[b] || "", undefined, {
+              sensitivity: "base",
+            }),
+          );
+        const defaultIds = sortedFeatures
+          .filter((feature) => feature.is_default)
+          .map((feature) => feature.id as string);
+        const colorMap: Record<string, string> = {};
+        const tooltipMap: Record<string, string> = {};
+        (response ?? []).forEach((feature: featureplat_Feature) => {
+          if (!feature.id) {
+            return;
+          }
+          if (feature.color) {
+            colorMap[feature.id] = feature.color;
+          }
+          if (feature.description) {
+            tooltipMap[feature.id] = feature.description;
+          }
+        });
+        setFeatureColors(colorMap);
+        setFeatureTooltips(tooltipMap);
+        setDefaultFeatureIds(sortIdsByName(defaultIds));
+        setAvailableFeatures(sortedFeatures);
+        if (sortedFeatures.length > 0) {
+          setFeatures((prev) => {
+            const normalized = prev
+              .map((value) => {
+                if (sortedFeatures.some((f) => f.id === value)) {
+                  return value;
+                }
+                const matching = sortedFeatures.filter(
+                  (feature) => feature.name === value,
+                );
+                if (matching.length === 1) {
+                  return matching[0].id as string;
+                }
+                return null;
+              })
+              .filter((value): value is string => Boolean(value));
+            if (normalized.length > 0) {
+              return sortIdsByName(normalized);
+            }
+            if (defaultIds.length > 0) {
+              return sortIdsByName(defaultIds);
+            }
+            return sortIdsByName(
+              sortedFeatures.map((feature) => feature.id as string),
+            );
+          });
+        }
+      } finally {
+        setFeaturesLoaded(true);
+      }
+    };
+    void loadFeatures();
+  }, [apiReady, featuresLoaded, setFeatures]);
 
   const handleScroll = useCallback(() => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -187,23 +362,27 @@ function TitlePage() {
                   <MultiSelect
                     name="Features"
                     value={features}
-                    options={Object.keys(FeatureToColumnName).sort()}
-                    onChange={(f) => setFeatures((f as Feature[]).sort())}
-                    colors={FeatureToColor}
-                    tooltips={FeatureToTooltip}
+                    options={sortedFeatureIds}
+                    labelFn={(featureId) => {
+                      const name = featureNameById[featureId] || featureId;
+                      if ((featureNameCounts[name] || 0) > 1) {
+                        return `${name} (${featureId.slice(0, 6)})`;
+                      }
+                      return name;
+                    }}
+                    onChange={(f) => setFeatures(sortFeatureIds(f as string[]))}
+                    colors={featureColors}
+                    tooltips={featureTooltips}
                     className="features-multi-select"
                   />
                   <ResetButton
                     onClick={() =>
                       setFeatures(
-                        Object.keys(FeatureToColumnName)
-                          .filter(
-                            (f) =>
-                              !FeaturesNotSelectedByDefault.includes(
-                                f as Feature,
-                              ),
-                          )
-                          .sort() as Feature[],
+                        sortFeatureIds(
+                          defaultFeatureIds.length > 0
+                            ? defaultFeatureIds
+                            : sortedFeatureIds,
+                        ),
                       )
                     }
                   >
@@ -244,7 +423,8 @@ function TitlePage() {
                 width={TILE_WIDTH}
                 item={item}
                 mode={mode}
-                features={titlePagesModeOn ? features : null}
+                features={titlePagesModeOn ? selectedFeatureNames : null}
+                featureColors={featureColorsByName}
               />
             ))
         ) : (

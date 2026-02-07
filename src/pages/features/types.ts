@@ -1,6 +1,7 @@
 export type FeatureEditState = {
   name: string;
   description: string;
+  color: string;
 };
 
 export type RevisionFormState = {

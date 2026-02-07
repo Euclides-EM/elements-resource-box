@@ -22,7 +22,7 @@ import {
 } from "../../common/csv.ts";
 import { groupBy, isEmpty, startCase, uniq } from "lodash";
 import { Dispatch, SetStateAction } from "react";
-import { FeaturesToSplit, FeatureToColumnName, ItemTypes } from "../constants";
+import { ItemTypes } from "../constants";
 import { Point } from "react-simple-maps";
 import {
   BookStatementRef,
@@ -304,32 +304,7 @@ export const loadEditionsData = (
                     ] as string) || "",
                   )
                 : null,
-              features: Object.keys(FeatureToColumnName).reduce(
-                (acc, feature) => {
-                  acc[feature as Feature] = FeatureToColumnName[
-                    feature as Feature
-                  ]
-                    .filter((column) => !!tpFeatures[column])
-                    .map((column) => tpFeatures[column] as string)
-                    .flatMap((text) =>
-                      FeaturesToSplit[feature as Feature]
-                        ? uniq(text.split(", "))
-                        : text.split("::"),
-                    )
-                    .map((t) => t.trim());
-                  if (feature === "Elements Designation") {
-                    acc[feature as Feature] =
-                      !tpFeatures["Elements_designation"] && type === "elements"
-                        ? [tpFeatures["base_content"] as string]
-                        : tpFeatures["Elements_designation"] === "none" &&
-                            type === "elements"
-                          ? []
-                          : acc[feature as Feature];
-                  }
-                  return acc;
-                },
-                {} as Partial<Record<Feature, string[]>>,
-              ),
+              features: {} as Partial<Record<Feature, string[]>>,
               diagramsExtracted: startCase(
                 diagramDirectories.has(key).toString(),
               ),

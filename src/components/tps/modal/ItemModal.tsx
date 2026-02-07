@@ -27,6 +27,7 @@ const HighlightedText = lazy(() => import("../features/HighlightedText.tsx"));
 type ItemModalProps = {
   item: Item;
   features: Feature[] | null;
+  featureColors?: Record<string, string>;
   onClose: () => void;
 };
 
@@ -61,7 +62,12 @@ const EditLink = styled.a`
   }
 `;
 
-const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
+const ItemModal = ({
+  item,
+  features,
+  featureColors,
+  onClose,
+}: ItemModalProps) => {
   return (
     <Modal onClick={onClose}>
       <ModalContent
@@ -107,6 +113,7 @@ const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
                       text={item.title}
                       features={features}
                       mapping={item.features}
+                      featureColors={featureColors}
                     />
                   </Suspense>
                   {item.imprint && (
@@ -117,6 +124,7 @@ const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
                           text={item.imprint}
                           features={features}
                           mapping={item.features}
+                          featureColors={featureColors}
                         />
                       </Suspense>
                     </>

@@ -232,6 +232,67 @@ export const FeatureActions = styled.div`
   flex-shrink: 0;
 `;
 
+export const FeatureTitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+`;
+
+export const ColorSwatch = styled.span<{ color?: string }>`
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 0.3rem;
+  border: 1px solid #ccc;
+  background-color: ${({ color }) => color || "#f2f2f2"};
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+`;
+
+export const ColorPickerRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+`;
+
+export const ColorPickerPanel = styled.div`
+  .react-colorful {
+    width: 220px;
+    height: 170px;
+  }
+
+  .react-colorful__saturation,
+  .react-colorful__hue,
+  .react-colorful__alpha {
+    border-radius: 0.5rem;
+  }
+
+  .react-colorful__saturation-pointer,
+  .react-colorful__hue-pointer,
+  .react-colorful__alpha-pointer {
+    width: 14px;
+    height: 14px;
+  }
+`;
+
+export const ColorHexInput = styled.input`
+  padding: 0.55rem 0.65rem;
+  border: 1px solid #ccc;
+  border-radius: 0.4rem;
+  background-color: white;
+  color: black;
+  font-size: 0.9rem;
+  width: 120px;
+  font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+
+  &:focus {
+    outline: none;
+    border-color: ${SEA_COLOR};
+    background-color: white;
+  }
+`;
+
 export const IconButton = styled.span`
   border: none;
   background: transparent;

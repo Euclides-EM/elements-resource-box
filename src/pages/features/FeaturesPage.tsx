@@ -46,7 +46,7 @@ export function FeaturesPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [apiReady]);
 
   useEffect(() => {
     configureHubApi(token);
