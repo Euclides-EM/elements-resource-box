@@ -28,6 +28,7 @@ type ItemModalProps = {
   item: Item;
   features: Feature[] | null;
   featureColors?: Record<string, string>;
+  apiReady?: boolean;
   onClose: () => void;
 };
 
@@ -66,6 +67,7 @@ const ItemModal = ({
   item,
   features,
   featureColors,
+  apiReady,
   onClose,
 }: ItemModalProps) => {
   return (
@@ -112,7 +114,8 @@ const ItemModal = ({
                     <HighlightedText
                       text={item.title}
                       features={features}
-                      mapping={item.features}
+                      itemKey={item.key}
+                      apiReady={apiReady}
                       featureColors={featureColors}
                     />
                   </Suspense>
@@ -123,7 +126,8 @@ const ItemModal = ({
                         <HighlightedText
                           text={item.imprint}
                           features={features}
-                          mapping={item.features}
+                          itemKey={item.key}
+                          apiReady={apiReady}
                           featureColors={featureColors}
                         />
                       </Suspense>
@@ -143,7 +147,9 @@ const ItemModal = ({
                       <HighlightedText
                         text={item.titleEn || ""}
                         features={[]}
-                        mapping={{}}
+                        itemKey={item.key}
+                        apiReady={apiReady}
+                        useTei={false}
                       />
                     </Suspense>
                     {item.imprintEn && (
@@ -153,7 +159,9 @@ const ItemModal = ({
                           <HighlightedText
                             text={item.imprintEn}
                             features={[]}
-                            mapping={{}}
+                            itemKey={item.key}
+                            apiReady={apiReady}
+                            useTei={false}
                           />
                         </Suspense>
                       </>

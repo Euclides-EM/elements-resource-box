@@ -96,4 +96,5 @@ export type ItemProps = {
   mode: Mode;
   features: Feature[] | null;
   featureColors?: Record<string, string>;
+  apiReady?: boolean;
 };

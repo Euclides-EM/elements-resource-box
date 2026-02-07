@@ -1,234 +1,310 @@
-import { Feature, Item } from "../../../types";
-import { trimEnd } from "lodash";
-import { useEffect, useState, useMemo, memo } from "react";
+import { Feature } from "../../../types";
+import { useEffect, useMemo, useState, memo } from "react";
+import { TeiService } from "../../../../common/hub-api";
+import { COLLECTION_ID } from "../../../utils/hubApi";
 
 type HighlightedTextProps = {
   text: string;
   features: Feature[];
-  mapping: Item["features"];
   featureColors?: Record<string, string>;
+  itemKey?: string;
+  apiReady?: boolean;
+  useTei?: boolean;
 };
 
-const highlightLayers = (
-  text: string,
-  features: Feature[],
-  mapping: Item["features"],
+const OUTLINE_FEATURES = ["action_verbs"];
+
+const TEI_NS = "http://www.tei-c.org/ns/1.0";
+const teiCache = new Map<string, string>();
+const teiPromiseCache = new Map<string, Promise<string>>();
+
+const escapeHtml = (value: string) =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+
+const buildTextHtml = (text: string) =>
+  escapeHtml(text)
+    .replaceAll("\n", "<br/>")
+    .replace(/^(?:<br\/>|\s)+/, "")
+    .replace(/(?:<br\/>|\s)+$/, "");
+
+const parseTeiToLayers = (
+  tei: string,
+  selectedFeatures: Feature[],
   featureColors: Record<string, string> | undefined,
-): string[] => {
-  const layers: string[] = [];
-  const allPositions: Array<{
-    start: number;
-    end: number;
-    feature: Feature;
-    featureIndex: number;
-  }> = [];
+): { baseHtml: string; layers: string[] } | null => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(tei, "text/xml");
+  const parseError = doc.getElementsByTagName("parsererror")[0];
+  if (parseError) {
+    return null;
+  }
 
-  features.forEach((feature, featureIndex) => {
-    const phrases = mapping[feature];
-    if (!phrases?.length) return;
-
-    phrases.forEach((phrase) => {
-      const normalized = phrase.replace(/\s+|-/g, "");
-      const pattern = normalized
-        .split("")
-        .map((char) => escapeRegExpLoose(char) + "(?:\\s+|\\n|-)*")
-        .join("");
-
-      const regex = new RegExp(pattern, "giu");
-      const matches = Array.from(text.matchAll(regex));
-
-      matches.forEach((match) => {
-        if (match.index !== undefined) {
-          allPositions.push({
-            start: match.index,
-            end: match.index + match[0].length,
-            feature,
-            featureIndex,
-          });
-        }
-      });
-    });
+  const respStatements = doc.getElementsByTagNameNS(TEI_NS, "respStmt");
+  const respToFeature: Record<string, string> = {};
+  Array.from(respStatements).forEach((respStmt) => {
+    const respId =
+      respStmt.getAttribute("xml:id") || respStmt.getAttribute("id");
+    if (!respId) return;
+    const idnos = respStmt.getElementsByTagNameNS(TEI_NS, "idno");
+    const featureIdno = Array.from(idnos).find(
+      (node) => node.getAttribute("type") === "feature",
+    );
+    const featureKey = featureIdno?.textContent?.trim();
+    if (featureKey) {
+      respToFeature[respId] = featureKey;
+    }
   });
 
-  features.forEach((feature, featureIndex) => {
-    const phrases = mapping[feature]?.filter((f) => f.trim().length >= 2);
-    if (!phrases) {
+  const selectedSet = new Set(selectedFeatures);
+
+  const body = doc.getElementsByTagNameNS(TEI_NS, "body")[0];
+  if (!body) {
+    return null;
+  }
+
+  const anchorPos: Record<string, number> = {};
+  let rawText = "";
+
+  const walkNode = (node: ChildNode) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      rawText += node.textContent || "";
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return;
+    }
+    const element = node as Element;
+    const name = element.localName;
+    if (name === "anchor") {
+      const anchorId =
+        element.getAttribute("xml:id") || element.getAttribute("id");
+      if (anchorId) {
+        anchorPos[anchorId] = rawText.length;
+      }
+      return;
+    }
+    if (name === "lb") {
+      rawText += "\n";
       return;
     }
 
-    let layer = text;
+    element.childNodes.forEach(walkNode);
 
-    phrases
-      .map((phrase) =>
-        phrase.length <= 3 ? phrase : trimEnd(phrase.trim(), ",."),
-      )
-      .forEach((phrase) => {
-        const normalized = phrase.replace(/\s+|-/g, "");
-        const pattern = normalized
-          .split("")
-          .map((char) => escapeRegExpLoose(char) + "(?:\\s+|\\n|-)*")
-          .join("");
-        const regex = new RegExp(pattern, "giu");
+    if (name === "p") {
+      rawText += "\n";
+    }
+  };
 
-        layer = layer.replace(regex, (match) => {
-          const shadowSize = Math.min(
-            6,
-            2 + calculateIntersections(feature, featureIndex, allPositions) * 2,
-          );
+  body.childNodes.forEach(walkNode);
 
-          const color = featureColors?.[feature] || getFeatureColor(feature);
-          const style =
-            feature === "Verbs"
-              ? `outline: 2px solid ${color}; outline-offset: 2px; border-radius: 8px;`
-              : `background-color: ${color}; box-shadow: 0 0 0 ${shadowSize}px ${color}; border-radius: 8px;`;
-
-          return `<span style="${style}">${match}</span>`;
-        });
-      });
-
-    layer = layer.replaceAll("\n", "<br/>");
-    layers.push(layer);
-  });
-
-  return layers;
-};
-
-function calculateIntersections(
-  feature: Feature,
-  featureIndex: number,
-  allPositions: Array<{
+  const spanGroups = doc.getElementsByTagNameNS(TEI_NS, "spanGrp");
+  const filteredSpans: Array<{
     start: number;
     end: number;
-    feature: Feature;
-    featureIndex: number;
-  }>,
-): number {
-  let intersections = 0;
-
-  const currentFeaturePositions = allPositions.filter(
-    (p) => p.feature === feature && p.featureIndex === featureIndex,
-  );
-
-  if (currentFeaturePositions.length === 0) return 0;
-
-  const higherLayerPositions = allPositions.filter(
-    (p) => p.featureIndex > featureIndex,
-  );
-
-  currentFeaturePositions.forEach((currentPos) => {
-    higherLayerPositions.forEach((higherPos) => {
-      if (
-        currentPos.start <= higherPos.end &&
-        currentPos.end >= higherPos.start
-      ) {
-        intersections++;
+    featureKey: string;
+  }> = [];
+  Array.from(spanGroups).forEach((group) => {
+    if (group.getAttribute("type") !== "highlight") {
+      return;
+    }
+    const spans = group.getElementsByTagNameNS(TEI_NS, "span");
+    Array.from(spans).forEach((span) => {
+      const from = span.getAttribute("from")?.replace("#", "");
+      const to = span.getAttribute("to")?.replace("#", "");
+      const resp = span.getAttribute("resp")?.replace("#", "");
+      if (!from || !to || !resp) return;
+      const startIdx = anchorPos[from];
+      const endIdx = anchorPos[to];
+      if (startIdx === undefined || endIdx === undefined) {
+        return;
+      }
+      const spanId =
+        span.getAttribute("xml:id") || span.getAttribute("id") || "";
+      let featureKey = "";
+      if (spanId.startsWith("h-")) {
+        const lastDash = spanId.lastIndexOf("-");
+        if (lastDash > 2) {
+          featureKey = spanId.slice(2, lastDash);
+        }
+      }
+      if (!featureKey) {
+        featureKey = respToFeature[resp] || "";
+      }
+      if (!featureKey) return;
+      const start = Math.min(startIdx, endIdx);
+      const end = Math.max(startIdx, endIdx);
+      if (end <= start) {
+        return;
+      }
+      const spanEntry = { start, end, featureKey };
+      if (selectedSet.size === 0 || selectedSet.has(featureKey)) {
+        filteredSpans.push(spanEntry);
       }
     });
   });
 
-  return intersections;
-}
+  const leadingWhitespace = rawText.match(/^\s*/)?.[0].length ?? 0;
+  const trimmedText = rawText.trim();
+  const baseHtml = buildTextHtml(trimmedText);
 
-function escapeRegExpLoose(str: string): string {
-  return str.replace(/([.*+?^${}()|[\]\\])/g, "\\$1");
-}
+  const adjustedSpans = filteredSpans
+    .map((span) => ({
+      ...span,
+      start: span.start - leadingWhitespace,
+      end: span.end - leadingWhitespace,
+    }))
+    .filter((span) => span.end > 0 && span.start < trimmedText.length)
+    .map((span) => ({
+      ...span,
+      start: Math.max(0, span.start),
+      end: Math.min(trimmedText.length, span.end),
+    }))
+    .filter((span) => span.end > span.start);
 
-const getFeatureColor = (feature: string) => {
-  let hash = 0;
-  for (let i = 0; i < feature.length; i += 1) {
-    hash = (hash * 31 + feature.charCodeAt(i)) | 0;
-  }
-  const hue = Math.abs(hash) % 360;
-  return `hsl(${hue} 65% 78%)`;
+  const layers = adjustedSpans
+    .map((span, index) => ({
+      ...span,
+      length: span.end - span.start,
+      originalIndex: index,
+    }))
+    .sort((a, b) => b.length - a.length)
+    .map((span, layerIndex, sorted) => {
+      const color = featureColors?.[span.featureKey];
+      if (!color) {
+        return "";
+      }
+      const useOutline = OUTLINE_FEATURES.includes(span.featureKey);
+      const depth = sorted.reduce((count, other, idx) => {
+        if (idx <= layerIndex) return count;
+        if (span.start < other.end && span.end > other.start) {
+          return count + 1;
+        }
+        return count;
+      }, 0);
+      const shadowSize = Math.min(6, 2 + depth * 2);
+      const style = useOutline
+        ? `outline: 2px solid ${color}; outline-offset: 2px; border-radius: 8px;`
+        : `background-color: ${color}; box-shadow: 0 0 0 ${shadowSize}px ${color}; border-radius: 8px;`;
+
+      const before = trimmedText.slice(0, span.start);
+      const segment = trimmedText.slice(span.start, span.end);
+      const after = trimmedText.slice(span.end);
+      let html =
+        escapeHtml(before) +
+        `<span style="${style}">${escapeHtml(segment)}</span>` +
+        escapeHtml(after);
+      html = html.replaceAll("\n", "<br/>");
+      html = html.replace(/^(?:<br\/>|\s)+/, "");
+      html = html.replace(/(?:<br\/>|\s)+$/, "");
+      return html;
+    })
+    .filter(Boolean);
+
+  return { baseHtml, layers };
 };
 
-const getTotalLength = (arr?: string[]) =>
-  arr?.reduce((sum, str) => sum + str.length, 0) || 0;
-
 const HighlightedText = memo(
-  ({ text, features, mapping, featureColors }: HighlightedTextProps) => {
+  ({
+    text,
+    features,
+    featureColors,
+    itemKey,
+    apiReady,
+    useTei = true,
+  }: HighlightedTextProps) => {
+    const [renderedHtml, setRenderedHtml] = useState<string>("");
+    const [renderedLayers, setRenderedLayers] = useState<string[]>([]);
     const [isReady, setIsReady] = useState(false);
-    const [processedLayers, setProcessedLayers] = useState<string[]>([]);
-    const [processedText, setProcessedText] = useState("");
 
-    const computeHighlights = useMemo(() => {
-      return new Promise<{ layers: string[]; processedText: string }>(
-        (resolve) => {
-          setTimeout(() => {
-            const formattedText = text.replace(
-              /\[(.*?)]:/g,
-              "<span style='font-size: 0.8rem; opacity: .8'>[$1]:</span>",
-            );
-
-            const sortedFeatures = features.sort((a, b) => {
-              if (a === "Verbs") return 1;
-              if (b === "Verbs") return -1;
-              return getTotalLength(mapping[b]) - getTotalLength(mapping[a]);
-            });
-
-            const layers = highlightLayers(
-              formattedText,
-              sortedFeatures,
-              mapping,
-              featureColors,
-            );
-            resolve({ layers, processedText: formattedText });
-          }, 0);
-        },
-      );
-    }, [text, features, mapping, featureColors]);
+    const plainHtml = useMemo(() => buildTextHtml(text), [text]);
 
     useEffect(() => {
-      setIsReady(false);
       let isMounted = true;
+      const finalize = (html: string, layers: string[] = []) => {
+        if (!isMounted) return;
+        setRenderedHtml(html);
+        setRenderedLayers(layers);
+        setIsReady(true);
+      };
 
-      computeHighlights.then(({ layers, processedText }) => {
-        if (isMounted) {
-          setProcessedLayers(layers);
-          setProcessedText(processedText);
-          setIsReady(true);
-        }
-      });
+      setIsReady(false);
+
+      if (!itemKey || !apiReady || !useTei) {
+        finalize(plainHtml);
+        return () => {
+          isMounted = false;
+        };
+      }
+
+      const cacheKey = itemKey;
+      const cachedTei = teiCache.get(cacheKey);
+      if (cachedTei) {
+        const parsed = parseTeiToLayers(cachedTei, features, featureColors);
+        finalize(parsed?.baseHtml || plainHtml, parsed?.layers || []);
+        return () => {
+          isMounted = false;
+        };
+      }
+
+      const inFlight =
+        teiPromiseCache.get(cacheKey) ||
+        TeiService.getCollectionsTei({
+          id: COLLECTION_ID,
+          key: itemKey,
+        });
+      teiPromiseCache.set(cacheKey, inFlight);
+
+      inFlight
+        .then((tei) => {
+          if (!tei) {
+            finalize(plainHtml);
+            return;
+          }
+          teiCache.set(cacheKey, tei);
+          const parsed = parseTeiToLayers(tei, features, featureColors);
+          finalize(parsed?.baseHtml || plainHtml, parsed?.layers || []);
+        })
+        .catch(() => {
+          finalize(plainHtml);
+        });
 
       return () => {
         isMounted = false;
       };
-    }, [computeHighlights]);
+    }, [itemKey, apiReady, features, featureColors, plainHtml]);
 
     if (!isReady) {
       return (
         <div style={{ position: "relative", whiteSpace: "pre-wrap" }}>
           <div
             style={{ position: "relative" }}
-            dangerouslySetInnerHTML={{ __html: text }}
+            dangerouslySetInnerHTML={{ __html: plainHtml }}
           />
         </div>
       );
     }
 
     return (
-      <div
-        style={{
-          position: "relative",
-          whiteSpace: "pre-wrap",
-        }}
-      >
-        {processedLayers.map((layer, i) => (
+      <div style={{ position: "relative", whiteSpace: "pre-wrap" }}>
+        {renderedLayers.map((layer, index) => (
           <div
-            key={i}
+            key={index}
             style={{
               color: "transparent",
               position: "absolute",
               inset: 0,
               pointerEvents: "none",
-              zIndex: i,
+              zIndex: index,
             }}
             dangerouslySetInnerHTML={{ __html: layer }}
           />
         ))}
         <div
-          style={{ position: "relative", zIndex: processedLayers.length }}
-          dangerouslySetInnerHTML={{ __html: processedText }}
+          style={{ position: "relative", zIndex: renderedLayers.length }}
+          dangerouslySetInnerHTML={{ __html: renderedHtml }}
         />
       </div>
     );

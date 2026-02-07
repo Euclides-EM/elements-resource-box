@@ -26,7 +26,15 @@ const NoTitlePage = styled.div`
 `;
 
 const ItemView = memo(
-  ({ item, height, width, mode, features, featureColors }: ItemProps) => {
+  ({
+    item,
+    height,
+    width,
+    mode,
+    features,
+    featureColors,
+    apiReady,
+  }: ItemProps) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
@@ -100,7 +108,8 @@ const ItemView = memo(
                         <HighlightedText
                           text={item.title}
                           features={features || []}
-                          mapping={item.features}
+                          itemKey={item.key}
+                          apiReady={apiReady}
                           featureColors={featureColors}
                         />
                       )}
@@ -110,7 +119,8 @@ const ItemView = memo(
                           <HighlightedText
                             text={item.imprint}
                             features={features || []}
-                            mapping={item.features}
+                            itemKey={item.key}
+                            apiReady={apiReady}
                             featureColors={featureColors}
                           />
                         </>
@@ -162,6 +172,7 @@ const ItemView = memo(
             item={item}
             features={features}
             featureColors={featureColors}
+            apiReady={apiReady}
             onClose={() => setModalOpen(false)}
           />
         )}

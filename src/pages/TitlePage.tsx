@@ -132,18 +132,15 @@ function TitlePage() {
     [featureNameById],
   );
 
-  const selectedFeatureNames = useMemo(() => {
-    const names = features
-      .map((featureId) => featureNameById[featureId])
-      .filter(Boolean) as Feature[];
-    return Array.from(new Set(names));
-  }, [features, featureNameById]);
+  const selectedFeatureIds = useMemo(() => {
+    return Array.from(new Set(features));
+  }, [features]);
 
-  const featureColorsByName = useMemo(() => {
+  const featureColorsById = useMemo(() => {
     const map: Record<string, string> = {};
     availableFeatures.forEach((feature) => {
-      if (feature.name && feature.id && feature.color && !map[feature.name]) {
-        map[feature.name] = feature.color;
+      if (feature.id && feature.color && !map[feature.id]) {
+        map[feature.id] = feature.color;
       }
     });
     return map;
@@ -423,8 +420,9 @@ function TitlePage() {
                 width={TILE_WIDTH}
                 item={item}
                 mode={mode}
-                features={titlePagesModeOn ? selectedFeatureNames : null}
-                featureColors={featureColorsByName}
+                features={titlePagesModeOn ? selectedFeatureIds : null}
+                featureColors={featureColorsById}
+                apiReady={apiReady}
               />
             ))
         ) : (
