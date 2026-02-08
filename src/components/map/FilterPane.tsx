@@ -7,7 +7,7 @@ import { ScrollbarStyle } from "../common";
 import RangeSlider from "../tps/filters/RangeSlider";
 import { FilterButton as FilterToggleButton } from "../layout/FilterButton.tsx";
 import { itemProperties } from "../../constants/itemProperties.ts";
-import { NAVBAR_HEIGHT, NO_FILTER_ROUTES } from "../layout/routes.ts";
+import { NO_FILTER_ROUTES } from "../layout/routes.ts";
 import { TextSearchFilter } from "./TextSearchFilter";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FilterValue } from "./Filter";
@@ -16,26 +16,23 @@ import { Item } from "../../types";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
+const FILTER_PANE_WIDTH = "26rem";
+
 const Pane = styled.div<{ isLoading?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  height: calc(100vh - 6rem + 4px);
-  width: 26rem;
-  max-width: 100vw;
+  width: ${FILTER_PANE_WIDTH};
   min-width: 256px;
-  overflow-x: ${({ isLoading }) => (isLoading ? "hidden" : "auto")};
+  flex-shrink: 0;
+  box-sizing: border-box;
+  overflow-y: ${({ isLoading }) => (isLoading ? "hidden" : "auto")};
+  overflow-x: hidden;
   background-color: white;
   color: black;
   padding: 1rem;
-  margin-bottom: 10rem;
-  border-radius: 0 0.7rem 0.7rem 0.7rem;
   border-right: 2px ${PANE_BORDER} solid;
-  border-bottom: 2px ${PANE_BORDER} solid;
-  position: fixed;
-  top: ${NAVBAR_HEIGHT}px;
-  left: 0;
-  z-index: 100;
+  position: relative;
   pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")};
 
   ${ScrollbarStyle};

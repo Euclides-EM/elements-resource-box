@@ -1,4 +1,5 @@
 import { upperFirst } from "lodash";
+import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
 import { useEffect, useMemo, useState, useContext } from "react";
 import {
   ColumnDef,
@@ -48,7 +49,7 @@ import { inEuclidesMode } from "../utils/mode.ts";
 
 const TableContainer = styled.div`
   ${ScrollbarStyle};
-  max-width: 98vw;
+  max-width: 100%;
   border-radius: 0.5rem;
   background-color: aliceblue;
   color: black;
@@ -249,12 +250,13 @@ function Catalogue() {
   const [clusterItems, setClusterItems] = useState<ClusterItem[]>([]);
 
   const handleScroll = () => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const el = document.getElementById(MAIN_CONTENT_ID);
+    const scrollTop = el ? el.scrollTop : 0;
     setShowScrollTop(scrollTop > 200);
   };
 
   const scrollToTop = () => {
-    window.scrollTo({
+    document.getElementById(MAIN_CONTENT_ID)?.scrollTo({
       top: 0,
       behavior: "smooth",
     });
@@ -269,8 +271,9 @@ function Catalogue() {
   };
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const el = document.getElementById(MAIN_CONTENT_ID);
+    el?.addEventListener("scroll", handleScroll);
+    return () => el?.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -594,7 +597,9 @@ function Catalogue() {
   });
 
   return (
-    <Container style={{ width: "100%" }}>
+    <Container
+      style={{ width: "100%", padding: "0 1rem", boxSizing: "border-box" }}
+    >
       {showScrollTop && (
         <ScrollToTopButton onClick={scrollToTop} title="Scroll to top">
           ↑

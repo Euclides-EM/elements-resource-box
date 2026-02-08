@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
 import { useSearchParams } from "react-router-dom";
 import styled from "@emotion/styled";
 import {
@@ -331,8 +332,9 @@ const Diagrams = () => {
   }, [modal.isOpen]);
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const el = document.getElementById(MAIN_CONTENT_ID);
+    el?.addEventListener("scroll", handleScroll);
+    return () => el?.removeEventListener("scroll", handleScroll);
   }, []);
 
   const filterImagesByPageRange = (images: string[]): string[] => {
@@ -385,12 +387,13 @@ const Diagrams = () => {
   };
 
   const handleScroll = () => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const el = document.getElementById(MAIN_CONTENT_ID);
+    const scrollTop = el ? el.scrollTop : 0;
     setShowScrollTop(scrollTop > 200);
   };
 
   const scrollToTop = () => {
-    window.scrollTo({
+    document.getElementById(MAIN_CONTENT_ID)?.scrollTo({
       top: 0,
       behavior: "smooth",
     });

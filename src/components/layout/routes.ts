@@ -17,4 +17,5 @@ export const NO_FILTER_ROUTES = [
 ];
 
 export const NAVBAR_HEIGHT = 60;
+export const MAIN_CONTENT_ID = "main-content";
 export const MOBILE_BREAKPOINT = 768;

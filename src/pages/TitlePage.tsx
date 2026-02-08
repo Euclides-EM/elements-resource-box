@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, useMemo, useRef } from "react";
+import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
 import useLocalStorageState from "use-local-storage-state";
 import { Feature, Mode } from "../types";
 import {
@@ -72,12 +73,13 @@ function TitlePage() {
   }, [mode, setMode, titlePagesModeOn]);
 
   const handleScroll = useCallback(() => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const el = document.getElementById(MAIN_CONTENT_ID);
+    const scrollTop = el ? el.scrollTop : 0;
     setShowScrollTop(scrollTop > 200);
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({
+    document.getElementById(MAIN_CONTENT_ID)?.scrollTo({
       top: 0,
       behavior: "smooth",
     });
@@ -134,10 +136,11 @@ function TitlePage() {
   );
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+    const el = document.getElementById(MAIN_CONTENT_ID);
+    el?.addEventListener("scroll", handleScroll);
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      el?.removeEventListener("scroll", handleScroll);
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleScroll, handleKeyDown]);
