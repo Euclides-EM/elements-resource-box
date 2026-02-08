@@ -58,7 +58,10 @@ function TitlePage() {
       defaultValue: Object.keys(FeatureToColumnName).sort() as Feature[],
     },
   );
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useLocalStorageState<string>(
+    "tps-search",
+    { defaultValue: "" },
+  );
   const [showScrollTop, setShowScrollTop] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
