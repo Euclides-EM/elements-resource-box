@@ -72,7 +72,10 @@ function TitlePage() {
       defaultValue: [],
     },
   );
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useLocalStorageState<string>(
+    "tps-search",
+    { defaultValue: "" },
+  );
   const [showScrollTop, setShowScrollTop] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [apiReady, setApiReady] = useState(false);
