@@ -77,6 +77,7 @@ export const ModalTextColumn = styled.div<{
   isImage?: boolean;
   isTextContent?: boolean;
   isRow?: boolean;
+  alignCenter?: boolean;
 }>`
   flex: 1;
   overflow-y: ${({ isImage }) => (isImage ? "hidden" : "visible")};
@@ -85,6 +86,7 @@ export const ModalTextColumn = styled.div<{
   min-width: 250px;
   max-width: 90vw;
   width: auto;
+  text-align: ${({ alignCenter }) => (alignCenter ? "center" : "start")};
   ${({ isRow }) =>
     isRow &&
     css`
