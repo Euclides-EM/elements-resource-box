@@ -102,7 +102,7 @@ const ItemModal = ({
           {features &&
             (item.title && item.title !== "?" ? (
               <TextColumnsContainer>
-                <ModalTextColumn isTextContent>
+                <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
                   <ModalTitle justifyStart gap={1}>
                     Original Text
                     <StyledHelpTip
@@ -135,7 +135,7 @@ const ItemModal = ({
                   )}
                 </ModalTextColumn>
                 {(item.titleEn || item.imprintEn) && (
-                  <ModalTextColumn isTextContent>
+                  <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
                     <ModalTitle justifyStart gap={1}>
                       English Translation{" "}
                       <StyledHelpTip
