@@ -316,7 +316,7 @@ function TitlePage() {
       )}
       <Column minWidth="min(820px, 90%)">
         <Stats />
-        {!inEuclidesMode() && (filteredBySearchItems || []).length > 0 && (
+        {!inEuclidesMode() && (
           <>
             <Row gap={0.5}>
               Title Pages Experiment View{" "}
@@ -376,15 +376,6 @@ function TitlePage() {
                     Reset
                   </ResetButton>
                 </Row>
-                <Row>
-                  <SearchInput
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="Search in title pages..."
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                  />
-                </Row>
                 <NoteLine gap={0.5} noWrap noWrapAlsoOnMobile>
                   <IoWarning /> Highlighted features were partially identified
                   using an LLM and may not be accurate.
@@ -393,6 +384,16 @@ function TitlePage() {
             )}
           </>
         )}
+
+        <Row>
+          <SearchInput
+            ref={searchInputRef}
+            type="text"
+            placeholder="Search in title pages..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+        </Row>
       </Column>
       <Row rowGap={6}>
         {filteredBySearchItems == null ||
