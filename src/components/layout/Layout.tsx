@@ -3,6 +3,7 @@ import Navigation from "./Navigation";
 import styled from "@emotion/styled";
 import { FilterPane } from "../map/FilterPane";
 import { MAIN_CONTENT_ID, NAVBAR_HEIGHT } from "./routes.ts";
+import { useEditFilter } from "../../contexts/FilterEditContext";
 
 const LayoutContainer = styled.div`
   height: 100vh;
@@ -25,12 +26,17 @@ const MainContent = styled.main`
 `;
 
 function Layout() {
+  const { filterOpen, setFilterOpen } = useEditFilter();
+
   return (
     <LayoutContainer>
       <Navigation />
       <ContentRow>
         <FilterPane />
-        <MainContent id={MAIN_CONTENT_ID}>
+        <MainContent
+          id={MAIN_CONTENT_ID}
+          onClick={() => filterOpen && setFilterOpen(false)}
+        >
           <Outlet />
         </MainContent>
       </ContentRow>

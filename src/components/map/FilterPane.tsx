@@ -13,7 +13,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FilterValue } from "./Filter";
 import { useLocalStorage } from "usehooks-ts";
 import { Item } from "../../types";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 const FILTER_PANE_WIDTH = "26rem";
@@ -229,6 +229,40 @@ export const FilterPane = () => {
     updateHasUnappliedChanges,
   ]);
 
+  const handleApply = useCallback(() => {
+    if (!isFiltering && hasUnappliedChanges) {
+      applyFilters({
+        filters,
+        filtersInclude,
+        range,
+        includeUndated,
+        textSearch,
+        textSearchFields,
+      });
+    }
+  }, [
+    isFiltering,
+    hasUnappliedChanges,
+    applyFilters,
+    filters,
+    filtersInclude,
+    range,
+    includeUndated,
+    textSearch,
+    textSearchFields,
+  ]);
+
+  useEffect(() => {
+    if (!filterOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        handleApply();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [filterOpen, handleApply]);
+
   if (
     !filterOpen ||
     !range[0] ||
@@ -267,16 +301,7 @@ export const FilterPane = () => {
           Reset Filters
         </ResetButton>
         <ApplyButton
-          onClick={() =>
-            applyFilters({
-              filters,
-              filtersInclude,
-              range,
-              includeUndated,
-              textSearch,
-              textSearchFields,
-            })
-          }
+          onClick={handleApply}
           disabled={isFiltering || !hasUnappliedChanges}
           $hasChanges={hasUnappliedChanges}
         >
