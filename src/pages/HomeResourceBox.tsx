@@ -3,6 +3,7 @@ import { Container, Row, Text } from "../components/common";
 import { LAND_COLOR, MARKER_4, MARKER_5, PANE_COLOR } from "../utils/colors.ts";
 import {
   CATALOGUE_ROUTE,
+  MAIN_CONTENT_ID,
   NAVBAR_HEIGHT,
   TITLE_PAGES_ROUTE,
 } from "../components/layout/routes.ts";
@@ -174,17 +175,20 @@ export function HomeResourceBox() {
       const imageAspectRatio = img.naturalHeight / img.naturalWidth;
       const topOffset = NAVBAR_HEIGHT;
 
+      const mainContent = document.getElementById(MAIN_CONTENT_ID);
+
       const handleScroll = () => {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
-        const scrollTop = window.scrollY;
+        const scrollTop = mainContent ? mainContent.scrollTop : 0;
         const imageHeight = viewportWidth * imageAspectRatio;
         setImageHeight(imageHeight);
 
         const effectiveBackgroundHeight = viewportHeight - topOffset;
         const imageScrollRange = imageHeight - effectiveBackgroundHeight;
-        const pageScrollRange =
-          document.documentElement.scrollHeight - viewportHeight;
+        const pageScrollRange = mainContent
+          ? mainContent.scrollHeight - mainContent.clientHeight
+          : 1;
 
         const scrollRatio = scrollTop / pageScrollRange;
         const translateY = scrollRatio * imageScrollRange;
@@ -194,11 +198,11 @@ export function HomeResourceBox() {
 
       handleScroll();
 
-      window.addEventListener("scroll", handleScroll, { passive: true });
+      mainContent?.addEventListener("scroll", handleScroll, { passive: true });
       window.addEventListener("resize", handleScroll);
 
       return () => {
-        window.removeEventListener("scroll", handleScroll);
+        mainContent?.removeEventListener("scroll", handleScroll);
         window.removeEventListener("resize", handleScroll);
       };
     };

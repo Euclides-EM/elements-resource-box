@@ -1,6 +1,11 @@
 import { useLocation } from "react-router-dom";
 import styled from "@emotion/styled";
-import { HOME_ROUTE, NAVBAR_HEIGHT, NO_FILTER_ROUTES } from "./routes.ts";
+import {
+  HOME_ROUTE,
+  MAIN_CONTENT_ID,
+  NAVBAR_HEIGHT,
+  NO_FILTER_ROUTES,
+} from "./routes.ts";
 import { MARKER_5 } from "../../utils/colors.ts";
 import { useLayoutEffect } from "react";
 import { BsBoundingBoxCircles } from "react-icons/bs";
@@ -64,7 +69,7 @@ function Navigation() {
   const isMobile = useIsMobile();
 
   useLayoutEffect(() => {
-    window.scrollTo(0, 0);
+    document.getElementById(MAIN_CONTENT_ID)?.scrollTo(0, 0);
   }, [location.pathname]);
 
   if (isMobile) {

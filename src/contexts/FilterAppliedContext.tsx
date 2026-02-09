@@ -268,8 +268,23 @@ export const FilterAppliedProvider = ({
     Item[] | null
   >(null);
   const workerRef = useRef<Worker | null>(null);
-  const pendingMessageRef = useRef<MessageEvent | null>(null);
+  const pendingMessageRef = useRef<FilterWorkerMessage | null>(null);
   const dataRef = useRef<Item[]>([]);
+
+  type FilterWorkerMessage =
+    | { type: "setData"; payload: Item[] }
+    | {
+        type: "filter";
+        payload: {
+          range: [number, number];
+          filters: Record<string, FilterValue[] | undefined>;
+          filtersInclude: Record<string, boolean>;
+          includeUndated: boolean;
+          textSearch: string;
+          textSearchFields: (keyof Item)[];
+          NO_CITY: string;
+        };
+      };
 
   const getDefaultState = useCallback((): FilterState => {
     return {
@@ -364,7 +379,7 @@ export const FilterAppliedProvider = ({
         const pending = pendingMessageRef.current;
         pendingMessageRef.current = null;
         setTimeout(() => {
-          workerRef.current?.postMessage(pending.data);
+          workerRef.current?.postMessage(pending);
           isFilteringRef.current = true;
           setIsFiltering(true);
         }, 0);
@@ -374,11 +389,15 @@ export const FilterAppliedProvider = ({
     return () => {
       workerRef.current?.terminate();
     };
-  }, [minYear, maxYear]);
+  }, []);
 
   useEffect(() => {
     dataRef.current = data;
     if (data.length > 0) {
+      workerRef.current?.postMessage({
+        type: "setData",
+        payload: data,
+      } satisfies FilterWorkerMessage);
       setAppliedFiltersState((prev) => ({ ...prev }));
     }
   }, [data]);
@@ -388,19 +407,21 @@ export const FilterAppliedProvider = ({
       return;
     }
 
-    const message = {
-      data: dataRef.current,
-      range: appliedFilters.range,
-      filters: appliedFilters.filters,
-      filtersInclude: appliedFilters.filtersInclude,
-      includeUndated: appliedFilters.includeUndated,
-      textSearch: appliedFilters.textSearch,
-      textSearchFields: appliedFilters.textSearchFields,
-      NO_CITY,
+    const message: FilterWorkerMessage = {
+      type: "filter",
+      payload: {
+        range: appliedFilters.range,
+        filters: appliedFilters.filters,
+        filtersInclude: appliedFilters.filtersInclude,
+        includeUndated: appliedFilters.includeUndated,
+        textSearch: appliedFilters.textSearch,
+        textSearchFields: appliedFilters.textSearchFields,
+        NO_CITY,
+      },
     };
 
     if (isFilteringRef.current) {
-      pendingMessageRef.current = { data: message } as MessageEvent;
+      pendingMessageRef.current = message;
     } else {
       isFilteringRef.current = true;
       setIsFiltering(true);

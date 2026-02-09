@@ -4,6 +4,7 @@ import { useAppliedFilter } from "../contexts/FilterAppliedContext.tsx";
 import { MARKER_4 } from "../utils/colors.ts";
 import { useMemo } from "react";
 import styled from "@emotion/styled";
+import pluralize from "pluralize";
 
 const Highlight = styled.span`
   color: ${MARKER_4};
@@ -41,9 +42,12 @@ export const Stats = ({ verb }: { verb?: string }) => {
       ) : (
         <Text size={1}>
           {verb || "Listing"} <Highlight>{filteredItems.length}</Highlight>{" "}
-          editions, by <Highlight>{authorsCount}</Highlight> authors, in{" "}
-          <Highlight>{languagesCount}</Highlight> languages, from{" "}
-          <Highlight>{citiesCount}</Highlight> cities.
+          {pluralize("edition", filteredItems.length)}, by{" "}
+          <Highlight>{authorsCount}</Highlight>{" "}
+          {pluralize("author", authorsCount)}, in{" "}
+          <Highlight>{languagesCount}</Highlight>{" "}
+          {pluralize("language", languagesCount)}, from{" "}
+          <Highlight>{citiesCount}</Highlight> {pluralize("city", citiesCount)}.
         </Text>
       )}
     </Row>

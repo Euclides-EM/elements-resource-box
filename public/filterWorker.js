@@ -110,12 +110,40 @@ function filterRecord(t, range, filters, filtersInclude, includeUndated, textSea
   });
 }
 
+let cachedData = [];
+
 self.addEventListener("message", (event) => {
-  const { data, range, filters, filtersInclude, includeUndated, textSearch, textSearchFields, NO_CITY } = event.data;
+  const message = event.data;
 
-  const filteredItems = data.filter((t) =>
-    filterRecord(t, range, filters, filtersInclude, includeUndated, textSearch, textSearchFields, NO_CITY)
-  );
+  if (message?.type === "setData") {
+    cachedData = Array.isArray(message.payload) ? message.payload : [];
+    return;
+  }
 
-  self.postMessage(filteredItems);
+  if (message?.type === "filter") {
+    const {
+      range,
+      filters,
+      filtersInclude,
+      includeUndated,
+      textSearch,
+      textSearchFields,
+      NO_CITY,
+    } = message.payload || {};
+
+    const filteredItems = cachedData.filter((t) =>
+      filterRecord(
+        t,
+        range,
+        filters,
+        filtersInclude,
+        includeUndated,
+        textSearch,
+        textSearchFields,
+        NO_CITY
+      )
+    );
+
+    self.postMessage(filteredItems);
+  }
 });

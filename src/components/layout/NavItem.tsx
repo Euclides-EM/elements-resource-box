@@ -4,6 +4,7 @@ import { FaExternalLinkAlt } from "react-icons/fa";
 import { css } from "@emotion/react";
 import {
   CATALOGUE_ROUTE,
+  FEATURES_ROUTE,
   HOME_ROUTE,
   MAP_ROUTE,
   TITLE_PAGES_ROUTE,
@@ -14,14 +15,35 @@ import { MACTUTOR_URL } from "../../constants";
 import { ActionsMenu } from "./ActionsMenu.tsx";
 import { inEditMode, inEuclidesMode } from "../../utils/mode.ts";
 import { preserveQueryParams } from "../../utils/navigationUtils";
+import { AuthContext } from "../../contexts/Auth.ts";
+import { useContext } from "react";
 
-const StyledNavItem = styled.li<{ active: boolean; mobile: boolean }>`
+const separatorStyles = css`
+  &::after {
+    content: "·";
+    color: #666666;
+    font-size: 1.3rem;
+    line-height: 1;
+    margin-left: 0.6rem;
+  }
+`;
+
+const StyledNavItem = styled.li<{
+  active: boolean;
+  mobile: boolean;
+  hideSeparator?: boolean;
+}>`
+  display: flex;
+  align-items: center;
+  position: relative;
+
   a {
     text-decoration: none;
     color: ${({ active }) =>
       active ? "#ffffff" : inEuclidesMode() ? "#cecece" : "#aaaaaa"};
     font-weight: ${({ active }) => (active ? "bold" : "normal")};
-    font-size: 1.2rem;
+    font-size: 1rem;
+    line-height: 1;
     transition: color 0.3s ease;
     display: block;
 
@@ -35,8 +57,14 @@ const StyledNavItem = styled.li<{ active: boolean; mobile: boolean }>`
     css`
       a {
         padding: 0.5rem 0;
-        font-size: 1rem;
+        font-size: 0.95rem;
       }
+    `};
+  ${({ mobile, hideSeparator }) =>
+    !mobile &&
+    !hideSeparator &&
+    css`
+      ${separatorStyles};
     `};
 `;
 
@@ -45,13 +73,19 @@ const StyledExternalIcon = styled(FaExternalLinkAlt)`
   margin-left: 0.5rem;
 `;
 
-const DevNavItem = styled.li<{ mobile: boolean }>`
+const DevNavItem = styled.li<{ mobile: boolean; hideSeparator?: boolean }>`
   ${({ mobile }) =>
     mobile &&
     css`
       margin-top: 1rem;
       padding-top: 1rem;
       border-top: 1px solid #555;
+    `};
+  ${({ mobile, hideSeparator }) =>
+    !mobile &&
+    !hideSeparator &&
+    css`
+      ${separatorStyles};
     `};
 `;
 
@@ -62,6 +96,7 @@ interface NavItemProps {
   children: React.ReactNode;
   className?: string;
   mobile: boolean;
+  hideSeparator?: boolean;
 }
 
 function NavItem({
@@ -71,12 +106,18 @@ function NavItem({
   children,
   className,
   mobile,
+  hideSeparator = false,
 }: NavItemProps) {
   const location = useLocation();
 
   if (external) {
     return (
-      <StyledNavItem active={active} className={className} mobile={mobile}>
+      <StyledNavItem
+        active={active}
+        className={className}
+        mobile={mobile}
+        hideSeparator={hideSeparator}
+      >
         <Link to={to} target="_blank" rel="noreferrer noopener">
           {children} <StyledExternalIcon />
         </Link>
@@ -87,7 +128,12 @@ function NavItem({
   const pathWithQuery = preserveQueryParams(to, location.search);
 
   return (
-    <StyledNavItem active={active} className={className} mobile={mobile}>
+    <StyledNavItem
+      active={active}
+      className={className}
+      mobile={mobile}
+      hideSeparator={hideSeparator}
+    >
       <Link to={pathWithQuery}>{children}</Link>
     </StyledNavItem>
   );
@@ -101,12 +147,14 @@ const NavList = styled.ul<{ mobile: boolean }>`
     !mobile &&
     css`
       display: flex;
-      gap: 2rem;
+      align-items: center;
+      gap: 0.6rem;
     `};
 `;
 
 export const NavItems = ({ mobile }: { mobile: boolean }) => {
   const location = useLocation();
+  const { token } = useContext(AuthContext);
 
   return (
     <>
@@ -146,13 +194,28 @@ export const NavItems = ({ mobile }: { mobile: boolean }) => {
         >
           Map
         </NavItem>
+        {inEditMode() && token && (
+          <NavItem
+            to={FEATURES_ROUTE}
+            active={location.pathname === FEATURES_ROUTE}
+            mobile={mobile}
+          >
+            Features
+          </NavItem>
+        )}
         {!inEuclidesMode() && (
-          <NavItem to={MACTUTOR_URL} active={false} external mobile={mobile}>
+          <NavItem
+            to={MACTUTOR_URL}
+            active={false}
+            external
+            mobile={mobile}
+            hideSeparator
+          >
             MacTutor Index Graph
           </NavItem>
         )}
         {inEditMode() && (
-          <DevNavItem mobile={mobile}>
+          <DevNavItem mobile={mobile} hideSeparator>
             <ActionsMenu
               mobile={mobile}
               onShowCreateModal={() => {
