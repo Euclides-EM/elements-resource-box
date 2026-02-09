@@ -1,5 +1,6 @@
 import Papa from "papaparse";
 import { QueryClient } from "@tanstack/react-query";
+import { withBasePath } from "./basePath";
 
 const queryClient = new QueryClient();
 
@@ -13,7 +14,9 @@ export const loadAndParseCsv = async <
   return queryClient.fetchQuery<T[]>({
     queryKey: ["csv", csvUrl],
     queryFn: async () => {
-      const response = await fetch(csvUrl);
+      const response = await fetch(
+        csvUrl.startsWith("/") ? withBasePath(csvUrl) : csvUrl,
+      );
       const data = await response.text();
       return parseCsv<T>(data);
     },

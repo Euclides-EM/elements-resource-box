@@ -44,6 +44,7 @@ import {
 } from "../../common/csv";
 import { loadAndParseCsv } from "../utils/csv";
 import { useLocalStorage } from "usehooks-ts";
+import { withBasePath } from "../utils/basePath";
 import { PiArrowBendDownRightBold } from "react-icons/pi";
 import { inEuclidesMode } from "../utils/mode.ts";
 
@@ -412,7 +413,7 @@ function Catalogue() {
               </ViewButton>
               {token && (
                 <a
-                  href={`/item/edit?key=${info.row.original.key}`}
+                  href={withBasePath(`/item/edit?key=${info.row.original.key}`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Edit Item"
@@ -435,7 +436,7 @@ function Catalogue() {
                 ))}
               {info.row.original.diagramsExtracted === "True" && (
                 <a
-                  href={`/diagrams?key=${info.row.original.key}`}
+                  href={withBasePath(`/diagrams?key=${info.row.original.key}`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="View Diagrams"

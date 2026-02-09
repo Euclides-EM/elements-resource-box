@@ -5,6 +5,7 @@ import {
   UstcResult,
 } from "../../common/api.ts";
 import { uploadImage } from "./imageApi.ts";
+import { withBasePath } from "../utils/basePath.ts";
 
 export const upsertEdition = async (
   data: EditionRequestBody,
@@ -78,7 +79,7 @@ export const upsertEdition = async (
 
   await Promise.all(uploads);
 
-  const response = await fetch(EDITION_API_PATH, {
+  const response = await fetch(withBasePath(EDITION_API_PATH), {
     method: "POST",
     headers: {
       Authorization: authToken,
@@ -98,7 +99,7 @@ export const deleteEdition = async (
   key: string,
   authToken: string,
 ): Promise<void> => {
-  const response = await fetch(EDITION_API_PATH, {
+  const response = await fetch(withBasePath(EDITION_API_PATH), {
     method: "DELETE",
     headers: {
       Authorization: authToken,
@@ -118,12 +119,15 @@ export const ustcLookup = async (
   ustcId: string,
   authToken: string,
 ): Promise<Partial<UstcResult>> => {
-  const response = await fetch(`${USTC_LOOKUP_API_PATH}/${ustcId}`, {
-    headers: {
-      Authorization: authToken,
-      "Content-Type": "application/json",
+  const response = await fetch(
+    withBasePath(`${USTC_LOOKUP_API_PATH}/${ustcId}`),
+    {
+      headers: {
+        Authorization: authToken,
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
 
   if (!response.ok) {
     throw new Error(

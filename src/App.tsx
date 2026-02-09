@@ -33,6 +33,7 @@ import { AuthContext } from "./contexts/Auth.ts";
 import { inEuclidesMode } from "./utils/mode.ts";
 import { HomeCommentaria } from "./pages/HomeCommentaria.tsx";
 import Features from "./pages/Features.tsx";
+import { getRouterBasename } from "./utils/basePath.ts";
 
 function App() {
   const [authToken, setAuthToken] = useLocalStorage<string | null>(
@@ -75,6 +76,7 @@ function App() {
         <Route path="*" element={<Navigate replace to={HOME_ROUTE} />} />
       </Route>,
     ),
+    { basename: getRouterBasename() },
   );
 
   return (

@@ -3,6 +3,7 @@ import {
   DIAGRAMS_PATH_BASE,
   GITHUB_CONTENT_URL,
 } from "../constants";
+import { withBasePath } from "./basePath";
 
 export interface VolumeData {
   volume?: number;
@@ -35,7 +36,7 @@ export const fetchDiagrams = async (key: string): Promise<DiagramsResult> => {
   }
 
   try {
-    const response = await fetch(`/docs/diagrams/${key}.json`);
+    const response = await fetch(withBasePath(`/docs/diagrams/${key}.json`));
 
     if (!response.ok) {
       return {
@@ -66,7 +67,9 @@ export const fetchDiagrams = async (key: string): Promise<DiagramsResult> => {
 
 export const fetchDiagramDirectories = async (): Promise<Set<string>> => {
   try {
-    const response = await fetch("/docs/diagram-directories.json");
+    const response = await fetch(
+      withBasePath("/docs/diagram-directories.json"),
+    );
 
     if (!response.ok) {
       console.error("Failed to fetch diagram directories");

@@ -1,4 +1,5 @@
 import { IMAGE_UPLOAD_API_PATH } from "../../common/api.ts";
+import { withBasePath } from "../utils/basePath.ts";
 
 export const uploadImage = async (
   key: string,
@@ -13,7 +14,7 @@ export const uploadImage = async (
   uploadFormData.append("key", key);
   uploadFormData.append("type", type);
 
-  const uploadResponse = await fetch(IMAGE_UPLOAD_API_PATH, {
+  const uploadResponse = await fetch(withBasePath(IMAGE_UPLOAD_API_PATH), {
     method: "POST",
     headers: {
       Authorization: authToken,

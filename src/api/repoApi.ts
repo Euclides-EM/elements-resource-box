@@ -1,4 +1,5 @@
 import { REPO_PULL_API_PATH, REPO_PR_API_PATH } from "../../common/api.ts";
+import { withBasePath } from "../utils/basePath.ts";
 
 export interface RepoPullResponse {
   success: boolean;
@@ -17,7 +18,7 @@ export const pullRepo = async (
 ): Promise<RepoPullResponse> => {
   console.log("Pulling repository");
 
-  const response = await fetch(REPO_PULL_API_PATH, {
+  const response = await fetch(withBasePath(REPO_PULL_API_PATH), {
     method: "POST",
     headers: {
       Authorization: authToken,
@@ -40,7 +41,7 @@ export const createPullRequest = async (
 ): Promise<RepoPrResponse> => {
   console.log("Creating pull request");
 
-  const response = await fetch(REPO_PR_API_PATH, {
+  const response = await fetch(withBasePath(REPO_PR_API_PATH), {
     method: "POST",
     headers: {
       Authorization: authToken,

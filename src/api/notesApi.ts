@@ -1,4 +1,5 @@
 import { NOTES_API_PATH, NotesRequestBody } from "../../common/api.ts";
+import { withBasePath } from "../utils/basePath.ts";
 
 export const saveNote = async (
   key: string,
@@ -7,7 +8,7 @@ export const saveNote = async (
 ): Promise<void> => {
   console.log("Saving note", { key, ...data });
 
-  const response = await fetch(`${NOTES_API_PATH}/${key}`, {
+  const response = await fetch(withBasePath(`${NOTES_API_PATH}/${key}`), {
     method: "POST",
     headers: {
       Authorization: authToken,

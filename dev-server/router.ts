@@ -10,12 +10,26 @@ import { handleEditionRequest, isEditionRequest } from "./handlers/editions";
 import { handleRepoRequest, isRepoRequest } from "./handlers/repo";
 import { handleUstcRequest, isUstcRequest } from "./handlers/ustc";
 import { logInfo, logWarn } from "./logger";
+import { getBasePath, isUnderBasePath, stripBasePath } from "./basePath";
 
 export const router = async (
   req: IncomingMessage,
   res: ServerResponse,
   next: Connect.NextFunction,
 ) => {
+  const basePath = getBasePath();
+  const originalUrl = req.url;
+  if (originalUrl && basePath !== "/") {
+    if (!isUnderBasePath(originalUrl)) {
+      next();
+      return;
+    }
+    const strippedUrl = stripBasePath(originalUrl);
+    if (strippedUrl.startsWith("/api/")) {
+      req.url = strippedUrl;
+    }
+  }
+
   const authorize = async () => {
     logInfo("Incoming request", {
       method: req.method,
