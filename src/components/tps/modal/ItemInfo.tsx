@@ -10,7 +10,6 @@ import { NO_AUTHOR } from "../../../constants";
 import { LAND_COLOR } from "../../../utils/colors";
 import { TOOLTIP_SCAN } from "../../map/MapTooltips";
 import { SiMaterialdesign } from "react-icons/si";
-import pluralize from "pluralize";
 
 const InfoTitle = styled.div`
   font-size: 0.8rem;
@@ -112,7 +111,9 @@ export const ItemInfo = ({
         {item.year || "s.d."}
       </Row>
       <Row justifyStart>
-        <InfoTitle>{pluralize("Author", item.authors.length)}:</InfoTitle>{" "}
+        <InfoTitle>
+          {item.authors.length > 1 ? "Authors:" : "Author:"}
+        </InfoTitle>{" "}
         {joinArr(item.authors) || NO_AUTHOR}
         <CitationButton
           copied={copied}
@@ -127,11 +128,13 @@ export const ItemInfo = ({
         </CitationButton>
       </Row>
       <Row justifyStart>
-        <InfoTitle>{pluralize("City", item.cities.length)}:</InfoTitle>{" "}
+        <InfoTitle>{item.cities.length > 1 ? "Cities:" : "City:"}</InfoTitle>{" "}
         {joinArr(item.cities)}
       </Row>
       <Row justifyStart>
-        <InfoTitle>{pluralize("Language", item.languages.length)}:</InfoTitle>{" "}
+        <InfoTitle>
+          {item.languages.length > 1 ? "Languages:" : "Language:"}
+        </InfoTitle>{" "}
         {joinArr(item.languages)}
       </Row>
       {item.scanUrl && item.scanUrl.length > 0 && (
@@ -173,8 +176,7 @@ export const ItemInfo = ({
       )}
       {item.volumesCount && (
         <Row justifyStart>
-          <InfoTitle>{pluralize("Volume", item.volumesCount)}:</InfoTitle>{" "}
-          {item.volumesCount}
+          <InfoTitle>Volumes:</InfoTitle> {item.volumesCount}
         </Row>
       )}
       {item.elementsBooks && (
