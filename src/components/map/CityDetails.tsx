@@ -6,7 +6,6 @@ import TopDeco from "./svg/deco3.svg?react";
 import BottomDeco from "./svg/deco2.svg?react";
 import { Item } from "../../types";
 import { NO_CITY } from "../../constants";
-import pluralize from "pluralize";
 
 type CityDetailsProps = {
   city: string;
@@ -76,9 +75,7 @@ export const CityDetails = ({
     <>
       <Title className="gothic">{CityName(city)}</Title>
       <StyledTopDeco height={64} />
-      <Subtitle>
-        {data?.length || 0} {pluralize("record", data?.length || 0)}
-      </Subtitle>
+      <Subtitle>{data?.length || 0} records</Subtitle>
       {sortedData.map((item) => (
         <div key={item.key}>
           <Separator />
