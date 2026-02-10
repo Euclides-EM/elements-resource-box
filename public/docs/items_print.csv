@@ -65,7 +65,7 @@ Bologna_1651a,De gli Elementi di Euclide li primi sei Libri,Specified in source,
 Amsterdam_1683,,,1683,Amsterdam,LATIN,André Tacquet,Henricum Wetstenium,8,1,,,
 Amsterdam_1701b,,,1701,Amsterdam,LATIN,André Tacquet,Franciscus van der Plaats,8,1,-,,
 Cambridge_1703,,,1703,Cambridge,LATIN,"André Tacquet, William Whiston",Cornelius Crownfield,8,1,,,
-Rome_1574,Euclidis elementorum libri XV. Accessit XVI.,Specified in source,1574,Rome,LATIN,Christopher Clavius,Vincentium Accoltum,8,1,828480,,True
+Rome_1574,Euclidis elementorum libri XV,Specified in source,1574,Rome,LATIN,Christopher Clavius,Vincentium Accoltum,8,1,828480,,True
 Cologne_1607,,,1607,Cologne,LATIN,"Jean Magnien, Étienne Gracile",Goswinus Cholinus,8,1,,,
 Cologne_1627,,,1627,Cologne,LATIN,"Jean Magnien, Étienne Gracile",Petrus Cholinus,8,1,-,,
 Lyon_1660,,,1660,Lyon,LATIN,Claude-François Milliet Dechales,Benedictum Coral,18,1,-,,
@@ -134,7 +134,7 @@ Basel_1562,"Die sechs ersten Bücher Euclidis, vom Anfang oder Grund der Geometr
 Cologne_1564,"Euclidis elementorum libri XV, Graece et Latine",Specified in source,1564,Cologne,LATIN,"Jean Magnien, Étienne Gracile",Maternus Cholinus,8,1,,,True
 Wittenberg_1564,,,1564,Wittenberg,"GREEK, LATIN",Joannes Sthen,,8,1,,,False
 Venice_1565,"Euclide Megarense philosopho, solo introduttore delle scientie mathematice",Specified in source,1565,Venice,LATIN,Niccolò Tartaglia,Curtio Troiano,8,1,,,True
-Paris_1566,Euclidis Megarensis mathematici clarissimi elementa geometrica libri XV ad germanam geometriae intelligentiam,Specified in source,1566,Paris,LATIN,François de Foix-Candale,Johann Royer,2,1,,"scans show two different editions, although seems like same text",True
+Paris_1566,Euclidis Megarensis mathematici clarissimi elementa geometrica libri XV,Specified in source,1566,Paris,LATIN,François de Foix-Candale,Johann Royer,2,1,,"scans show two different editions, although seems like same text",True
 Venice_1569,,,1569,Venice,LATIN,Niccolò Tartaglia,Giovanni Bariletto,8,1,,,True
 London_1570,The elements of geometrie of the most ancient philosopher Euclide of Megara,Specified in source,1570,London,ENGLISH,"Henry Billingsley, John Dee",John Daye,2,1,,,True
 Strasbourg_1570a,,,1570,Strasbourg,"GREEK, LATIN",Conrad Dasypodius,Christian Mehl,8,1,,,
@@ -156,7 +156,7 @@ Cologne_1602,,,1602,Cologne,LATIN,François de Foix-Candale,Jean di Tournes,2,1,
 Paris_1602,,,1602,Paris,LATIN,François de Foix-Candale,Jean di Tournes,2,1,-,,
 Arnhem_1603,In geometriam Euclidis prioribus sex elementorum libris comprehensam demonstratio linealis,Specified in source,1603,Arnhem,LATIN,Christoffer Dybvad,Johannes Jansz,4,1,,,True
 Arnhem_1605a,,,1605,Arnhem,LATIN,Christoffer Dybvad,Johannes Jansz,4,1,-,,
-Leiden_1606,De ses eerste boucken Euclidis beginselen ende fondamenten der Geometri,Specified in source,1606,Leiden,DUTCH,Jan Pietersz Dou,Jan Bouwensz,4,1,,,True
+Leiden_1606,De ses eerste boucken Euclidis,Specified in source,1606,Leiden,DUTCH,Jan Pietersz Dou,Jan Bouwensz,4,1,,,True
 Beijing_1607,,,1607,Beijing,CHINESE,"Xu Guangqi, Matteo Ricci",,,1,,https://www.google.com/books/edition/%E5%B9%BE%E4%BD%95%E5%8E%9F%E6%9C%AC/EtcM0QEACAAJ,
 Leiden_1607,,,1607,Leiden,DUTCH,Jan Pietersz Dou,Ian Iansz. Orlers,4,1,-,,
 Geneva_1610,In Euclidis Elementa geometrica demonstrationum libri sex,Specified in source,1610,Geneva,LATIN,Jacques Peletier,Jean di Tournes,4,1,,,True
