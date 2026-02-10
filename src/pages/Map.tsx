@@ -25,7 +25,6 @@ import { useTour } from "@reactour/tour";
 import { useAppliedFilter } from "../contexts/FilterAppliedContext";
 import ItemModal from "../components/tps/modal/ItemModal.tsx";
 import { CityDetails } from "../components/map/CityDetails.tsx";
-import { NAVBAR_HEIGHT } from "../components/layout/routes.ts";
 import { useIsMobile } from "../components/layout/isMobile.ts";
 import { useEditFilter } from "../contexts/FilterEditContext.tsx";
 import { Item } from "../types";
