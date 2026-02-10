@@ -88,7 +88,7 @@ Lyon_1674,origin_eip_csv
 Frankfurt_1607,origin_eip_csv
 London_1654,origin_eip_csv
 Cambridge_1665,origin_eip_csv
-Würzburg_1661,"origin_eip_csv, dh, axiomatics_16"
+Würzburg_1661,"origin_eip_csv, dh, axiomatics_16, Angela_metadata"
 Graz_1636,"origin_eip_csv, axiomatics_16"
 Bamberg_1677,origin_eip_csv
 Ingolstadt_1617,origin_eip_csv
@@ -238,7 +238,7 @@ Lisbon_1735,"origin_eip_csv, dh, axiomatics_16"
 Paris_1739,"origin_eip_csv, dh, axiomatics_16"
 Uppsala_1741,"origin_eip_csv, dh, axiomatics_16"
 Uppsala_1744,"origin_eip_csv, dh, axiomatics_16"
-Pisa_1658,"origin_eip_csv, dh, axiomatics_16"
+Pisa_1658,"origin_eip_csv, dh, axiomatics_16, Angela_metadata"
 Paris_1675,"origin_eip_csv, dh, axiomatics_16"
 Rome_1680,"origin_eip_csv, dh, axiomatics_16"
 Paris_1685,"origin_eip_csv, dh"
