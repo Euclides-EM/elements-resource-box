@@ -31,17 +31,17 @@ import { useEditFilter } from "../contexts/FilterEditContext.tsx";
 import { Item } from "../types";
 
 const Wrapper = styled.div`
-  position: fixed;
+  position: relative;
   display: flex;
   flex-direction: row;
-  height: calc(100vh - ${NAVBAR_HEIGHT}px);
+  height: 100%;
   width: 100%;
   color: black;
   overflow: hidden;
 `;
 
 const MapWrapper = styled.div`
-  height: calc(100vh - ${NAVBAR_HEIGHT}px);
+  height: 100%;
   width: 100%;
 
   svg {
@@ -56,9 +56,9 @@ const MapWrapper = styled.div`
 `;
 
 const ControlsRow = styled.div`
-  position: relative;
+  position: absolute;
   right: 1rem;
-  bottom: 4rem;
+  bottom: 1rem;
   display: flex;
   flex-direction: row;
   gap: 1rem;
@@ -71,8 +71,9 @@ const ControlsRow = styled.div`
 `;
 
 const MapSection = styled.div`
+  position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100%;
 `;
 
 const CollapseFiltersButton = styled.div`
