@@ -1,5 +1,6 @@
 import { memo } from "react";
 import styled from "@emotion/styled";
+import { createPortal } from "react-dom";
 import { HighlightTooltipState } from "./highlightTooltipUtils";
 
 type FeatureHighlightTooltipProps = {
@@ -46,7 +47,7 @@ const FeatureHighlightTooltip = memo(
       return null;
     }
 
-    return (
+    const tooltip = (
       <TooltipContainer x={tooltipState.x} y={tooltipState.y}>
         <FeatureLabel featureColor={tooltipState.color}>
           {tooltipState.label}
@@ -58,6 +59,12 @@ const FeatureHighlightTooltip = memo(
         ) : null}
       </TooltipContainer>
     );
+
+    if (typeof document === "undefined") {
+      return tooltip;
+    }
+
+    return createPortal(tooltip, document.body);
   },
 );
 
