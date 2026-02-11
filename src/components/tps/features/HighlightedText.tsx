@@ -1,6 +1,5 @@
-import { Feature } from "../../../types";
-import { useCallback, useEffect, useMemo, useRef, useState, memo } from "react";
-import { TeiService } from "../../../../common/hub-api";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { featureplat_Feature, TeiService } from "../../../../common/hub-api";
 import { COLLECTION_ID } from "../../../utils/hubApi";
 import FeatureHighlightTooltip from "./FeatureHighlightTooltip";
 import {
@@ -39,9 +38,7 @@ export type HighlightAction = {
 
 type HighlightedTextProps = {
   text: string;
-  features: Feature[];
-  featureColors: Record<string, string>;
-  featureNamesById: Record<string, string>;
+  featuresById: Record<string, featureplat_Feature>;
   itemKey: string;
   apiReady: boolean;
   hideFeatureHighlights?: boolean;
@@ -81,8 +78,7 @@ const normalizeDisplayText = (value: string) => value.trim();
 const buildHighlightLayers = (
   trimmedText: string,
   spans: HighlightSpan[],
-  featureColors: Record<string, string> | undefined,
-  featureNamesById: Record<string, string> | undefined,
+  featuresById: Record<string, featureplat_Feature>,
 ) => {
   if (!trimmedText || spans.length === 0) {
     return [];
@@ -96,9 +92,9 @@ const buildHighlightLayers = (
     }))
     .sort((a, b) => b.length - a.length)
     .map((span, layerIndex, sorted) => {
-      const color = featureColors?.[span.featureKey];
+      const color = featuresById[span.featureKey].color;
       if (!color) {
-        return "";
+        return "white";
       }
       const useOutline = OUTLINE_FEATURES.includes(span.featureKey);
       const depth = sorted.reduce((count, other, idx) => {
@@ -113,7 +109,7 @@ const buildHighlightLayers = (
         ? `outline: 2px solid ${color}; outline-offset: 2px; border-radius: 8px; pointer-events: auto;`
         : `background-color: ${color}; box-shadow: 0 0 0 ${shadowSize}px ${color}; border-radius: 8px; pointer-events: auto;`;
       const featureLabel =
-        featureNamesById?.[span.featureKey] || span.featureKey;
+        featuresById[span.featureKey].name || span.featureKey;
       const tooltip = escapeHtmlAttr(featureLabel);
       const tooltipColor = escapeHtmlAttr(color);
       const tooltipNormalized = escapeHtmlAttr(span.normalized);
@@ -141,8 +137,7 @@ const buildHighlightLayers = (
 const buildHighlightHitLayers = (
   trimmedText: string,
   spans: HighlightSpan[],
-  featureColors: Record<string, string> | undefined,
-  featureNamesById: Record<string, string> | undefined,
+  featuresById: Record<string, featureplat_Feature>,
 ) => {
   if (!trimmedText || spans.length === 0) {
     return [];
@@ -159,10 +154,10 @@ const buildHighlightHitLayers = (
       const style =
         "pointer-events: auto; background-color: transparent; box-shadow: none; border-radius: 8px; outline: none;";
       const featureLabel =
-        featureNamesById?.[span.featureKey] || span.featureKey;
+        featuresById[span.featureKey].name || span.featureKey;
       const tooltip = escapeHtmlAttr(featureLabel);
       const tooltipColor = escapeHtmlAttr(
-        featureColors?.[span.featureKey] || "#f2f2f2",
+        featuresById[span.featureKey].color || "#f2f2f2",
       );
       const tooltipNormalized = escapeHtmlAttr(span.normalized);
       const tooltipNormalizedAttr = tooltipNormalized
@@ -188,7 +183,7 @@ const buildHighlightHitLayers = (
 
 const parseTeiToSpans = (
   tei: string,
-  selectedFeatures: Feature[],
+  selectedFeatures: string[],
 ): { baseHtml: string; spans: HighlightSpan[]; text: string } | null => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(tei, "text/xml");
@@ -335,9 +330,7 @@ const parseTeiToSpans = (
 const HighlightedText = memo(
   ({
     text,
-    features,
-    featureColors,
-    featureNamesById,
+    featuresById,
     itemKey,
     apiReady,
     hideFeatureHighlights = false,
@@ -365,7 +358,7 @@ const HighlightedText = memo(
     );
 
     const combinedSpans = useMemo(() => {
-      const selectedSet = new Set(features);
+      const selectedSet = new Set(Object.keys(featuresById));
       const includeSpan = (span: HighlightSpan) =>
         selectedSet.size === 0 || selectedSet.has(span.featureKey);
       const removedIds = removedHighlightIds ?? new Set<string>();
@@ -385,7 +378,7 @@ const HighlightedText = memo(
     }, [
       addedHighlights,
       displayText,
-      features,
+      featuresById,
       normalizedPlainText,
       removedHighlightIds,
       teiSpans,
@@ -396,16 +389,9 @@ const HighlightedText = memo(
         buildHighlightLayers(
           displayText || normalizedPlainText,
           combinedSpans,
-          featureColors,
-          featureNamesById,
+          featuresById,
         ),
-      [
-        combinedSpans,
-        displayText,
-        featureColors,
-        featureNamesById,
-        normalizedPlainText,
-      ],
+      [combinedSpans, displayText, featuresById, normalizedPlainText],
     );
 
     const renderedHitLayers = useMemo(
@@ -413,16 +399,9 @@ const HighlightedText = memo(
         buildHighlightHitLayers(
           displayText || normalizedPlainText,
           combinedSpans,
-          featureColors,
-          featureNamesById,
+          featuresById,
         ),
-      [
-        combinedSpans,
-        displayText,
-        featureColors,
-        featureNamesById,
-        normalizedPlainText,
-      ],
+      [combinedSpans, displayText, featuresById, normalizedPlainText],
     );
 
     useEffect(() => {
@@ -451,7 +430,7 @@ const HighlightedText = memo(
       const cacheKey = itemKey;
       const cachedTei = teiCache.get(cacheKey);
       if (cachedTei) {
-        const parsed = parseTeiToSpans(cachedTei, features);
+        const parsed = parseTeiToSpans(cachedTei, Object.keys(featuresById));
         finalize(
           parsed?.baseHtml || plainHtml,
           parsed?.spans || [],
@@ -477,7 +456,7 @@ const HighlightedText = memo(
             return;
           }
           teiCache.set(cacheKey, tei);
-          const parsed = parseTeiToSpans(tei, features);
+          const parsed = parseTeiToSpans(tei, Object.keys(featuresById));
           finalize(
             parsed?.baseHtml || plainHtml,
             parsed?.spans || [],
@@ -494,12 +473,10 @@ const HighlightedText = memo(
     }, [
       itemKey,
       apiReady,
-      features,
-      featureColors,
-      featureNamesById,
       plainHtml,
       normalizedPlainText,
       hideFeatureHighlights,
+      featuresById,
     ]);
 
     const handleSelectionUpdate = useCallback(() => {

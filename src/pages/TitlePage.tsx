@@ -31,6 +31,7 @@ import { AuthContext } from "../contexts/Auth";
 import { COLLECTION_ID, configureHubApi } from "../utils/hubApi";
 import { featureplat_Feature, FeaturesService } from "../../common/hub-api";
 import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
+import { groupByMap } from "../utils/util.ts";
 
 const NoteLine = styled(Row)`
   opacity: 0.8;
@@ -67,19 +68,18 @@ function TitlePage() {
     Record<string, string>
   >({});
   const [defaultFeatureIds, setDefaultFeatureIds] = useState<string[]>([]);
-  const [features, setFeatures] = useLocalStorageState<string[]>(
-    "tp-features",
-    {
-      defaultValue: [],
-    },
-  );
+  const [selectedFeatureIds, setSelectedFeatureIds] = useLocalStorageState<
+    string[]
+  >("tp-features", {
+    defaultValue: [],
+  });
   const [searchText, setSearchText] = useLocalStorageState<string>(
     "tps-search",
     { defaultValue: "" },
   );
   const [showScrollTop, setShowScrollTop] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const [apiReady, setApiReady] = useState(false);
+  const [hubApiReady, setHubApiReady] = useState(false);
   const [featuresLoaded, setFeaturesLoaded] = useState(false);
 
   const featureNameById = useMemo(() => {
@@ -116,20 +116,6 @@ function TitlePage() {
     [featureNameById],
   );
 
-  const selectedFeatureIds = useMemo(() => {
-    return Array.from(new Set(features));
-  }, [features]);
-
-  const featureColorsById = useMemo(() => {
-    const map: Record<string, string> = {};
-    availableFeatures.forEach((feature) => {
-      if (feature.id && feature.color && !map[feature.id]) {
-        map[feature.id] = feature.color;
-      }
-    });
-    return map;
-  }, [availableFeatures]);
-
   useEffect(() => {
     if (!titlePagesModeOn && mode === "texts") {
       setMode("images");
@@ -138,12 +124,12 @@ function TitlePage() {
 
   useEffect(() => {
     configureHubApi(token);
-    setApiReady(true);
+    setHubApiReady(true);
   }, [token]);
 
   useEffect(() => {
     const loadFeatures = async () => {
-      if (!apiReady || featuresLoaded) {
+      if (!hubApiReady || featuresLoaded) {
         return;
       }
       try {
@@ -191,7 +177,7 @@ function TitlePage() {
         setDefaultFeatureIds(sortIdsByName(defaultIds));
         setAvailableFeatures(sortedFeatures);
         if (sortedFeatures.length > 0) {
-          setFeatures((prev) => {
+          setSelectedFeatureIds((prev) => {
             const normalized = prev
               .map((value) => {
                 if (sortedFeatures.some((f) => f.id === value)) {
@@ -222,7 +208,7 @@ function TitlePage() {
       }
     };
     void loadFeatures();
-  }, [apiReady, featuresLoaded, setFeatures]);
+  }, [hubApiReady, featuresLoaded, setSelectedFeatureIds]);
 
   const handleScroll = useCallback(() => {
     const el = document.getElementById(MAIN_CONTENT_ID);
@@ -344,19 +330,21 @@ function TitlePage() {
                   </Column>
                   <MultiSelect
                     name="Features"
-                    value={features}
+                    value={selectedFeatureIds}
                     options={sortedFeatureIds}
                     labelFn={(featureId) =>
                       featureNameById[featureId] || featureId
                     }
-                    onChange={(f) => setFeatures(sortFeatures(f as string[]))}
+                    onChange={(f) =>
+                      setSelectedFeatureIds(sortFeatures(f as string[]))
+                    }
                     colors={featureColors}
                     tooltips={featureTooltips}
                     className="features-multi-select"
                   />
                   <ResetButton
                     onClick={() =>
-                      setFeatures(
+                      setSelectedFeatureIds(
                         sortFeatures(
                           defaultFeatureIds.length > 0
                             ? defaultFeatureIds
@@ -403,10 +391,17 @@ function TitlePage() {
                 width={TILE_WIDTH}
                 item={item}
                 mode={mode}
-                features={titlePagesModeOn ? selectedFeatureIds : null}
-                featureColors={featureColorsById}
-                featureNamesById={featureNameById}
-                apiReady={apiReady}
+                featuresById={
+                  titlePagesModeOn
+                    ? groupByMap(
+                        availableFeatures.filter((feat) =>
+                          selectedFeatureIds.includes(feat.id!),
+                        ),
+                        (feat) => feat.id!,
+                      )
+                    : null
+                }
+                hubApiReady={hubApiReady}
               />
             ))
         ) : (

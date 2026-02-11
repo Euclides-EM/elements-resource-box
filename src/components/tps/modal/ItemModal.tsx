@@ -1,4 +1,4 @@
-import { Feature, Item } from "../../../types";
+import { Item } from "../../../types";
 import { StyledImage } from "../../common.ts";
 import {
   Modal,
@@ -25,7 +25,10 @@ import type {
   HighlightSelection,
   HighlightSpan,
 } from "../features/HighlightedText";
-import { FeatureResultsService } from "../../../../common/hub-api";
+import {
+  featureplat_Feature,
+  FeatureResultsService,
+} from "../../../../common/hub-api";
 import { COLLECTION_ID } from "../../../utils/hubApi";
 import SingleSelect from "../filters/SingleSelect";
 import pluralize from "pluralize";
@@ -34,9 +37,7 @@ const HighlightedText = lazy(() => import("../features/HighlightedText.tsx"));
 
 type ItemModalProps = {
   item: Item;
-  features: Feature[] | null;
-  featureColors: Record<string, string>;
-  featureNamesById: Record<string, string>;
+  featuresById: Record<string, featureplat_Feature> | null;
   apiReady: boolean;
   onClose: () => void;
 };
@@ -169,13 +170,12 @@ type PendingHighlightEdit = {
 
 const ItemModal = ({
   item,
-  features,
-  featureColors,
-  featureNamesById,
+  featuresById,
   apiReady,
   onClose,
 }: ItemModalProps) => {
-  const canEditHighlights = inEditMode() && (features?.length ?? 0) > 0;
+  const canEditHighlights = inEditMode() && !!featuresById;
+  featuresById = featuresById || {};
   const [pendingEdits, setPendingEdits] = useState<PendingHighlightEdit[]>([]);
   const [addedHighlights, setAddedHighlights] = useState<HighlightSpan[]>([]);
   const [removedHighlightIds, setRemovedHighlightIds] = useState<Set<string>>(
@@ -189,26 +189,26 @@ const ItemModal = ({
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const sortedFeatureIds = useMemo(() => {
-    const ids = features ?? [];
+    const ids = Object.keys(featuresById || {});
     return ids
       .slice()
       .sort((a, b) =>
-        (featureNamesById[a] || a).localeCompare(
-          featureNamesById[b] || b,
+        (featuresById[a].name || a).localeCompare(
+          featuresById[b].name || b,
           undefined,
           { sensitivity: "base" },
         ),
       );
-  }, [featureNamesById, features]);
+  }, [featuresById]);
 
   const featureOptions = useMemo(
     () =>
       sortedFeatureIds.map((featureId) => ({
         value: featureId,
-        label: featureNamesById[featureId] || featureId,
-        color: featureColors[featureId],
+        label: featuresById[featureId].name || featureId,
+        color: featuresById[featureId].color,
       })),
-    [featureColors, featureNamesById, sortedFeatureIds],
+    [featuresById, sortedFeatureIds],
   );
 
   const openAnnotationModal = (selection: HighlightSelection) => {
@@ -348,7 +348,7 @@ const ItemModal = ({
         <ModalClose title="Close" onClick={onClose}>
           ✕
         </ModalClose>
-        {features && (
+        {featuresById && (
           <ItemInfo
             isRow={Boolean(item.imageUrl || (item.title && item.title !== "?"))}
             item={item}
@@ -365,7 +365,7 @@ const ItemModal = ({
               />
             </ModalTextColumn>
           )}
-          {features &&
+          {featuresById &&
             (item.title && item.title !== "?" ? (
               <TextColumnsContainer>
                 <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
@@ -387,11 +387,9 @@ const ItemModal = ({
                   <Suspense fallback={<div>{item.title}</div>}>
                     <HighlightedText
                       text={item.title}
-                      features={features}
+                      featuresById={featuresById}
                       itemKey={item.key}
                       apiReady={apiReady}
-                      featureColors={featureColors}
-                      featureNamesById={featureNamesById}
                       editable={canEditHighlights}
                       addedHighlights={addedHighlights}
                       removedHighlightIds={removedHighlightIds}
@@ -418,11 +416,9 @@ const ItemModal = ({
                     <Suspense fallback={<div>{item.titleEn || ""}</div>}>
                       <HighlightedText
                         text={item.titleEn || ""}
-                        features={[]}
+                        featuresById={{}}
                         itemKey={item.key}
                         apiReady={apiReady}
-                        featureColors={featureColors}
-                        featureNamesById={featureNamesById}
                         hideFeatureHighlights
                       />
                     </Suspense>
@@ -432,11 +428,9 @@ const ItemModal = ({
                         <Suspense fallback={<div>{item.imprintEn}</div>}>
                           <HighlightedText
                             text={item.imprintEn}
-                            features={[]}
+                            featuresById={{}}
                             itemKey={item.key}
                             apiReady={apiReady}
-                            featureColors={featureColors}
-                            featureNamesById={featureNamesById}
                             hideFeatureHighlights
                           />
                         </Suspense>
@@ -450,7 +444,7 @@ const ItemModal = ({
                 This edition has no title page or it is not available.
               </NoTitlePage>
             ))}
-          {!features && <ItemInfo item={item} />}
+          {!featuresById && <ItemInfo item={item} />}
         </ModalTextContainer>
         {pendingEdits.length > 0 && (
           <>

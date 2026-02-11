@@ -1,9 +1,8 @@
 import { NO_CITY } from "../constants";
 import { City } from "../../common/csv.ts";
+import { featureplat_Feature } from "../../common/hub-api";
 
 export type Mode = "texts" | "images";
-
-export type Feature = string;
 
 export type FilterGroup =
   | "General"
@@ -43,7 +42,6 @@ export type Item = {
   imprint: string | null;
   imprintEn: string | null;
   scanUrl: string[];
-  features: Partial<Record<Feature, string[]>>;
   type: string;
   format: string | null;
   elementsBooks: Range[];
@@ -94,8 +92,6 @@ export type ItemProps = {
   height: number;
   width: number;
   mode: Mode;
-  features: Feature[] | null;
-  featureColors: Record<string, string>;
-  featureNamesById: Record<string, string>;
-  apiReady: boolean;
+  featuresById: Record<string, featureplat_Feature> | null;
+  hubApiReady: boolean;
 };

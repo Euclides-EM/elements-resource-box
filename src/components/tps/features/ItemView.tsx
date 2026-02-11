@@ -26,16 +26,7 @@ const NoTitlePage = styled.div`
 `;
 
 const ItemView = memo(
-  ({
-    item,
-    height,
-    width,
-    mode,
-    features,
-    featureColors,
-    featureNamesById,
-    apiReady,
-  }: ItemProps) => {
+  ({ item, height, width, mode, featuresById, hubApiReady }: ItemProps) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
@@ -108,11 +99,9 @@ const ItemView = memo(
                       {item.title && (
                         <HighlightedText
                           text={item.title}
-                          features={features || []}
+                          featuresById={featuresById || {}}
                           itemKey={item.key}
-                          apiReady={apiReady}
-                          featureColors={featureColors}
-                          featureNamesById={featureNamesById}
+                          apiReady={hubApiReady}
                         />
                       )}
                       {item.imprint && (
@@ -166,10 +155,8 @@ const ItemView = memo(
         {modalOpen && (
           <ItemModal
             item={item}
-            features={features}
-            featureColors={featureColors}
-            featureNamesById={featureNamesById}
-            apiReady={apiReady}
+            featuresById={featuresById}
+            apiReady={hubApiReady}
             onClose={() => setModalOpen(false)}
           />
         )}

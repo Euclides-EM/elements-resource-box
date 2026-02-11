@@ -1,4 +1,4 @@
-import { Feature, FLOATING_CITY_ENTRY, Item } from "../types";
+import { FLOATING_CITY_ENTRY, Item } from "../types";
 import {
   City,
   CSV_PATH_CITIES,
@@ -304,7 +304,6 @@ export const loadEditionsData = (
                     ] as string) || "",
                   )
                 : null,
-              features: {} as Partial<Record<Feature, string[]>>,
               diagramsExtracted: startCase(
                 diagramDirectories.has(key).toString(),
               ),
