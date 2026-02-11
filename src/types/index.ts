@@ -95,7 +95,7 @@ export type ItemProps = {
   width: number;
   mode: Mode;
   features: Feature[] | null;
-  featureColors?: Record<string, string>;
-  featureNamesById?: Record<string, string>;
-  apiReady?: boolean;
+  featureColors: Record<string, string>;
+  featureNamesById: Record<string, string>;
+  apiReady: boolean;
 };

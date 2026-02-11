@@ -12,11 +12,11 @@ import {
 type HighlightedTextProps = {
   text: string;
   features: Feature[];
-  featureColors?: Record<string, string>;
-  featureNamesById?: Record<string, string>;
-  itemKey?: string;
-  apiReady?: boolean;
-  showFeatureHighlights?: boolean;
+  featureColors: Record<string, string>;
+  featureNamesById: Record<string, string>;
+  itemKey: string;
+  apiReady: boolean;
+  hideFeatureHighlights?: boolean;
 };
 
 const OUTLINE_FEATURES = ["action_verbs"];
@@ -241,7 +241,7 @@ const HighlightedText = memo(
     featureNamesById,
     itemKey,
     apiReady,
-    showFeatureHighlights = true,
+    hideFeatureHighlights = false,
   }: HighlightedTextProps) => {
     const [renderedHtml, setRenderedHtml] = useState<string>("");
     const [renderedLayers, setRenderedLayers] = useState<string[]>([]);
@@ -262,7 +262,7 @@ const HighlightedText = memo(
 
       setIsReady(false);
 
-      if (!itemKey || !apiReady || !showFeatureHighlights) {
+      if (!itemKey || !apiReady || hideFeatureHighlights) {
         finalize(plainHtml);
         return () => {
           isMounted = false;
@@ -321,7 +321,7 @@ const HighlightedText = memo(
       featureColors,
       featureNamesById,
       plainHtml,
-      showFeatureHighlights,
+      hideFeatureHighlights,
     ]);
 
     if (!isReady) {

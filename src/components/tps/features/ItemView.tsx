@@ -118,14 +118,7 @@ const ItemView = memo(
                       {item.imprint && (
                         <>
                           <hr style={{ opacity: 0.3 }} />
-                          <HighlightedText
-                            text={item.imprint}
-                            features={features || []}
-                            itemKey={item.key}
-                            apiReady={apiReady}
-                            featureColors={featureColors}
-                            featureNamesById={featureNamesById}
-                          />
+                          {item.imprint}
                         </>
                       )}
                       {!item.title && (

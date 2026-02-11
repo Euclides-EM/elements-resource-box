@@ -28,9 +28,9 @@ const HighlightedText = lazy(() => import("../features/HighlightedText.tsx"));
 type ItemModalProps = {
   item: Item;
   features: Feature[] | null;
-  featureColors?: Record<string, string>;
-  featureNamesById?: Record<string, string>;
-  apiReady?: boolean;
+  featureColors: Record<string, string>;
+  featureNamesById: Record<string, string>;
+  apiReady: boolean;
   onClose: () => void;
 };
 
@@ -128,16 +128,7 @@ const ItemModal = ({
                   {item.imprint && (
                     <>
                       <hr style={{ opacity: 0.3 }} />
-                      <Suspense fallback={<div>{item.imprint}</div>}>
-                        <HighlightedText
-                          text={item.imprint}
-                          features={features}
-                          itemKey={item.key}
-                          apiReady={apiReady}
-                          featureColors={featureColors}
-                          featureNamesById={featureNamesById}
-                        />
-                      </Suspense>
+                      {item.imprint}
                     </>
                   )}
                 </ModalTextColumn>
@@ -156,7 +147,9 @@ const ItemModal = ({
                         features={[]}
                         itemKey={item.key}
                         apiReady={apiReady}
-                        showFeatureHighlights={false}
+                        featureColors={featureColors}
+                        featureNamesById={featureNamesById}
+                        hideFeatureHighlights
                       />
                     </Suspense>
                     {item.imprintEn && (
@@ -168,7 +161,9 @@ const ItemModal = ({
                             features={[]}
                             itemKey={item.key}
                             apiReady={apiReady}
-                            showFeatureHighlights={false}
+                            featureColors={featureColors}
+                            featureNamesById={featureNamesById}
+                            hideFeatureHighlights
                           />
                         </Suspense>
                       </>
