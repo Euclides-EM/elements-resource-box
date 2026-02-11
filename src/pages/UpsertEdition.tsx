@@ -1601,7 +1601,7 @@ export const UpsertEdition = () => {
                           options={Array.from({ length: 18 }, (_, i) =>
                             (i + 1).toString(),
                           )}
-                          value={field.state.value.map(String)}
+                          value={(field.state.value || []).map(String)}
                           onChange={(values) =>
                             field.handleChange(values.map(Number))
                           }
