@@ -17,6 +17,7 @@ import { inEditMode, inEuclidesMode } from "../../utils/mode.ts";
 import { preserveQueryParams } from "../../utils/navigationUtils";
 import { AuthContext } from "../../contexts/Auth.ts";
 import { useContext } from "react";
+import { withBasePath } from "../../utils/basePath";
 
 const separatorStyles = css`
   &::after {
@@ -219,7 +220,7 @@ export const NavItems = ({ mobile }: { mobile: boolean }) => {
             <ActionsMenu
               mobile={mobile}
               onShowCreateModal={() => {
-                window.location.href = ITEM_EDIT_ROUTE;
+                window.location.href = withBasePath(ITEM_EDIT_ROUTE);
               }}
             />
           </DevNavItem>

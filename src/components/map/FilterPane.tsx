@@ -13,7 +13,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FilterValue } from "./Filter";
 import { useLocalStorage } from "usehooks-ts";
 import { Item } from "../../types";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 const FILTER_PANE_WIDTH = "26rem";
@@ -174,6 +174,7 @@ export const FilterPane = () => {
     minYear,
     maxYear,
   ]);
+  const rangeRef = useRef<[number, number]>(range);
   const [filters, setFilters] = useLocalStorage<
     Record<string, FilterValue[] | undefined>
   >("filters", {
@@ -204,6 +205,18 @@ export const FilterPane = () => {
   }, [maxYear, minYear, setRange]);
 
   useEffect(() => {
+    rangeRef.current = range;
+  }, [range]);
+
+  const handleRangeChange = useCallback(
+    (nextRange: [number, number]) => {
+      rangeRef.current = nextRange;
+      setRange(nextRange);
+    },
+    [setRange],
+  );
+
+  useEffect(() => {
     const hasChanges =
       JSON.stringify(filters) !== JSON.stringify(appliedFilters) ||
       JSON.stringify(filtersInclude) !==
@@ -231,11 +244,21 @@ export const FilterPane = () => {
   ]);
 
   const handleApply = useCallback(() => {
-    if (!isFiltering && hasUnappliedChanges) {
+    const hasChanges =
+      JSON.stringify(filters) !== JSON.stringify(appliedFilters) ||
+      JSON.stringify(filtersInclude) !==
+        JSON.stringify(appliedFiltersInclude) ||
+      JSON.stringify(rangeRef.current) !== JSON.stringify(appliedRange) ||
+      includeUndated !== appliedIncludeUndated ||
+      textSearch !== appliedTextSearch ||
+      JSON.stringify(textSearchFields) !==
+        JSON.stringify(appliedTextSearchFields);
+
+    if (!isFiltering && hasChanges) {
       applyFilters({
         filters,
         filtersInclude,
-        range,
+        range: rangeRef.current,
         includeUndated,
         textSearch,
         textSearchFields,
@@ -243,14 +266,18 @@ export const FilterPane = () => {
     }
   }, [
     isFiltering,
-    hasUnappliedChanges,
     applyFilters,
     filters,
     filtersInclude,
-    range,
+    appliedFilters,
+    appliedFiltersInclude,
+    appliedRange,
     includeUndated,
+    appliedIncludeUndated,
     textSearch,
+    appliedTextSearch,
     textSearchFields,
+    appliedTextSearchFields,
   ]);
 
   useEffect(() => {
@@ -313,7 +340,7 @@ export const FilterPane = () => {
         min={minYear}
         max={maxYear}
         value={range}
-        onChange={setRange}
+        onChange={handleRangeChange}
       />
 
       <CheckboxContainer>

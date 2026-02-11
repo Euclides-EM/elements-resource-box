@@ -121,7 +121,16 @@ export const RangeSlider = ({
   const rafRef = useRef<number | null>(null);
 
   const emitChange = useCallback(
-    (nextValue: [number, number]) => {
+    (nextValue: [number, number], immediate = false) => {
+      if (immediate) {
+        if (rafRef.current !== null) {
+          cancelAnimationFrame(rafRef.current);
+          rafRef.current = null;
+        }
+        pendingChangeRef.current = null;
+        onChange(nextValue);
+        return;
+      }
       pendingChangeRef.current = nextValue;
       if (rafRef.current === null) {
         rafRef.current = requestAnimationFrame(() => {
@@ -169,6 +178,50 @@ export const RangeSlider = ({
     };
   }, []);
 
+  const commitMinInputValue = useCallback(
+    (inputValue: string) => {
+      const newMin = parseInt(inputValue);
+      if (!isNaN(newMin)) {
+        const clampedMin = Math.max(
+          resolvedMin,
+          Math.min(newMin, localValue[1]),
+        );
+        setMinInputValue(clampedMin.toString());
+        if (clampedMin !== localValue[0]) {
+          const nextValue: [number, number] = [clampedMin, localValue[1]];
+          setLocalValue(nextValue);
+          localValueRef.current = nextValue;
+          emitChange(nextValue, true);
+        }
+      } else {
+        setMinInputValue(localValue[0].toString());
+      }
+    },
+    [emitChange, localValue, resolvedMin],
+  );
+
+  const commitMaxInputValue = useCallback(
+    (inputValue: string) => {
+      const newMax = parseInt(inputValue);
+      if (!isNaN(newMax)) {
+        const clampedMax = Math.min(
+          resolvedMax,
+          Math.max(newMax, localValue[0]),
+        );
+        setMaxInputValue(clampedMax.toString());
+        if (clampedMax !== localValue[1]) {
+          const nextValue: [number, number] = [localValue[0], clampedMax];
+          setLocalValue(nextValue);
+          localValueRef.current = nextValue;
+          emitChange(nextValue, true);
+        }
+      } else {
+        setMaxInputValue(localValue[1].toString());
+      }
+    },
+    [emitChange, localValue, resolvedMax],
+  );
+
   return (
     <Row justifyStart noWrap noWrapAlsoOnMobile className={className}>
       {name && <div>{name}:</div>}
@@ -178,22 +231,10 @@ export const RangeSlider = ({
         max={localValue[1]}
         value={minInputValue}
         onChange={(e) => setMinInputValue(e.target.value)}
-        onBlur={() => {
-          const newMin = parseInt(minInputValue);
-          if (!isNaN(newMin)) {
-            const clampedMin = Math.max(
-              resolvedMin,
-              Math.min(newMin, localValue[1]),
-            );
-            setMinInputValue(clampedMin.toString());
-            if (clampedMin !== localValue[0]) {
-              const nextValue: [number, number] = [clampedMin, localValue[1]];
-              setLocalValue(nextValue);
-              localValueRef.current = nextValue;
-              emitChange(nextValue);
-            }
-          } else {
-            setMinInputValue(localValue[0].toString());
+        onBlur={() => commitMinInputValue(minInputValue)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            commitMinInputValue(minInputValue);
           }
         }}
       />
@@ -254,22 +295,10 @@ export const RangeSlider = ({
         max={resolvedMax}
         value={maxInputValue}
         onChange={(e) => setMaxInputValue(e.target.value)}
-        onBlur={() => {
-          const newMax = parseInt(maxInputValue);
-          if (!isNaN(newMax)) {
-            const clampedMax = Math.min(
-              resolvedMax,
-              Math.max(newMax, localValue[0]),
-            );
-            setMaxInputValue(clampedMax.toString());
-            if (clampedMax !== localValue[1]) {
-              const nextValue: [number, number] = [localValue[0], clampedMax];
-              setLocalValue(nextValue);
-              localValueRef.current = nextValue;
-              emitChange(nextValue);
-            }
-          } else {
-            setMaxInputValue(localValue[1].toString());
+        onBlur={() => commitMaxInputValue(maxInputValue)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            commitMaxInputValue(maxInputValue);
           }
         }}
       />
