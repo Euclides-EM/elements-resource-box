@@ -1394,7 +1394,7 @@ export const UpsertEdition = () => {
                       name="ustcId"
                       validators={{
                         onBlur: ({ value }) =>
-                          value && isNaN(Number(value))
+                          value && value.trim() !== "-" && isNaN(Number(value))
                             ? "USTC ID must be a number"
                             : undefined,
                       }}
