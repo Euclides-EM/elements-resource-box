@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import styled from "@emotion/styled";
-import { HOME_ROUTE, NAVBAR_HEIGHT } from "./routes.ts";
+import { HOME_ROUTE, MAIN_CONTENT_ID, NAVBAR_HEIGHT } from "./routes.ts";
 import { MARKER_5 } from "../../utils/colors.ts";
 import { useLayoutEffect, useState } from "react";
 import { BsBoundingBoxCircles } from "react-icons/bs";
@@ -70,7 +70,7 @@ function MobileNavigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useLayoutEffect(() => {
-    window.scrollTo(0, 0);
+    document.getElementById(MAIN_CONTENT_ID)?.scrollTo(0, 0);
     setIsMenuOpen(false);
   }, [location.pathname]);
 

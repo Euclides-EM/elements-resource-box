@@ -3,6 +3,7 @@ import { Container, Row, Text } from "../components/common";
 import { LAND_COLOR, MARKER_4, MARKER_5, PANE_COLOR } from "../utils/colors.ts";
 import {
   CATALOGUE_ROUTE,
+  MAIN_CONTENT_ID,
   NAVBAR_HEIGHT,
   TITLE_PAGES_ROUTE,
 } from "../components/layout/routes.ts";
@@ -14,6 +15,9 @@ import { EIP_URL, MACTUTOR_URL } from "../constants";
 import { TbMathMaxMin } from "react-icons/tb";
 import { useEditFilter } from "../contexts/FilterEditContext.tsx";
 import { useNavigateWithQuery } from "../utils/navigationUtils";
+import { withBasePath } from "../utils/basePath";
+
+const SCAN_BACKGROUND = withBasePath("/scan-v2.png");
 
 const ParallaxBackground = styled.div`
   position: fixed;
@@ -21,7 +25,7 @@ const ParallaxBackground = styled.div`
   left: 0;
   width: 100vw;
   height: 100%;
-  background-image: url("/scan-v2.png");
+  background-image: url("${SCAN_BACKGROUND}");
   background-size: cover;
   background-position: top center;
   background-repeat: no-repeat;
@@ -164,7 +168,7 @@ export function HomeResourceBox() {
 
   useEffect(() => {
     const img = new Image();
-    img.src = "/scan-v2.png";
+    img.src = withBasePath("/scan-v2.png");
     const bgElement = document.getElementById("parallax-bg");
     if (!bgElement) {
       return;
@@ -174,17 +178,20 @@ export function HomeResourceBox() {
       const imageAspectRatio = img.naturalHeight / img.naturalWidth;
       const topOffset = NAVBAR_HEIGHT;
 
+      const mainContent = document.getElementById(MAIN_CONTENT_ID);
+
       const handleScroll = () => {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
-        const scrollTop = window.scrollY;
+        const scrollTop = mainContent ? mainContent.scrollTop : 0;
         const imageHeight = viewportWidth * imageAspectRatio;
         setImageHeight(imageHeight);
 
         const effectiveBackgroundHeight = viewportHeight - topOffset;
         const imageScrollRange = imageHeight - effectiveBackgroundHeight;
-        const pageScrollRange =
-          document.documentElement.scrollHeight - viewportHeight;
+        const pageScrollRange = mainContent
+          ? mainContent.scrollHeight - mainContent.clientHeight
+          : 1;
 
         const scrollRatio = scrollTop / pageScrollRange;
         const translateY = scrollRatio * imageScrollRange;
@@ -194,11 +201,11 @@ export function HomeResourceBox() {
 
       handleScroll();
 
-      window.addEventListener("scroll", handleScroll, { passive: true });
+      mainContent?.addEventListener("scroll", handleScroll, { passive: true });
       window.addEventListener("resize", handleScroll);
 
       return () => {
-        window.removeEventListener("scroll", handleScroll);
+        mainContent?.removeEventListener("scroll", handleScroll);
         window.removeEventListener("resize", handleScroll);
       };
     };
@@ -223,7 +230,7 @@ export function HomeResourceBox() {
           title="The Project"
           icon={<FaDraftingCompass />}
           color={PANE_COLOR}
-          imageSrc="/frontispiece.png"
+          imageSrc={withBasePath("/frontispiece.png")}
           imageOnLeft={true}
           text={
             <div>
@@ -242,7 +249,7 @@ export function HomeResourceBox() {
           }
         />
         <Card
-          imageSrc="/map.png"
+          imageSrc={withBasePath("/map.png")}
           imageOnLeft={false}
           text={
             <div>
@@ -271,7 +278,7 @@ export function HomeResourceBox() {
           onClick={() => navigateWithQuery(CATALOGUE_ROUTE)}
           icon={<GiHolySymbol />}
           color={MARKER_5}
-          imageSrc="/tps/Paris_1622_tp.jpeg"
+          imageSrc={withBasePath("/tps/Paris_1622_tp.jpeg")}
           imageOnLeft={true}
           text={
             <div>
@@ -294,7 +301,7 @@ export function HomeResourceBox() {
         />
         <Card
           onClick={() => navigateWithQuery(TITLE_PAGES_ROUTE)}
-          imageSrc="/modal.png"
+          imageSrc={withBasePath("/modal.png")}
           imageOnLeft={false}
           text={
             <div>
@@ -313,7 +320,7 @@ export function HomeResourceBox() {
           onClick={() => window.open(MACTUTOR_URL, "_blank")}
           icon={<TbMathMaxMin />}
           color={MARKER_4}
-          imageSrc="/mactutor.png"
+          imageSrc={withBasePath("/mactutor.png")}
           imageOnLeft={true}
           text={
             <div>

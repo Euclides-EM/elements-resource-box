@@ -15,6 +15,7 @@ import { Point } from "react-simple-maps";
 import { NO_CITY } from "../constants";
 import { itemProperties } from "../constants/itemProperties";
 import { NO_FILTER_ROUTES } from "../components/layout/routes";
+import { buildAppUrl, getAppPathname, withBasePath } from "../utils/basePath";
 
 const STORAGE_KEY = "applied-filters";
 const QUERY_PARAMS = {
@@ -94,7 +95,7 @@ const parseQueryParams = (): Partial<FilterState> | null => {
 
 const updateQueryParams = (state: FilterState, defaultState: FilterState) => {
   // Don't update query params on pages without filters
-  if (NO_FILTER_ROUTES.includes(window.location.pathname)) {
+  if (NO_FILTER_ROUTES.includes(getAppPathname())) {
     return;
   }
 
@@ -192,9 +193,8 @@ const updateQueryParams = (state: FilterState, defaultState: FilterState) => {
   }
 
   const queryString = params.toString();
-  const newUrl = queryString
-    ? `${window.location.pathname}?${queryString}`
-    : window.location.pathname;
+  const appPathname = getAppPathname();
+  const newUrl = buildAppUrl(appPathname, queryString ? `?${queryString}` : "");
   window.history.replaceState({}, "", newUrl);
 };
 
@@ -306,7 +306,7 @@ export const FilterAppliedProvider = ({
 
   const [appliedFilters, setAppliedFiltersState] = useState<FilterState>(() => {
     // Don't read query params on pages without filters
-    if (!NO_FILTER_ROUTES.includes(window.location.pathname)) {
+    if (!NO_FILTER_ROUTES.includes(getAppPathname())) {
       const queryState = parseQueryParams();
       if (queryState) {
         return { ...getDefaultState(), ...queryState };
@@ -341,7 +341,7 @@ export const FilterAppliedProvider = ({
   useEffect(() => {
     const handlePopState = () => {
       // Don't process query params on pages without filters
-      if (NO_FILTER_ROUTES.includes(window.location.pathname)) {
+      if (NO_FILTER_ROUTES.includes(getAppPathname())) {
         return;
       }
 
@@ -368,7 +368,7 @@ export const FilterAppliedProvider = ({
     loadEditionsData(setData, true);
     loadCitiesAsync().then(setCities);
 
-    workerRef.current = new Worker("/filterWorker.js");
+    workerRef.current = new Worker(withBasePath("/filterWorker.js"));
 
     workerRef.current.addEventListener("message", (e: MessageEvent) => {
       setInternalFilteredItems(e.data);
@@ -475,8 +475,8 @@ export const FilterAppliedProvider = ({
       setAppliedFilters(defaultState);
       setHasUnappliedChanges(false);
       // Only clear URL if not on a no-filter route
-      if (!NO_FILTER_ROUTES.includes(window.location.pathname)) {
-        window.history.replaceState({}, "", window.location.pathname);
+      if (!NO_FILTER_ROUTES.includes(getAppPathname())) {
+        window.history.replaceState({}, "", buildAppUrl(getAppPathname()));
       }
     },
     [maxYear, minYear, setAppliedFilters],

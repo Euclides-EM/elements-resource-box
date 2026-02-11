@@ -6,10 +6,12 @@ import { Row } from "../../common";
 import { ModalTextColumn } from "./ModalComponents";
 import { authorDisplayName } from "../../../utils/dataUtils";
 import { joinArr } from "../../../utils/util";
+import { withBasePath } from "../../../utils/basePath";
 import { NO_AUTHOR } from "../../../constants";
 import { LAND_COLOR } from "../../../utils/colors";
 import { TOOLTIP_SCAN } from "../../map/MapTooltips";
 import { SiMaterialdesign } from "react-icons/si";
+import pluralize from "pluralize";
 
 const InfoTitle = styled.div`
   font-size: 0.8rem;
@@ -111,9 +113,7 @@ export const ItemInfo = ({
         {item.year || "s.d."}
       </Row>
       <Row justifyStart>
-        <InfoTitle>
-          {item.authors.length > 1 ? "Authors:" : "Author:"}
-        </InfoTitle>{" "}
+        <InfoTitle>{pluralize("Author", item.authors.length)}:</InfoTitle>{" "}
         {joinArr(item.authors) || NO_AUTHOR}
         <CitationButton
           copied={copied}
@@ -128,13 +128,11 @@ export const ItemInfo = ({
         </CitationButton>
       </Row>
       <Row justifyStart>
-        <InfoTitle>{item.cities.length > 1 ? "Cities:" : "City:"}</InfoTitle>{" "}
+        <InfoTitle>{pluralize("City", item.cities.length)}:</InfoTitle>{" "}
         {joinArr(item.cities)}
       </Row>
       <Row justifyStart>
-        <InfoTitle>
-          {item.languages.length > 1 ? "Languages:" : "Language:"}
-        </InfoTitle>{" "}
+        <InfoTitle>{pluralize("Language", item.languages.length)}:</InfoTitle>{" "}
         {joinArr(item.languages)}
       </Row>
       {item.scanUrl && item.scanUrl.length > 0 && (
@@ -157,7 +155,7 @@ export const ItemInfo = ({
             ))}
             {showDiagramsLink && item.diagramsExtracted === "True" && (
               <StyledAnchor
-                href={`/diagrams?key=${item.key}`}
+                href={withBasePath(`/diagrams?key=${item.key}`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 title="View Diagrams"
@@ -176,7 +174,8 @@ export const ItemInfo = ({
       )}
       {item.volumesCount && (
         <Row justifyStart>
-          <InfoTitle>Volumes:</InfoTitle> {item.volumesCount}
+          <InfoTitle>{pluralize("Volume", item.volumesCount)}:</InfoTitle>{" "}
+          {item.volumesCount}
         </Row>
       )}
       {item.elementsBooks && (

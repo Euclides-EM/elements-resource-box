@@ -7,35 +7,32 @@ import { ScrollbarStyle } from "../common";
 import RangeSlider from "../tps/filters/RangeSlider";
 import { FilterButton as FilterToggleButton } from "../layout/FilterButton.tsx";
 import { itemProperties } from "../../constants/itemProperties.ts";
-import { NAVBAR_HEIGHT, NO_FILTER_ROUTES } from "../layout/routes.ts";
+import { NO_FILTER_ROUTES } from "../layout/routes.ts";
 import { TextSearchFilter } from "./TextSearchFilter";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FilterValue } from "./Filter";
 import { useLocalStorage } from "usehooks-ts";
 import { Item } from "../../types";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+
+const FILTER_PANE_WIDTH = "26rem";
 
 const Pane = styled.div<{ isLoading?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  height: calc(100vh - 6rem + 4px);
-  width: 26rem;
-  max-width: 100vw;
+  width: ${FILTER_PANE_WIDTH};
   min-width: 256px;
-  overflow-x: ${({ isLoading }) => (isLoading ? "hidden" : "auto")};
+  flex-shrink: 0;
+  box-sizing: border-box;
+  overflow-y: ${({ isLoading }) => (isLoading ? "hidden" : "auto")};
+  overflow-x: hidden;
   background-color: white;
   color: black;
   padding: 1rem;
-  margin-bottom: 10rem;
-  border-radius: 0 0.7rem 0.7rem 0.7rem;
   border-right: 2px ${PANE_BORDER} solid;
-  border-bottom: 2px ${PANE_BORDER} solid;
-  position: fixed;
-  top: ${NAVBAR_HEIGHT}px;
-  left: 0;
-  z-index: 100;
+  position: relative;
   pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")};
 
   ${ScrollbarStyle};
@@ -176,6 +173,7 @@ export const FilterPane = () => {
     minYear,
     maxYear,
   ]);
+  const rangeRef = useRef<[number, number]>(range);
   const [filters, setFilters] = useLocalStorage<
     Record<string, FilterValue[] | undefined>
   >("filters", {
@@ -206,6 +204,18 @@ export const FilterPane = () => {
   }, [maxYear, minYear, setRange]);
 
   useEffect(() => {
+    rangeRef.current = range;
+  }, [range]);
+
+  const handleRangeChange = useCallback(
+    (nextRange: [number, number]) => {
+      rangeRef.current = nextRange;
+      setRange(nextRange);
+    },
+    [setRange],
+  );
+
+  useEffect(() => {
     const hasChanges =
       JSON.stringify(filters) !== JSON.stringify(appliedFilters) ||
       JSON.stringify(filtersInclude) !==
@@ -231,6 +241,54 @@ export const FilterPane = () => {
     appliedTextSearchFields,
     updateHasUnappliedChanges,
   ]);
+
+  const handleApply = useCallback(() => {
+    const hasChanges =
+      JSON.stringify(filters) !== JSON.stringify(appliedFilters) ||
+      JSON.stringify(filtersInclude) !==
+        JSON.stringify(appliedFiltersInclude) ||
+      JSON.stringify(rangeRef.current) !== JSON.stringify(appliedRange) ||
+      includeUndated !== appliedIncludeUndated ||
+      textSearch !== appliedTextSearch ||
+      JSON.stringify(textSearchFields) !==
+        JSON.stringify(appliedTextSearchFields);
+
+    if (!isFiltering && hasChanges) {
+      applyFilters({
+        filters,
+        filtersInclude,
+        range: rangeRef.current,
+        includeUndated,
+        textSearch,
+        textSearchFields,
+      });
+    }
+  }, [
+    isFiltering,
+    applyFilters,
+    filters,
+    filtersInclude,
+    appliedFilters,
+    appliedFiltersInclude,
+    appliedRange,
+    includeUndated,
+    appliedIncludeUndated,
+    textSearch,
+    appliedTextSearch,
+    textSearchFields,
+    appliedTextSearchFields,
+  ]);
+
+  useEffect(() => {
+    if (!filterOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        handleApply();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [filterOpen, handleApply]);
 
   if (
     !filterOpen ||
@@ -270,16 +328,7 @@ export const FilterPane = () => {
           Reset Filters
         </ResetButton>
         <ApplyButton
-          onClick={() =>
-            applyFilters({
-              filters,
-              filtersInclude,
-              range,
-              includeUndated,
-              textSearch,
-              textSearchFields,
-            })
-          }
+          onClick={handleApply}
           disabled={isFiltering || !hasUnappliedChanges}
           $hasChanges={hasUnappliedChanges}
         >
@@ -290,7 +339,7 @@ export const FilterPane = () => {
         min={minYear}
         max={maxYear}
         value={range}
-        onChange={setRange}
+        onChange={handleRangeChange}
       />
 
       <CheckboxContainer>

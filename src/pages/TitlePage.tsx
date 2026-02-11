@@ -1,10 +1,10 @@
 import {
   useCallback,
+  useContext,
   useEffect,
-  useState,
   useMemo,
   useRef,
-  useContext,
+  useState,
 } from "react";
 import useLocalStorageState from "use-local-storage-state";
 import { Mode } from "../types";
@@ -29,7 +29,8 @@ import { Stats } from "../components/Stats.tsx";
 import { inEuclidesMode } from "../utils/mode.ts";
 import { AuthContext } from "../contexts/Auth";
 import { COLLECTION_ID, configureHubApi } from "../utils/hubApi";
-import { FeaturesService, featureplat_Feature } from "../../common/hub-api";
+import { featureplat_Feature, FeaturesService } from "../../common/hub-api";
+import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
 
 const NoteLine = styled(Row)`
   opacity: 0.8;
@@ -234,12 +235,13 @@ function TitlePage() {
   }, [apiReady, featuresLoaded, setFeatures]);
 
   const handleScroll = useCallback(() => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const el = document.getElementById(MAIN_CONTENT_ID);
+    const scrollTop = el ? el.scrollTop : 0;
     setShowScrollTop(scrollTop > 200);
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({
+    document.getElementById(MAIN_CONTENT_ID)?.scrollTo({
       top: 0,
       behavior: "smooth",
     });
@@ -296,10 +298,11 @@ function TitlePage() {
   );
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+    const el = document.getElementById(MAIN_CONTENT_ID);
+    el?.addEventListener("scroll", handleScroll);
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      el?.removeEventListener("scroll", handleScroll);
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleScroll, handleKeyDown]);

@@ -21,6 +21,7 @@ import { NotesEditor } from "./NotesEditor.tsx";
 import { ItemInfo } from "./ItemInfo.tsx";
 import { ITEM_EDIT_ROUTE } from "../../layout/routes.ts";
 import { inEditMode } from "../../../utils/mode.ts";
+import { withBasePath } from "../../../utils/basePath";
 
 const HighlightedText = lazy(() => import("../features/HighlightedText.tsx"));
 
@@ -77,7 +78,9 @@ const ItemModal = ({
         hasImage={!!item.imageUrl}
       >
         {inEditMode() && (
-          <EditLink href={`${ITEM_EDIT_ROUTE}?key=${item.key}`}>Edit</EditLink>
+          <EditLink href={withBasePath(`${ITEM_EDIT_ROUTE}?key=${item.key}`)}>
+            Edit
+          </EditLink>
         )}
         <ModalClose title="Close" onClick={onClose}>
           ✕
