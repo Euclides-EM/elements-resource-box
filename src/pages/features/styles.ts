@@ -498,3 +498,34 @@ export const StatusTag = styled(Tag)<{ status?: string }>`
               ? "#383d41"
               : MARKER_1};
 `;
+
+export const FeatureTokenList = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+`;
+
+export const FeatureToken = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: #f3f6fa;
+  border: 1px solid #d6dde5;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  color: #2a3642;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  max-width: 100%;
+`;
+
+export const FeatureTokenColor = styled.span<{ color?: string }>`
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  border: 1px solid #c6cbd2;
+  background-color: ${({ color }) => color || "#d7dce2"};
+  flex-shrink: 0;
+`;

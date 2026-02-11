@@ -4,6 +4,7 @@ import {
   featureplat_Feature,
   featureplat_FeatureExecution,
   featureplat_FeatureExecutionApplyItem,
+  featureplat_FeatureExecutionStatus,
   featureplat_FeatureExecutionSkipIf,
 } from "../../../common/hub-api";
 import { COLLECTION_ID } from "../../utils/hubApi";
@@ -37,7 +38,11 @@ import {
   ItemRow,
   ItemDetails,
   InlineValue,
+  FeatureTokenList,
+  FeatureToken,
+  FeatureTokenColor,
 } from "./styles";
+import pluralize from "pluralize";
 
 interface ExecutionsTabProps {
   features: featureplat_Feature[];
@@ -45,6 +50,17 @@ interface ExecutionsTabProps {
   loading: boolean;
   apiReady: boolean;
 }
+
+const EXECUTION_STATUS_LABELS: Record<
+  featureplat_FeatureExecutionStatus,
+  string
+> = {
+  success: "Completed",
+  failed: "Failed",
+  in_progress: "In progress",
+  canceling: "Canceling",
+  canceled: "Canceled",
+};
 
 export function ExecutionsTab({
   features,
@@ -74,6 +90,9 @@ export function ExecutionsTab({
     featureplat_FeatureExecutionSkipIf | ""
   >("");
   const [submittingExecution, setSubmittingExecution] = useState(false);
+  const [executionStatusFilter, setExecutionStatusFilter] = useState<
+    "all" | featureplat_FeatureExecutionStatus
+  >("all");
 
   const corpusEditionItems = useMemo(
     () =>
@@ -92,6 +111,29 @@ export function ExecutionsTab({
         (f.description?.toLowerCase() ?? "").includes(q),
     );
   }, [sortedFeatures, execFeatureSearch]);
+
+  const featureInfoById = useMemo(() => {
+    const map: Record<string, { name: string; color?: string }> = {};
+    for (const feature of features) {
+      if (!feature.id) {
+        continue;
+      }
+      map[feature.id] = {
+        name: feature.name || feature.id,
+        color: feature.color || undefined,
+      };
+    }
+    return map;
+  }, [features]);
+
+  const filteredExecutions = useMemo(() => {
+    if (executionStatusFilter === "all") {
+      return executions;
+    }
+    return executions.filter(
+      (execution) => execution.status === executionStatusFilter,
+    );
+  }, [executions, executionStatusFilter]);
 
   const filteredEditionItems = useMemo(() => {
     const q = editionSearch.trim().toLowerCase();
@@ -445,17 +487,56 @@ export function ExecutionsTab({
       </Section>
 
       <Section>
-        <FeatureTitle>Past Executions</FeatureTitle>
+        <FeatureHeader>
+          <FeatureTitle>Executions</FeatureTitle>
+          <FeatureActions>
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => void loadExecutions()}
+              disabled={executionsLoading}
+            >
+              {executionsLoading ? "Refreshing..." : "Refresh"}
+            </Button>
+            <Select
+              id="execution-status-filter"
+              value={executionStatusFilter}
+              aria-label="Filter executions by status"
+              onChange={(event) =>
+                setExecutionStatusFilter(
+                  event.target.value as
+                    | "all"
+                    | featureplat_FeatureExecutionStatus,
+                )
+              }
+            >
+              <option value="all">All statuses</option>
+              {(
+                Object.keys(
+                  EXECUTION_STATUS_LABELS,
+                ) as Array<featureplat_FeatureExecutionStatus>
+              ).map((status) => (
+                <option key={status} value={status}>
+                  {EXECUTION_STATUS_LABELS[status]}
+                </option>
+              ))}
+            </Select>
+          </FeatureActions>
+        </FeatureHeader>
         {executionsError && !execFormOpen && (
           <ErrorText>{executionsError}</ErrorText>
         )}
         {executionsLoading ? (
           <EmptyState>Loading executions...</EmptyState>
-        ) : executions.length === 0 ? (
-          <EmptyState>No executions found yet.</EmptyState>
+        ) : filteredExecutions.length === 0 ? (
+          <EmptyState>
+            {executions.length === 0
+              ? "No executions found yet."
+              : "No executions match the selected status."}
+          </EmptyState>
         ) : (
           <FeatureList>
-            {executions.map((execution) => {
+            {filteredExecutions.map((execution) => {
               const execId = execution.id ?? "";
               const isCanceling = cancelingExecutionId === execId;
               const canCancel =
@@ -469,7 +550,10 @@ export function ExecutionsTab({
                     </FeatureTitle>
                     <FeatureActions>
                       <StatusTag status={execution.status}>
-                        {execution.status || "unknown"}
+                        {execution.status
+                          ? EXECUTION_STATUS_LABELS[execution.status] ||
+                            execution.status
+                          : "Unknown"}
                       </StatusTag>
                       {canCancel && (
                         <Button
@@ -493,16 +577,32 @@ export function ExecutionsTab({
                   <SmallText>
                     Created: {formatDate(execution.created_at)}
                   </SmallText>
-                  {execution.apply && execution.apply.length > 0 && (
-                    <SmallText>
-                      Features:{" "}
-                      {execution.apply.map((a) => a.feature).join(", ")}
-                    </SmallText>
-                  )}
                   {execution.keys && execution.keys.length > 0 && (
                     <SmallText>
-                      Keys: {execution.keys.length} item
-                      {execution.keys.length !== 1 ? "s" : ""}
+                      Including {execution.keys.length}{" "}
+                      {pluralize("edition", execution.keys.length)}.
+                    </SmallText>
+                  )}
+                  {execution.apply && execution.apply.length > 0 && (
+                    <SmallText>
+                      Features:
+                      <FeatureTokenList>
+                        {execution.apply.map((applyItem, index) => {
+                          const featureId = applyItem.feature ?? "";
+                          const featureInfo = featureInfoById[featureId];
+                          const label =
+                            featureInfo?.name || featureId || "Unknown feature";
+                          return (
+                            <FeatureToken
+                              key={`${featureId || "unknown"}-${index}`}
+                              title={featureId}
+                            >
+                              <FeatureTokenColor color={featureInfo?.color} />
+                              {label}
+                            </FeatureToken>
+                          );
+                        })}
+                      </FeatureTokenList>
                     </SmallText>
                   )}
                 </Card>

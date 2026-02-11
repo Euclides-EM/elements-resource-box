@@ -1,12 +1,21 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
-import { FeaturesService, featureplat_Feature } from "../../../common/hub-api";
+import {
+  FeaturesService,
+  featureplat_Feature,
+} from "../../../common/hub-api";
 import { AuthContext } from "../../contexts/Auth";
 import { COLLECTION_ID, configureHubApi } from "../../utils/hubApi";
 import { ActiveTab } from "./types";
 import { DefinitionsTab } from "./DefinitionsTab";
 import { ExecutionsTab } from "./ExecutionsTab";
-import { PageContainer, PageHeader, Title, TabBar, TabButton } from "./styles";
+import {
+  PageContainer,
+  PageHeader,
+  Title,
+  TabBar,
+  TabButton,
+} from "./styles";
 
 export function FeaturesPage() {
   const { token } = useContext(AuthContext);
