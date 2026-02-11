@@ -19,9 +19,7 @@ import {
 } from "../../map/MapTooltips.tsx";
 import { NotesEditor } from "./NotesEditor.tsx";
 import { ItemInfo } from "./ItemInfo.tsx";
-import { ITEM_EDIT_ROUTE } from "../../layout/routes.ts";
 import { inEditMode } from "../../../utils/mode.ts";
-import { withBasePath } from "../../../utils/basePath";
 import type {
   HighlightAction,
   HighlightSelection,
@@ -56,22 +54,6 @@ const NoTitlePage = styled.div`
   flex: 1;
   text-align: center;
   color: darkgray;
-`;
-
-const EditLink = styled.a`
-  display: block;
-  margin: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #f0f0f0;
-  border-bottom: 1px solid #ddd;
-  text-decoration: none;
-  color: #333;
-  font-weight: bold;
-  text-align: center;
-
-  &:hover {
-    background-color: #e0e0e0;
-  }
 `;
 
 const FeatureEditToolbar = styled.div`
@@ -363,15 +345,6 @@ const ItemModal = ({
         onClick={(e) => e.stopPropagation()}
         hasImage={!!item.imageUrl}
       >
-        {inEditMode() && (
-          <EditLink
-            href={withBasePath(`${ITEM_EDIT_ROUTE}?key=${item.key}`)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Edit Item
-          </EditLink>
-        )}
         <ModalClose title="Close" onClick={onClose}>
           ✕
         </ModalClose>

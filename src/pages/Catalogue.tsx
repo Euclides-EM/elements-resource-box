@@ -713,6 +713,9 @@ function Catalogue() {
           item={selectedItem}
           features={null}
           onClose={() => setSelectedItem(null)}
+          featureColors={{}}
+          featureNamesById={{}}
+          apiReady
         />
       )}
     </Container>

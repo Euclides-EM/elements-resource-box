@@ -12,6 +12,8 @@ import { LAND_COLOR } from "../../../utils/colors";
 import { TOOLTIP_SCAN } from "../../map/MapTooltips";
 import { SiMaterialdesign } from "react-icons/si";
 import pluralize from "pluralize";
+import { inEditMode } from "../../../utils/mode.ts";
+import { ITEM_EDIT_ROUTE } from "../../layout/routes.ts";
 
 const InfoTitle = styled.div`
   font-size: 0.8rem;
@@ -61,6 +63,24 @@ const StyledDiagramIcon = styled(SiMaterialdesign)`
   width: 20px;
   height: 20px;
   border-radius: 4px;
+`;
+
+const EditLink = styled.a`
+  display: block;
+  padding: 0.5rem;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  text-decoration: none;
+  color: #333;
+  text-align: center;
+  font-size: 0.8rem;
+  border-radius: 0.5rem;
+  width: max-content;
+  justify-self: end;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
 `;
 
 const getAuthorLastName = (author: string) => {
@@ -202,6 +222,16 @@ export const ItemInfo = ({
           <InfoTitle>Additional Content:</InfoTitle>{" "}
           {joinArr(item.additionalContent)}
         </Row>
+      )}
+
+      {inEditMode() && (
+        <EditLink
+          href={withBasePath(`${ITEM_EDIT_ROUTE}?key=${item.key}`)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Edit Item
+        </EditLink>
       )}
     </ModalTextColumn>
   );
