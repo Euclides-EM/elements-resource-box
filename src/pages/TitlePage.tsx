@@ -82,16 +82,6 @@ function TitlePage() {
   const [apiReady, setApiReady] = useState(false);
   const [featuresLoaded, setFeaturesLoaded] = useState(false);
 
-  const featureNameCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    availableFeatures.forEach((feature) => {
-      if (feature.name) {
-        counts[feature.name] = (counts[feature.name] || 0) + 1;
-      }
-    });
-    return counts;
-  }, [availableFeatures]);
-
   const featureNameById = useMemo(() => {
     const map: Record<string, string> = {};
     availableFeatures.forEach((feature) => {
@@ -114,7 +104,7 @@ function TitlePage() {
       .map((feature) => feature.id as string);
   }, [availableFeatures]);
 
-  const sortFeatureIds = useCallback(
+  const sortFeatures = useCallback(
     (ids: string[]) =>
       [...ids].sort((a, b) =>
         (featureNameById[a] || "").localeCompare(
@@ -356,14 +346,10 @@ function TitlePage() {
                     name="Features"
                     value={features}
                     options={sortedFeatureIds}
-                    labelFn={(featureId) => {
-                      const name = featureNameById[featureId] || featureId;
-                      if ((featureNameCounts[name] || 0) > 1) {
-                        return `${name} (${featureId.slice(0, 6)})`;
-                      }
-                      return name;
-                    }}
-                    onChange={(f) => setFeatures(sortFeatureIds(f as string[]))}
+                    labelFn={(featureId) =>
+                      featureNameById[featureId] || featureId
+                    }
+                    onChange={(f) => setFeatures(sortFeatures(f as string[]))}
                     colors={featureColors}
                     tooltips={featureTooltips}
                     className="features-multi-select"
@@ -371,7 +357,7 @@ function TitlePage() {
                   <ResetButton
                     onClick={() =>
                       setFeatures(
-                        sortFeatureIds(
+                        sortFeatures(
                           defaultFeatureIds.length > 0
                             ? defaultFeatureIds
                             : sortedFeatureIds,

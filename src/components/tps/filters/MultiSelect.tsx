@@ -9,16 +9,16 @@ import CreatableSelect from "react-select/creatable";
 import { TOOLTIP_FEATURES_HIGHLIGHT } from "../../map/MapTooltips.tsx";
 
 type OptionLabelProps = {
-  option: string;
-  tooltip: string;
+  label: string;
+  tooltip?: string;
 };
 
-const OptionLabel = ({ option, tooltip }: OptionLabelProps) => (
+const OptionLabel = ({ label, tooltip }: OptionLabelProps) => (
   <span
     data-tooltip-id={TOOLTIP_FEATURES_HIGHLIGHT}
     data-tooltip-content={tooltip}
   >
-    {option}
+    {label}
   </span>
 );
 
@@ -52,6 +52,7 @@ const MultiSelect = ({
   placeholder,
 }: MultiSelectProps) => {
   const SelectComponent = isCreatable ? CreatableSelect : Select;
+  const displayLabel = (opt: string) => (labelFn ? labelFn(opt) : opt);
 
   return (
     <SelectComponent
@@ -79,31 +80,28 @@ const MultiSelect = ({
       value={value?.map((v) => ({
         value: v,
         label: tooltips ? (
-          <OptionLabel option={v} tooltip={tooltips[v]} />
-        ) : labelFn ? (
-          labelFn(v)
+          <OptionLabel label={displayLabel(v)} tooltip={tooltips[v]} />
         ) : (
-          v
+          displayLabel(v)
         ),
       }))}
       defaultValue={defaultValues?.map((v) => ({
         value: v,
         label: tooltips ? (
-          <OptionLabel option={v} tooltip={tooltips[v]} />
-        ) : labelFn ? (
-          labelFn(v)
+          <OptionLabel label={displayLabel(v)} tooltip={tooltips[v]} />
         ) : (
-          v
+          displayLabel(v)
         ),
       }))}
       options={options.map((option) => ({
         value: option,
         label: tooltips ? (
-          <OptionLabel option={option} tooltip={tooltips[option]} />
-        ) : labelFn ? (
-          labelFn(option)
+          <OptionLabel
+            label={displayLabel(option)}
+            tooltip={tooltips[option]}
+          />
         ) : (
-          option
+          displayLabel(option)
         ),
       }))}
       className={`basic-multi-select ${className}`}
