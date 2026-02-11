@@ -5,6 +5,9 @@ import { HighlightTooltipState } from "./highlightTooltipUtils";
 
 type FeatureHighlightTooltipProps = {
   tooltipState: HighlightTooltipState | null;
+  onRemove?: (highlight: HighlightTooltipState) => void;
+  onTooltipEnter?: () => void;
+  onTooltipLeave?: () => void;
 };
 
 const TooltipContainer = styled("div", {
@@ -14,7 +17,7 @@ const TooltipContainer = styled("div", {
   left: ${({ x }) => `${x}px`};
   top: ${({ y }) => `${y}px`};
   z-index: 12000;
-  pointer-events: none;
+  pointer-events: auto;
   background-color: white;
   color: black;
   padding: 1rem;
@@ -41,14 +44,41 @@ const NormalizedText = styled.div`
   margin-top: 0.35rem;
 `;
 
+const TooltipActions = styled.div`
+  margin-top: 0.6rem;
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const TooltipButton = styled.button`
+  border: 1px solid #cfcfcf;
+  background: white;
+  color: #333;
+  border-radius: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+`;
+
 const FeatureHighlightTooltip = memo(
-  ({ tooltipState }: FeatureHighlightTooltipProps) => {
+  ({
+    tooltipState,
+    onRemove,
+    onTooltipEnter,
+    onTooltipLeave,
+  }: FeatureHighlightTooltipProps) => {
     if (!tooltipState) {
       return null;
     }
 
     const tooltip = (
-      <TooltipContainer x={tooltipState.x} y={tooltipState.y}>
+      <TooltipContainer
+        x={tooltipState.x}
+        y={tooltipState.y}
+        data-highlight-action
+        onMouseEnter={onTooltipEnter}
+        onMouseLeave={onTooltipLeave}
+      >
         <FeatureLabel featureColor={tooltipState.color}>
           {tooltipState.label}
         </FeatureLabel>
@@ -57,6 +87,13 @@ const FeatureHighlightTooltip = memo(
             {`Normalized: ${tooltipState.normalized}`}
           </NormalizedText>
         ) : null}
+        {onRemove && (
+          <TooltipActions>
+            <TooltipButton type="button" onClick={() => onRemove(tooltipState)}>
+              Remove
+            </TooltipButton>
+          </TooltipActions>
+        )}
       </TooltipContainer>
     );
 
