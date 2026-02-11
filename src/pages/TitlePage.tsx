@@ -405,6 +405,7 @@ function TitlePage() {
                 mode={mode}
                 features={titlePagesModeOn ? selectedFeatureIds : null}
                 featureColors={featureColorsById}
+                featureNamesById={featureNameById}
                 apiReady={apiReady}
               />
             ))

@@ -29,6 +29,7 @@ type ItemModalProps = {
   item: Item;
   features: Feature[] | null;
   featureColors?: Record<string, string>;
+  featureNamesById?: Record<string, string>;
   apiReady?: boolean;
   onClose: () => void;
 };
@@ -68,6 +69,7 @@ const ItemModal = ({
   item,
   features,
   featureColors,
+  featureNamesById,
   apiReady,
   onClose,
 }: ItemModalProps) => {
@@ -120,6 +122,7 @@ const ItemModal = ({
                       itemKey={item.key}
                       apiReady={apiReady}
                       featureColors={featureColors}
+                      featureNamesById={featureNamesById}
                     />
                   </Suspense>
                   {item.imprint && (
@@ -132,6 +135,7 @@ const ItemModal = ({
                           itemKey={item.key}
                           apiReady={apiReady}
                           featureColors={featureColors}
+                          featureNamesById={featureNamesById}
                         />
                       </Suspense>
                     </>

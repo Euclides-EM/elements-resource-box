@@ -21,7 +21,7 @@ createRoot(document.getElementById("root")!).render(
           delayHide={200}
           clickable
           style={{
-            zIndex: 11,
+            zIndex: 10000,
             backgroundColor: "white",
             color: "black",
             padding: "1rem",

@@ -2,11 +2,18 @@ import { Feature } from "../../../types";
 import { useEffect, useMemo, useState, memo } from "react";
 import { TeiService } from "../../../../common/hub-api";
 import { COLLECTION_ID } from "../../../utils/hubApi";
+import FeatureHighlightTooltip from "./FeatureHighlightTooltip";
+import {
+  handleHighlightTooltipMouseLeave,
+  handleHighlightTooltipMouseMove,
+  HighlightTooltipState,
+} from "./highlightTooltipUtils";
 
 type HighlightedTextProps = {
   text: string;
   features: Feature[];
   featureColors?: Record<string, string>;
+  featureNamesById?: Record<string, string>;
   itemKey?: string;
   apiReady?: boolean;
   showFeatureHighlights?: boolean;
@@ -24,6 +31,12 @@ const escapeHtml = (value: string) =>
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 
+const escapeHtmlAttr = (value: string) =>
+  escapeHtml(value).replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+
+const wrapNonInteractive = (value: string) =>
+  value ? `<span style="pointer-events: none;">${value}</span>` : "";
+
 const buildTextHtml = (text: string) =>
   escapeHtml(text)
     .replaceAll("\n", "<br/>")
@@ -34,6 +47,7 @@ const parseTeiToLayers = (
   tei: string,
   selectedFeatures: Feature[],
   featureColors: Record<string, string> | undefined,
+  featureNamesById: Record<string, string> | undefined,
 ): { baseHtml: string; layers: string[] } | null => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(tei, "text/xml");
@@ -105,6 +119,7 @@ const parseTeiToLayers = (
     start: number;
     end: number;
     featureKey: string;
+    normalized: string;
   }> = [];
   Array.from(spanGroups).forEach((group) => {
     if (group.getAttribute("type") !== "highlight") {
@@ -139,7 +154,11 @@ const parseTeiToLayers = (
       if (end <= start) {
         return;
       }
-      const spanEntry = { start, end, featureKey };
+      const normalized =
+        Array.from(span.getElementsByTagNameNS(TEI_NS, "f"))
+          .find((node) => node.getAttribute("name") === "normalized")
+          ?.textContent?.trim() || "";
+      const spanEntry = { start, end, featureKey, normalized };
       if (selectedSet.size === 0 || selectedSet.has(featureKey)) {
         filteredSpans.push(spanEntry);
       }
@@ -186,16 +205,24 @@ const parseTeiToLayers = (
       }, 0);
       const shadowSize = Math.min(6, 2 + depth * 2);
       const style = useOutline
-        ? `outline: 2px solid ${color}; outline-offset: 2px; border-radius: 8px;`
-        : `background-color: ${color}; box-shadow: 0 0 0 ${shadowSize}px ${color}; border-radius: 8px;`;
+        ? `outline: 2px solid ${color}; outline-offset: 2px; border-radius: 8px; pointer-events: auto;`
+        : `background-color: ${color}; box-shadow: 0 0 0 ${shadowSize}px ${color}; border-radius: 8px; pointer-events: auto;`;
+      const featureLabel =
+        featureNamesById?.[span.featureKey] || span.featureKey;
+      const tooltip = escapeHtmlAttr(featureLabel);
+      const tooltipColor = escapeHtmlAttr(color);
+      const tooltipNormalized = escapeHtmlAttr(span.normalized);
+      const tooltipNormalizedAttr = tooltipNormalized
+        ? ` data-feature-normalized="${tooltipNormalized}"`
+        : "";
 
       const before = trimmedText.slice(0, span.start);
       const segment = trimmedText.slice(span.start, span.end);
       const after = trimmedText.slice(span.end);
       let html =
-        escapeHtml(before) +
-        `<span style="${style}">${escapeHtml(segment)}</span>` +
-        escapeHtml(after);
+        wrapNonInteractive(escapeHtml(before)) +
+        `<span style="${style}" data-feature-label="${tooltip}" data-feature-color="${tooltipColor}"${tooltipNormalizedAttr}>${escapeHtml(segment)}</span>` +
+        wrapNonInteractive(escapeHtml(after));
       html = html.replaceAll("\n", "<br/>");
       html = html.replace(/^(?:<br\/>|\s)+/, "");
       html = html.replace(/(?:<br\/>|\s)+$/, "");
@@ -211,6 +238,7 @@ const HighlightedText = memo(
     text,
     features,
     featureColors,
+    featureNamesById,
     itemKey,
     apiReady,
     showFeatureHighlights = true,
@@ -218,6 +246,8 @@ const HighlightedText = memo(
     const [renderedHtml, setRenderedHtml] = useState<string>("");
     const [renderedLayers, setRenderedLayers] = useState<string[]>([]);
     const [isReady, setIsReady] = useState(false);
+    const [tooltipState, setTooltipState] =
+      useState<HighlightTooltipState | null>(null);
 
     const plainHtml = useMemo(() => buildTextHtml(text), [text]);
 
@@ -242,7 +272,12 @@ const HighlightedText = memo(
       const cacheKey = itemKey;
       const cachedTei = teiCache.get(cacheKey);
       if (cachedTei) {
-        const parsed = parseTeiToLayers(cachedTei, features, featureColors);
+        const parsed = parseTeiToLayers(
+          cachedTei,
+          features,
+          featureColors,
+          featureNamesById,
+        );
         finalize(parsed?.baseHtml || plainHtml, parsed?.layers || []);
         return () => {
           isMounted = false;
@@ -264,7 +299,12 @@ const HighlightedText = memo(
             return;
           }
           teiCache.set(cacheKey, tei);
-          const parsed = parseTeiToLayers(tei, features, featureColors);
+          const parsed = parseTeiToLayers(
+            tei,
+            features,
+            featureColors,
+            featureNamesById,
+          );
           finalize(parsed?.baseHtml || plainHtml, parsed?.layers || []);
         })
         .catch(() => {
@@ -279,6 +319,7 @@ const HighlightedText = memo(
       apiReady,
       features,
       featureColors,
+      featureNamesById,
       plainHtml,
       showFeatureHighlights,
     ]);
@@ -295,7 +336,13 @@ const HighlightedText = memo(
     }
 
     return (
-      <div style={{ position: "relative", whiteSpace: "pre-wrap" }}>
+      <div
+        style={{ position: "relative", whiteSpace: "pre-wrap" }}
+        onMouseMove={(event) =>
+          handleHighlightTooltipMouseMove(event, setTooltipState)
+        }
+        onMouseLeave={() => handleHighlightTooltipMouseLeave(setTooltipState)}
+      >
         {renderedLayers.map((layer, index) => (
           <div
             key={index}
@@ -310,9 +357,14 @@ const HighlightedText = memo(
           />
         ))}
         <div
-          style={{ position: "relative", zIndex: renderedLayers.length }}
+          style={{
+            position: "relative",
+            zIndex: renderedLayers.length,
+            pointerEvents: renderedLayers.length > 0 ? "none" : "auto",
+          }}
           dangerouslySetInnerHTML={{ __html: renderedHtml }}
         />
+        <FeatureHighlightTooltip tooltipState={tooltipState} />
       </div>
     );
   },

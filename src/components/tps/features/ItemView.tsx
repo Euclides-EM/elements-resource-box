@@ -33,6 +33,7 @@ const ItemView = memo(
     mode,
     features,
     featureColors,
+    featureNamesById,
     apiReady,
   }: ItemProps) => {
     const [modalOpen, setModalOpen] = useState(false);
@@ -111,6 +112,7 @@ const ItemView = memo(
                           itemKey={item.key}
                           apiReady={apiReady}
                           featureColors={featureColors}
+                          featureNamesById={featureNamesById}
                         />
                       )}
                       {item.imprint && (
@@ -122,6 +124,7 @@ const ItemView = memo(
                             itemKey={item.key}
                             apiReady={apiReady}
                             featureColors={featureColors}
+                            featureNamesById={featureNamesById}
                           />
                         </>
                       )}
@@ -172,6 +175,7 @@ const ItemView = memo(
             item={item}
             features={features}
             featureColors={featureColors}
+            featureNamesById={featureNamesById}
             apiReady={apiReady}
             onClose={() => setModalOpen(false)}
           />
