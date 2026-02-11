@@ -22,6 +22,8 @@ import {
   CollapseButton,
   Form,
   FormGrid,
+  CreateFeatureGrid,
+  CreateFeatureMainColumn,
   Field,
   Label,
   Input,
@@ -433,36 +435,38 @@ export function DefinitionsTab({
           </FeatureHeader>
           {createFormOpen && (
             <Form onSubmit={handleCreateFeature}>
-              <FormGrid>
-                <Field>
-                  <Label htmlFor="feature-name">Name</Label>
-                  <Input
-                    id="feature-name"
-                    value={createForm.name}
-                    onChange={(event) =>
-                      setCreateForm((prev) => ({
-                        ...prev,
-                        name: event.target.value,
-                      }))
-                    }
-                    disabled={creatingFeature}
-                    required
-                  />
-                </Field>
-                <Field>
-                  <Label htmlFor="feature-description">Description</Label>
-                  <TextArea
-                    id="feature-description"
-                    value={createForm.description}
-                    onChange={(event) =>
-                      setCreateForm((prev) => ({
-                        ...prev,
-                        description: event.target.value,
-                      }))
-                    }
-                    disabled={creatingFeature}
-                  />
-                </Field>
+              <CreateFeatureGrid>
+                <CreateFeatureMainColumn>
+                  <Field>
+                    <Label htmlFor="feature-name">Name</Label>
+                    <Input
+                      id="feature-name"
+                      value={createForm.name}
+                      onChange={(event) =>
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          name: event.target.value,
+                        }))
+                      }
+                      disabled={creatingFeature}
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <Label htmlFor="feature-description">Description</Label>
+                    <TextArea
+                      id="feature-description"
+                      value={createForm.description}
+                      onChange={(event) =>
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          description: event.target.value,
+                        }))
+                      }
+                      disabled={creatingFeature}
+                    />
+                  </Field>
+                </CreateFeatureMainColumn>
                 <Field>
                   <Label>Color</Label>
                   <ColorPickerRow>
@@ -491,7 +495,7 @@ export function DefinitionsTab({
                     />
                   </ColorPickerRow>
                 </Field>
-              </FormGrid>
+              </CreateFeatureGrid>
               <ButtonRow>
                 <Button type="submit" disabled={creatingFeature}>
                   {creatingFeature ? "Creating..." : "Create"}
@@ -698,15 +702,9 @@ export function DefinitionsTab({
                         </Field>
                       </FeatureMeta>
                     ) : (
-                      <>
-                        <FeatureDescription>
-                          {feature.description || "No description."}
-                        </FeatureDescription>
-                        <SmallText>
-                          Color: <ColorSwatch color={feature.color} />{" "}
-                          {feature.color || "No color assigned"}
-                        </SmallText>
-                      </>
+                      <FeatureDescription>
+                        {feature.description || "No description."}
+                      </FeatureDescription>
                     )}
                   </Form>
                   <SmallText>

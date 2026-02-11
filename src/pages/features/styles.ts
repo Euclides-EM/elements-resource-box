@@ -50,6 +50,23 @@ export const FormGrid = styled.div`
   gap: 1rem;
 `;
 
+export const CreateFeatureGrid = styled.div`
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const CreateFeatureMainColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
 export const Field = styled.div`
   display: flex;
   flex-direction: column;
