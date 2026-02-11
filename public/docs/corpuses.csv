@@ -253,9 +253,9 @@ Edinburgh_1795,"origin_eip_csv, dh, axiomatics_16, Angela_metadata"
 Naples_1810,"origin_eip_csv, dh, axiomatics_16, Angela_metadata"
 Paris_1814,"origin_eip_csv, dh, axiomatics_16, Angela_metadata"
 Nuremberg_1821,"origin_eip_csv, dh"
-Berlin_1824,"origin_eip_csv, dh"
-Lund_1855,"origin_eip_csv, dh"
-Leipzig_1883,"origin_eip_csv, dh"
+Berlin_1824,"origin_eip_csv, dh, Angela_metadata"
+Lund_1855,"origin_eip_csv, dh, Angela_metadata"
+Leipzig_1883,"origin_eip_csv, dh, Angela_metadata"
 Antwerp_1665,origin_eip_csv
 Rome_1695,origin_eip_csv
 Paris_1695,origin_eip_csv
