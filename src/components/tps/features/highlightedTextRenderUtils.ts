@@ -111,7 +111,12 @@ export const buildHighlightHitLayers = (
   spans: HighlightSpan[],
   featuresById: Record<string, featureplat_Feature>,
 ) => {
-  if (!trimmedText || spans.length === 0) {
+  if (
+    !trimmedText ||
+    spans.length === 0 ||
+    !featuresById ||
+    Object.keys(featuresById).length === 0
+  ) {
     return [];
   }
 

@@ -303,10 +303,21 @@ const HighlightedText = memo(
             />
           ))}
         <FeatureHighlightTooltip
-          tooltipState={tooltipState}
+          tooltipState={
+            tooltipState?.featureKey && featuresById[tooltipState.featureKey]
+              ? tooltipState
+              : null
+          }
           onRemove={handleRemoveHighlight}
           onTooltipEnter={editable ? () => setTooltipPinned(true) : undefined}
-          onTooltipLeave={editable ? () => setTooltipPinned(false) : undefined}
+          onTooltipLeave={
+            editable
+              ? () => {
+                  setTooltipPinned(false);
+                  setTooltipState(null);
+                }
+              : undefined
+          }
         />
         {selectionTooltip}
       </div>
