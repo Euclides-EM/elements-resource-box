@@ -214,7 +214,7 @@ export const loadEditionsData = (
                       : "Unknown",
 
               study_corpora: uniq(
-                baseCorpora.concat(inDottedLinesCorpus ? ["Dotted lines"] : []),
+                baseCorpora.concat(inDottedLinesCorpus ? ["Dotted Lines"] : []),
               ),
               tp_illustration: tpFeatures["illustration"]
                 ? "Yes"
