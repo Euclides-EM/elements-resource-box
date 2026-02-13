@@ -42,13 +42,12 @@ type ItemModalProps = {
   onClose: () => void;
 };
 
-const StyledHelpTip = styled(HelpTip)<{
-  marginLeft?: string;
-  marginTop?: string;
-}>`
-  margin: 0 0 ${({ marginTop }) => marginTop || "0"}
-    ${({ marginLeft }) => marginLeft || "-0.5rem"};
+const StyledHelpTip = styled(HelpTip)`
+  margin: 0 0 0 -0.5rem;
   z-index: 100;
+  svg {
+    margin-bottom: 4px;
+  }
 `;
 
 const NoTitlePage = styled.div`
@@ -371,10 +370,7 @@ const ItemModal = ({
                 <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
                   <ModalTitle justifyStart gap={1}>
                     Original Text
-                    <StyledHelpTip
-                      tooltipId={TOOLTIP_TRANSCRIPTION}
-                      marginTop="2px"
-                    />
+                    <StyledHelpTip tooltipId={TOOLTIP_TRANSCRIPTION} />
                   </ModalTitle>
                   {canEditHighlights && (
                     <FeatureEditToolbar>
@@ -408,32 +404,13 @@ const ItemModal = ({
                   <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
                     <ModalTitle justifyStart gap={1}>
                       English Translation{" "}
-                      <StyledHelpTip
-                        tooltipId={TOOLTIP_EN_TRANSLATION}
-                        marginTop="2px"
-                      />
+                      <StyledHelpTip tooltipId={TOOLTIP_EN_TRANSLATION} />
                     </ModalTitle>
-                    <Suspense fallback={<div>{item.titleEn || ""}</div>}>
-                      <HighlightedText
-                        text={item.titleEn || ""}
-                        featuresById={{}}
-                        itemKey={item.key}
-                        apiReady={apiReady}
-                        hideFeatureHighlights
-                      />
-                    </Suspense>
+                    <div>{item.titleEn}</div>
                     {item.imprintEn && (
                       <>
                         {item.imprint && <hr style={{ opacity: 0.3 }} />}
-                        <Suspense fallback={<div>{item.imprintEn}</div>}>
-                          <HighlightedText
-                            text={item.imprintEn}
-                            featuresById={{}}
-                            itemKey={item.key}
-                            apiReady={apiReady}
-                            hideFeatureHighlights
-                          />
-                        </Suspense>
+                        <div>{item.imprintEn}</div>
                       </>
                     )}
                   </ModalTextColumn>

@@ -67,6 +67,7 @@ const StyledDiagramIcon = styled(SiMaterialdesign)`
 
 const EditLink = styled.a`
   display: block;
+  margin-left: 1rem;
   padding: 0.5rem;
   background-color: #f0f0f0;
   border: 1px solid #ddd;
@@ -75,6 +76,7 @@ const EditLink = styled.a`
   text-align: center;
   font-size: 0.8rem;
   border-radius: 0.5rem;
+  height: fit-content;
   width: max-content;
   justify-self: end;
 
@@ -225,13 +227,15 @@ export const ItemInfo = ({
       )}
 
       {inEditMode() && (
-        <EditLink
-          href={withBasePath(`${ITEM_EDIT_ROUTE}?key=${item.key}`)}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Edit Item
-        </EditLink>
+        <div>
+          <EditLink
+            href={withBasePath(`${ITEM_EDIT_ROUTE}?key=${item.key}`)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Edit Item
+          </EditLink>
+        </div>
       )}
     </ModalTextColumn>
   );
