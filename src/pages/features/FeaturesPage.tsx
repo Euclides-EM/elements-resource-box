@@ -83,7 +83,6 @@ export function FeaturesPage() {
 
       {activeTab === "definitions" && (
         <DefinitionsTab
-          features={features}
           sortedFeatures={sortedFeatures}
           loading={loading}
           error={error}
@@ -93,7 +92,6 @@ export function FeaturesPage() {
       )}
       {activeTab === "executions" && (
         <ExecutionsTab
-          features={features}
           sortedFeatures={sortedFeatures}
           loading={loading}
           apiReady={apiReady}

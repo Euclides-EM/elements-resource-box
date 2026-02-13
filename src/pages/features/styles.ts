@@ -449,11 +449,11 @@ export const CheckboxList = styled.div`
   background-color: white;
 `;
 
-export const ItemRow = styled.label`
+export const ItemRow = styled.label<{ interactive?: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  cursor: pointer;
+  cursor: ${({ interactive = false }) => (interactive ? "pointer" : "default")};
   font-size: 0.85rem;
   padding: 0.35rem 0.25rem;
   border-bottom: 1px solid #f0f0f0;
@@ -470,6 +470,26 @@ export const ItemDetails = styled.span`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+`;
+
+export const NoRevisionText = styled.span`
+  font-size: 0.8rem;
+  color: #666;
+  margin-left: auto;
+`;
+
+export const ExecutionEditionsToggle = styled.div`
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #666;
+`;
+
+export const ExecutionEditionsToggleContent = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
 `;
 
 export const StatusTag = styled(Tag)<{ status?: string }>`

@@ -4,6 +4,6 @@
 /* eslint-disable */
 import type { featureplat_FeatureExecutionSkipIf } from './featureplat_FeatureExecutionSkipIf';
 export type featureplat_FeatureExecutionPolicy = {
-    skip_if?: featureplat_FeatureExecutionSkipIf;
+    skip_if?: Array<featureplat_FeatureExecutionSkipIf>;
 };
 

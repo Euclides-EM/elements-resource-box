@@ -10,6 +10,7 @@ import {
 import { COLLECTION_ID } from "../../utils/hubApi";
 import { loadEditionsData } from "../../utils/dataUtils";
 import { Item } from "../../types";
+import MultiSelect from "../../components/tps/filters/MultiSelect";
 import { STUDY_CORPORA_FILTER } from "./types";
 import { formatDate } from "./helpers";
 import {
@@ -41,11 +42,13 @@ import {
   FeatureTokenList,
   FeatureToken,
   FeatureTokenColor,
+  NoRevisionText,
+  ExecutionEditionsToggle,
+  ExecutionEditionsToggleContent,
 } from "./styles";
 import pluralize from "pluralize";
 
 interface ExecutionsTabProps {
-  features: featureplat_Feature[];
   sortedFeatures: featureplat_Feature[];
   loading: boolean;
   apiReady: boolean;
@@ -62,8 +65,22 @@ const EXECUTION_STATUS_LABELS: Record<
   canceled: "Canceled",
 };
 
+const EXECUTION_SKIP_IF_OPTIONS: featureplat_FeatureExecutionSkipIf[] = [
+  "feature_exist",
+  "revision_exist",
+  "human_reviewed",
+];
+
+const EXECUTION_SKIP_IF_LABELS: Record<
+  featureplat_FeatureExecutionSkipIf,
+  string
+> = {
+  feature_exist: "Feature exist",
+  revision_exist: "Revision exist",
+  human_reviewed: "Human reviewed",
+};
+
 export function ExecutionsTab({
-  features,
   sortedFeatures,
   loading,
   apiReady,
@@ -87,12 +104,15 @@ export function ExecutionsTab({
   const [editionItemsLoading, setEditionItemsLoading] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [execSkipIf, setExecSkipIf] = useState<
-    featureplat_FeatureExecutionSkipIf | ""
-  >("");
+    featureplat_FeatureExecutionSkipIf[]
+  >([]);
   const [submittingExecution, setSubmittingExecution] = useState(false);
   const [executionStatusFilter, setExecutionStatusFilter] = useState<
     "all" | featureplat_FeatureExecutionStatus
   >("all");
+  const [expandedExecutionEditions, setExpandedExecutionEditions] = useState<
+    Record<string, boolean>
+  >({});
 
   const corpusEditionItems = useMemo(
     () =>
@@ -114,7 +134,7 @@ export function ExecutionsTab({
 
   const featureInfoById = useMemo(() => {
     const map: Record<string, { name: string; color?: string }> = {};
-    for (const feature of features) {
+    for (const feature of sortedFeatures) {
       if (!feature.id) {
         continue;
       }
@@ -124,7 +144,7 @@ export function ExecutionsTab({
       };
     }
     return map;
-  }, [features]);
+  }, [sortedFeatures]);
 
   const filteredExecutions = useMemo(() => {
     if (executionStatusFilter === "all") {
@@ -151,6 +171,14 @@ export function ExecutionsTab({
       return hay.includes(q);
     });
   }, [corpusEditionItems, editionSearch]);
+
+  const editionItemByKey = useMemo(() => {
+    const map = new Map<string, Item>();
+    for (const item of editionItems) {
+      map.set(item.key, item);
+    }
+    return map;
+  }, [editionItems]);
 
   const loadExecutions = useCallback(async () => {
     if (!apiReady) {
@@ -230,6 +258,13 @@ export function ExecutionsTab({
     });
   };
 
+  const toggleExecutionEditions = (executionKey: string) => {
+    setExpandedExecutionEditions((prev) => ({
+      ...prev,
+      [executionKey]: !prev[executionKey],
+    }));
+  };
+
   const handleSubmitExecution = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
@@ -247,9 +282,16 @@ export function ExecutionsTab({
     }
     setSubmittingExecution(true);
     setExecutionsError(null);
+    const featureById = new Map(
+      sortedFeatures
+        .filter((feature): feature is featureplat_Feature & { id: string } =>
+          Boolean(feature.id),
+        )
+        .map((feature) => [feature.id, feature]),
+    );
     const apply: featureplat_FeatureExecutionApplyItem[] = [];
     for (const fId of selectedFeatureIds) {
-      const feature = features.find((f) => f.id === fId);
+      const feature = featureById.get(fId);
       if (!feature) continue;
       const revisions = [...(feature.revisions ?? [])].sort((a, b) => {
         const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
@@ -262,19 +304,19 @@ export function ExecutionsTab({
         revision: revisions[0]?.id,
       });
     }
-    const execution: featureplat_FeatureExecution = {
+    const executionPayload: featureplat_FeatureExecution = {
       collection: COLLECTION_ID,
       apply,
       keys: Array.from(selectedKeys),
-      policy: execSkipIf
-        ? { skip_if: execSkipIf as featureplat_FeatureExecutionSkipIf }
-        : undefined,
+      policy: execSkipIf.length ? { skip_if: execSkipIf } : undefined,
     };
     try {
-      await ExecutionsService.postExecutions({ execution });
+      await ExecutionsService.postExecutions({
+        execution: executionPayload,
+      });
       setSelectedFeatureIds(new Set());
       setSelectedKeys(new Set());
-      setExecSkipIf("");
+      setExecSkipIf([]);
       setExecFormOpen(false);
       await loadExecutions();
     } catch (err) {
@@ -383,9 +425,7 @@ export function ExecutionsTab({
                             />
                             <span>{feature.name || "Untitled"}</span>
                             {!latestRev && (
-                              <SmallText style={{ marginLeft: "auto" }}>
-                                no revisions
-                              </SmallText>
+                              <NoRevisionText>no revisions</NoRevisionText>
                             )}
                           </CheckboxRow>
                         );
@@ -431,7 +471,7 @@ export function ExecutionsTab({
                     </SearchRow>
                     <CheckboxList>
                       {filteredEditionItems.map((item) => (
-                        <ItemRow key={item.key}>
+                        <ItemRow key={item.key} interactive>
                           <input
                             type="checkbox"
                             checked={selectedKeys.has(item.key)}
@@ -459,21 +499,22 @@ export function ExecutionsTab({
               </Field>
               <Field>
                 <Label>Skip if (optional)</Label>
-                <Select
+                <MultiSelect
+                  name="Skip if"
+                  options={EXECUTION_SKIP_IF_OPTIONS}
                   value={execSkipIf}
-                  onChange={(event) =>
+                  onChange={(values) =>
                     setExecSkipIf(
-                      event.target.value as
-                        | featureplat_FeatureExecutionSkipIf
-                        | "",
+                      values as featureplat_FeatureExecutionSkipIf[],
                     )
                   }
-                >
-                  <option value="">None</option>
-                  <option value="feature_exist">Feature exist</option>
-                  <option value="revision_exist">Revision exist</option>
-                  <option value="human_reviewed">Human reviewed</option>
-                </Select>
+                  labelFn={(value) =>
+                    EXECUTION_SKIP_IF_LABELS[
+                      value as featureplat_FeatureExecutionSkipIf
+                    ] || value
+                  }
+                  placeholder="Select skip-if rules"
+                />
               </Field>
               {executionsError && <ErrorText>{executionsError}</ErrorText>}
               <ButtonRow>
@@ -536,14 +577,19 @@ export function ExecutionsTab({
           </EmptyState>
         ) : (
           <FeatureList>
-            {filteredExecutions.map((execution) => {
+            {filteredExecutions.map((execution, index) => {
               const execId = execution.id ?? "";
+              const executionCardKey =
+                execId || execution.created_at || String(index);
               const isCanceling = cancelingExecutionId === execId;
               const canCancel =
                 execution.status === "in_progress" ||
                 execution.status === "canceling";
+              const executionKeys = execution.keys ?? [];
+              const showExecutionEditions =
+                expandedExecutionEditions[executionCardKey] ?? false;
               return (
-                <Card key={execId || execution.created_at}>
+                <Card key={executionCardKey}>
                   <FeatureHeader>
                     <FeatureTitle>
                       {execution.name || execId || "Unnamed"}
@@ -577,11 +623,81 @@ export function ExecutionsTab({
                   <SmallText>
                     Created: {formatDate(execution.created_at)}
                   </SmallText>
-                  {execution.keys && execution.keys.length > 0 && (
-                    <SmallText>
-                      Including {execution.keys.length}{" "}
-                      {pluralize("edition", execution.keys.length)}.
-                    </SmallText>
+                  {executionKeys.length > 0 && (
+                    <>
+                      <ExecutionEditionsToggle
+                        role="button"
+                        tabIndex={0}
+                        onClick={() =>
+                          toggleExecutionEditions(executionCardKey)
+                        }
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            toggleExecutionEditions(executionCardKey);
+                          }
+                        }}
+                      >
+                        <ExecutionEditionsToggleContent>
+                          <CollapseButton
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              toggleExecutionEditions(executionCardKey);
+                            }}
+                            aria-label={
+                              showExecutionEditions
+                                ? "Collapse included editions"
+                                : "Expand included editions"
+                            }
+                          >
+                            {showExecutionEditions ? "▾" : "▸"}
+                          </CollapseButton>
+                          <span>
+                            Including {executionKeys.length}{" "}
+                            {pluralize("edition", executionKeys.length)}.
+                          </span>
+                        </ExecutionEditionsToggleContent>
+                      </ExecutionEditionsToggle>
+                      {showExecutionEditions && (
+                        <CheckboxList>
+                          {executionKeys.map((editionKey) => {
+                            const item = editionItemByKey.get(editionKey);
+                            if (!item) {
+                              return (
+                                <ItemRow key={editionKey} as="div">
+                                  <ItemDetails>
+                                    <InlineValue>{editionKey}</InlineValue>
+                                    <span> - details unavailable</span>
+                                  </ItemDetails>
+                                </ItemRow>
+                              );
+                            }
+                            return (
+                              <ItemRow key={editionKey} as="div">
+                                <ItemDetails>
+                                  <InlineValue>
+                                    {[
+                                      item.year,
+                                      item.authors.join(", "),
+                                      item.cities.join(", "),
+                                    ]
+                                      .filter(Boolean)
+                                      .join(", ") || "—"}
+                                  </InlineValue>
+                                  {(item.shortTitle || item.title) && (
+                                    <span>
+                                      {" "}
+                                      - {item.shortTitle || item.title}
+                                    </span>
+                                  )}
+                                </ItemDetails>
+                              </ItemRow>
+                            );
+                          })}
+                        </CheckboxList>
+                      )}
+                    </>
                   )}
                   {execution.apply && execution.apply.length > 0 && (
                     <SmallText>

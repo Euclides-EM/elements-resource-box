@@ -104,7 +104,6 @@ const normalizeHexInput = (value: string) => {
 };
 
 interface DefinitionsTabProps {
-  features: featureplat_Feature[];
   sortedFeatures: featureplat_Feature[];
   loading: boolean;
   error: string | null;
@@ -113,7 +112,6 @@ interface DefinitionsTabProps {
 }
 
 export function DefinitionsTab({
-  features,
   sortedFeatures,
   loading,
   error: parentError,
@@ -172,7 +170,7 @@ export function DefinitionsTab({
   useEffect(() => {
     const nextEdits: Record<string, FeatureEditState> = {};
     const nextRevisionForms: Record<string, RevisionFormState> = {};
-    features.forEach((feature) => {
+    sortedFeatures.forEach((feature) => {
       if (!feature.id) return;
       nextEdits[feature.id] = {
         name: feature.name || "",
@@ -183,7 +181,7 @@ export function DefinitionsTab({
     });
     setFeatureEdits(nextEdits);
     setRevisionForms(nextRevisionForms);
-  }, [features]);
+  }, [sortedFeatures]);
 
   const handleUpdateFeature = async (
     feature: featureplat_Feature,
