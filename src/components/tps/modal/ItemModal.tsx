@@ -173,8 +173,10 @@ const ItemModal = ({
   apiReady,
   onClose,
 }: ItemModalProps) => {
-  const canEditHighlights = inEditMode() && !!featuresById;
-  featuresById = featuresById || {};
+  const highlightFeatures = featuresById || {};
+  const hasTitleText = !!item.title && item.title !== "?";
+  const canEditHighlights =
+    inEditMode() && Object.keys(highlightFeatures).length > 0;
   const [pendingEdits, setPendingEdits] = useState<PendingHighlightEdit[]>([]);
   const [addedHighlights, setAddedHighlights] = useState<HighlightSpan[]>([]);
   const [removedHighlightIds, setRemovedHighlightIds] = useState<Set<string>>(
@@ -188,26 +190,26 @@ const ItemModal = ({
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const sortedFeatureIds = useMemo(() => {
-    const ids = Object.keys(featuresById || {});
+    const ids = Object.keys(highlightFeatures);
     return ids
       .slice()
       .sort((a, b) =>
-        (featuresById[a].name || a).localeCompare(
-          featuresById[b].name || b,
+        (highlightFeatures[a].name || a).localeCompare(
+          highlightFeatures[b].name || b,
           undefined,
           { sensitivity: "base" },
         ),
       );
-  }, [featuresById]);
+  }, [highlightFeatures]);
 
   const featureOptions = useMemo(
     () =>
       sortedFeatureIds.map((featureId) => ({
         value: featureId,
-        label: featuresById[featureId].name || featureId,
-        color: featuresById[featureId].color,
+        label: highlightFeatures[featureId].name || featureId,
+        color: highlightFeatures[featureId].color,
       })),
-    [featuresById, sortedFeatureIds],
+    [highlightFeatures, sortedFeatureIds],
   );
 
   const openAnnotationModal = (selection: HighlightSelection) => {
@@ -347,12 +349,7 @@ const ItemModal = ({
         <ModalClose title="Close" onClick={onClose}>
           ✕
         </ModalClose>
-        {featuresById && (
-          <ItemInfo
-            isRow={Boolean(item.imageUrl || (item.title && item.title !== "?"))}
-            item={item}
-          />
-        )}
+        <ItemInfo isRow={Boolean(item.imageUrl || hasTitleText)} item={item} />
         <ModalTextContainer>
           {item.imageUrl && (
             <ModalTextColumn isImage>
@@ -364,64 +361,62 @@ const ItemModal = ({
               />
             </ModalTextColumn>
           )}
-          {featuresById &&
-            (item.title && item.title !== "?" ? (
-              <TextColumnsContainer>
+          {hasTitleText ? (
+            <TextColumnsContainer>
+              <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
+                <ModalTitle justifyStart gap={1}>
+                  Original Text
+                  <StyledHelpTip tooltipId={TOOLTIP_TRANSCRIPTION} />
+                </ModalTitle>
+                {canEditHighlights && (
+                  <FeatureEditToolbar>
+                    <FeatureEditHint>
+                      Select text to add an annotation. Hover a highlight to
+                      remove it.
+                    </FeatureEditHint>
+                  </FeatureEditToolbar>
+                )}
+                <Suspense fallback={<div>{item.title}</div>}>
+                  <HighlightedText
+                    text={item.title!}
+                    featuresById={highlightFeatures}
+                    itemKey={item.key}
+                    apiReady={apiReady}
+                    editable={canEditHighlights}
+                    addedHighlights={addedHighlights}
+                    removedHighlightIds={removedHighlightIds}
+                    onRequestAddAnnotation={openAnnotationModal}
+                    onRemoveHighlight={handleRemoveHighlight}
+                  />
+                </Suspense>
+                {item.imprint && (
+                  <>
+                    <hr style={{ opacity: 0.3 }} />
+                    {item.imprint}
+                  </>
+                )}
+              </ModalTextColumn>
+              {(item.titleEn || item.imprintEn) && (
                 <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
                   <ModalTitle justifyStart gap={1}>
-                    Original Text
-                    <StyledHelpTip tooltipId={TOOLTIP_TRANSCRIPTION} />
+                    English Translation{" "}
+                    <StyledHelpTip tooltipId={TOOLTIP_EN_TRANSLATION} />
                   </ModalTitle>
-                  {canEditHighlights && (
-                    <FeatureEditToolbar>
-                      <FeatureEditHint>
-                        Select text to add an annotation. Hover a highlight to
-                        remove it.
-                      </FeatureEditHint>
-                    </FeatureEditToolbar>
-                  )}
-                  <Suspense fallback={<div>{item.title}</div>}>
-                    <HighlightedText
-                      text={item.title}
-                      featuresById={featuresById}
-                      itemKey={item.key}
-                      apiReady={apiReady}
-                      editable={canEditHighlights}
-                      addedHighlights={addedHighlights}
-                      removedHighlightIds={removedHighlightIds}
-                      onRequestAddAnnotation={openAnnotationModal}
-                      onRemoveHighlight={handleRemoveHighlight}
-                    />
-                  </Suspense>
-                  {item.imprint && (
+                  <div>{item.titleEn}</div>
+                  {item.imprintEn && (
                     <>
-                      <hr style={{ opacity: 0.3 }} />
-                      {item.imprint}
+                      {item.imprint && <hr style={{ opacity: 0.3 }} />}
+                      <div>{item.imprintEn}</div>
                     </>
                   )}
                 </ModalTextColumn>
-                {(item.titleEn || item.imprintEn) && (
-                  <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
-                    <ModalTitle justifyStart gap={1}>
-                      English Translation{" "}
-                      <StyledHelpTip tooltipId={TOOLTIP_EN_TRANSLATION} />
-                    </ModalTitle>
-                    <div>{item.titleEn}</div>
-                    {item.imprintEn && (
-                      <>
-                        {item.imprint && <hr style={{ opacity: 0.3 }} />}
-                        <div>{item.imprintEn}</div>
-                      </>
-                    )}
-                  </ModalTextColumn>
-                )}
-              </TextColumnsContainer>
-            ) : (
-              <NoTitlePage>
-                This edition has no title page or it is not available.
-              </NoTitlePage>
-            ))}
-          {!featuresById && <ItemInfo item={item} />}
+              )}
+            </TextColumnsContainer>
+          ) : (
+            <NoTitlePage>
+              This edition has no title page or it is not available.
+            </NoTitlePage>
+          )}
         </ModalTextContainer>
         {pendingEdits.length > 0 && (
           <>
