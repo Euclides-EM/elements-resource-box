@@ -31,13 +31,12 @@ type ItemModalProps = {
   onClose: () => void;
 };
 
-const StyledHelpTip = styled(HelpTip)<{
-  marginLeft?: string;
-  marginTop?: string;
-}>`
-  margin: 0 0 ${({ marginTop }) => marginTop || "0"}
-    ${({ marginLeft }) => marginLeft || "-0.5rem"};
+const StyledHelpTip = styled(HelpTip)`
+  margin: 0 0 0 -0.5rem;
   z-index: 100;
+  svg {
+    margin-bottom: 4px;
+  }
 `;
 
 const NoTitlePage = styled.div`
@@ -63,6 +62,9 @@ const EditLink = styled.a`
 `;
 
 const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
+  const modalFeatures = features || [];
+  const hasTitleText = !!item.title && item.title !== "?";
+
   return (
     <Modal onClick={onClose}>
       <ModalContent
@@ -77,12 +79,7 @@ const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
         <ModalClose title="Close" onClick={onClose}>
           ✕
         </ModalClose>
-        {features && (
-          <ItemInfo
-            isRow={Boolean(item.imageUrl || (item.title && item.title !== "?"))}
-            item={item}
-          />
-        )}
+        <ItemInfo isRow={Boolean(item.imageUrl || hasTitleText)} item={item} />
         <ModalTextContainer>
           {item.imageUrl && (
             <ModalTextColumn isImage>
@@ -94,74 +91,66 @@ const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
               />
             </ModalTextColumn>
           )}
-          {features &&
-            (item.title && item.title !== "?" ? (
-              <TextColumnsContainer>
+          {hasTitleText ? (
+            <TextColumnsContainer>
+              <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
+                <ModalTitle justifyStart gap={1}>
+                  Original Text
+                  <StyledHelpTip tooltipId={TOOLTIP_TRANSCRIPTION} />
+                </ModalTitle>
+                <Suspense fallback={<div>{item.title}</div>}>
+                  <HighlightedText
+                    text={item.title!}
+                    features={modalFeatures}
+                    mapping={item.features}
+                  />
+                </Suspense>
+                {item.imprint && (
+                  <>
+                    <hr style={{ opacity: 0.3 }} />
+                    <Suspense fallback={<div>{item.imprint}</div>}>
+                      <HighlightedText
+                        text={item.imprint}
+                        features={modalFeatures}
+                        mapping={item.features}
+                      />
+                    </Suspense>
+                  </>
+                )}
+              </ModalTextColumn>
+              {(item.titleEn || item.imprintEn) && (
                 <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
                   <ModalTitle justifyStart gap={1}>
-                    Original Text
-                    <StyledHelpTip
-                      tooltipId={TOOLTIP_TRANSCRIPTION}
-                      marginTop="2px"
-                    />
+                    English Translation{" "}
+                    <StyledHelpTip tooltipId={TOOLTIP_EN_TRANSLATION} />
                   </ModalTitle>
-                  <Suspense fallback={<div>{item.title}</div>}>
+                  <Suspense fallback={<div>{item.titleEn || ""}</div>}>
                     <HighlightedText
-                      text={item.title}
-                      features={features}
-                      mapping={item.features}
+                      text={item.titleEn || ""}
+                      features={[]}
+                      mapping={{}}
                     />
                   </Suspense>
-                  {item.imprint && (
+                  {item.imprintEn && (
                     <>
-                      <hr style={{ opacity: 0.3 }} />
-                      <Suspense fallback={<div>{item.imprint}</div>}>
+                      {item.imprint && <hr style={{ opacity: 0.3 }} />}
+                      <Suspense fallback={<div>{item.imprintEn}</div>}>
                         <HighlightedText
-                          text={item.imprint}
-                          features={features}
-                          mapping={item.features}
+                          text={item.imprintEn}
+                          features={[]}
+                          mapping={{}}
                         />
                       </Suspense>
                     </>
                   )}
                 </ModalTextColumn>
-                {(item.titleEn || item.imprintEn) && (
-                  <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
-                    <ModalTitle justifyStart gap={1}>
-                      English Translation{" "}
-                      <StyledHelpTip
-                        tooltipId={TOOLTIP_EN_TRANSLATION}
-                        marginTop="2px"
-                      />
-                    </ModalTitle>
-                    <Suspense fallback={<div>{item.titleEn || ""}</div>}>
-                      <HighlightedText
-                        text={item.titleEn || ""}
-                        features={[]}
-                        mapping={{}}
-                      />
-                    </Suspense>
-                    {item.imprintEn && (
-                      <>
-                        {item.imprint && <hr style={{ opacity: 0.3 }} />}
-                        <Suspense fallback={<div>{item.imprintEn}</div>}>
-                          <HighlightedText
-                            text={item.imprintEn}
-                            features={[]}
-                            mapping={{}}
-                          />
-                        </Suspense>
-                      </>
-                    )}
-                  </ModalTextColumn>
-                )}
-              </TextColumnsContainer>
-            ) : (
-              <NoTitlePage>
-                This edition has no title page or it is not available.
-              </NoTitlePage>
-            ))}
-          {!features && <ItemInfo item={item} />}
+              )}
+            </TextColumnsContainer>
+          ) : (
+            <NoTitlePage>
+              This edition has no title page or it is not available.
+            </NoTitlePage>
+          )}
         </ModalTextContainer>
         {inEditMode() && <NotesEditor item={item} />}
       </ModalContent>
