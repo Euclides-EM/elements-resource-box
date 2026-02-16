@@ -36,6 +36,8 @@ export type { annotationrule_Stretch } from './models/annotationrule_Stretch';
 export type { annotationrule_TextBlockCorrection } from './models/annotationrule_TextBlockCorrection';
 export type { annotationrule_TextBlockCorrections } from './models/annotationrule_TextBlockCorrections';
 export type { annotationrule_Type } from './models/annotationrule_Type';
+export type { api_editionDiagramsResponse } from './models/api_editionDiagramsResponse';
+export type { api_editionDiagramVolume } from './models/api_editionDiagramVolume';
 export type { common_AuthValidateResponse } from './models/common_AuthValidateResponse';
 export type { common_HealthStatus } from './models/common_HealthStatus';
 export type { common_OCRModelType } from './models/common_OCRModelType';

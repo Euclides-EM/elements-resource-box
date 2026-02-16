@@ -1,5 +1,5 @@
 import { EditionsService, ThirdPartyCatalogsService } from "../../hub-api";
-import type { model_Edition, model_USTC } from "../../hub-api";
+import type { model_Edition, model_USTC, search_Query } from "../../hub-api";
 import { uploadImage } from "./imageApi.ts";
 
 export const upsertEdition = async (
@@ -89,4 +89,38 @@ export const ustcLookup = async (
   return ThirdPartyCatalogsService.postCatalogsUstcLookup({
     ustc: { ustc_id: parseInt(ustcId, 10) },
   });
+};
+
+export const getEdition = async (key: string): Promise<model_Edition> => {
+  return EditionsService.getEditions({ key });
+};
+
+export const listAllEditions = async (
+  query?: Omit<search_Query, "offset" | "limit">,
+): Promise<model_Edition[]> => {
+  const limit = 500;
+  let offset = 0;
+  const results: model_Edition[] = [];
+
+  while (true) {
+    const page = await EditionsService.postEditionsSearch({
+      edition: {
+        ...query,
+        offset,
+        limit,
+      },
+    });
+    const items = page.items || [];
+    results.push(...items);
+    if (
+      items.length === 0 ||
+      items.length < limit ||
+      (page.total !== undefined && results.length >= page.total)
+    ) {
+      break;
+    }
+    offset += limit;
+  }
+
+  return results;
 };

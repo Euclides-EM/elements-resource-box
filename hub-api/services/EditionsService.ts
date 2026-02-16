@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { api_editionDiagramsResponse } from '../models/api_editionDiagramsResponse';
 import type { model_Edition } from '../models/model_Edition';
 import type { model_EditionListResult } from '../models/model_EditionListResult';
 import type { model_ImageUpload } from '../models/model_ImageUpload';
@@ -71,6 +72,18 @@ export class EditionsService {
             method: 'POST',
             url: '/editions',
             body: edition,
+        });
+    }
+    /**
+     * List Edition Diagram Directories
+     * Get all available edition diagram directory keys.
+     * @returns string OK
+     * @throws ApiError
+     */
+    public static getEditionsDiagrams(): CancelablePromise<Array<string>> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/editions/diagrams',
         });
     }
     /**
@@ -144,6 +157,56 @@ export class EditionsService {
                 'key': key,
             },
             body: edition,
+        });
+    }
+    /**
+     * Delete Edition
+     * Delete an edition identified by key.
+     * @returns any OK
+     * @throws ApiError
+     */
+    public static deleteEditions({
+        key,
+    }: {
+        /**
+         * Edition key
+         */
+        key: string,
+    }): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/editions/{key}',
+            path: {
+                'key': key,
+            },
+            errors: {
+                400: `Missing key`,
+            },
+        });
+    }
+    /**
+     * Get Edition Diagrams
+     * Get diagram image URLs for a specific edition key.
+     * @returns api_editionDiagramsResponse OK
+     * @throws ApiError
+     */
+    public static getEditionsDiagrams1({
+        key,
+    }: {
+        /**
+         * Edition key
+         */
+        key: string,
+    }): CancelablePromise<api_editionDiagramsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/editions/{key}/diagrams',
+            path: {
+                'key': key,
+            },
+            errors: {
+                400: `Missing key`,
+            },
         });
     }
     /**

@@ -14,11 +14,7 @@ import { ItemInfo } from "../components/tps/modal/ItemInfo";
 import { NO_AUTHOR, NO_CITY, NO_YEAR } from "../constants";
 import { compareBookStatementRef } from "../types/book_statement_ref.ts";
 import { joinArr } from "../utils/util.ts";
-import {
-  buildDiagramImageUrl,
-  fetchDiagrams,
-  VolumeData,
-} from "../utils/diagrams.ts";
+import { fetchDiagrams, VolumeData } from "../api/diagramsApi.ts";
 import { LAND_COLOR, SEA_COLOR } from "../utils/colors.ts";
 
 const DiagramsContainer = styled.div`
@@ -217,7 +213,9 @@ interface ModalState {
   title: string;
 }
 
-const parseImageName = (filename: string): ImageInfo => {
+const parseImageName = (imagePath: string): ImageInfo => {
+  const filename =
+    imagePath.split("/").pop()?.split("?")[0]?.split("#")[0] || imagePath;
   const nameWithoutExt = filename.replace(".jpg", "");
   const parts = nameWithoutExt.split("_");
 
@@ -583,10 +581,7 @@ const Diagrams = () => {
                     )}
                     {volumeImages.map((imageName) => {
                       const imageInfo = parseImageName(imageName);
-                      const imagePath = buildDiagramImageUrl(
-                        volume.key,
-                        imageName,
-                      );
+                      const imagePath = imageName;
 
                       return (
                         <DiagramCard
@@ -626,7 +621,7 @@ const Diagrams = () => {
 
             {filteredImages.map((imageName) => {
               const imageInfo = parseImageName(imageName);
-              const imagePath = buildDiagramImageUrl(editionKey!, imageName);
+              const imagePath = imageName;
 
               return (
                 <DiagramCard

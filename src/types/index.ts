@@ -1,5 +1,10 @@
 import { NO_CITY } from "../constants";
-import { City } from "../data/csvTypes.ts";
+
+export type City = {
+  city: string;
+  lon: number;
+  lat: number;
+};
 
 export type Mode = "texts" | "images";
 
@@ -56,6 +61,7 @@ export const FLOATING_CITY_ENTRY: City = {
 
 export type Item = {
   key: string;
+  reprintOf?: string | null;
   year: string | null;
   cities: string[];
   languages: string[];

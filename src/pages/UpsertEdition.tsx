@@ -2,51 +2,23 @@ import { useForm, useStore } from "@tanstack/react-form";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "@emotion/styled";
-import { deleteEdition, upsertEdition, ustcLookup } from "../api/editionApi";
-import type { model_Edition } from "../../hub-api";
+import {
+  deleteEdition,
+  getEdition,
+  listAllEditions,
+  upsertEdition,
+  ustcLookup,
+} from "../api/editionApi";
+import type { model_Edition, model_EditionLocator } from "../../hub-api";
 import { AuthContext } from "../contexts/Auth.ts";
 import { CATALOGUE_ROUTE } from "../components/layout/routes.ts";
 import { isNil, startCase, uniq, uniqueId } from "lodash";
-import {
-  BibliographyEntry,
-  City,
-  ClusterEntry,
-  ClusterItem,
-  CSV_PATH_BIBLIOGRAPHY,
-  CSV_PATH_CITIES,
-  CSV_PATH_CLUSTER_ITEMS,
-  CSV_PATH_CLUSTERS,
-  CSV_PATH_CORPUSES,
-  CSV_PATH_ITEMS_MANUSCRIPT,
-  CSV_PATH_ITEMS_PRINT,
-  CSV_PATH_LOCATORS,
-  CSV_PATH_MD_MANUSCRIPT,
-  CSV_PATH_MD_PRINT,
-  CSV_PATH_REVIEWS,
-  CSV_PATH_SHELFMARKS,
-  CSV_PATH_TRANSCRIPTIONS,
-  CSV_PATH_TRANSLATIONS,
-  CSV_PATH_VISUAL_ELEMENTS,
-  CSV_PATH_VISUAL_ELEMENTS_EXAMPLES,
-  Locator,
-  ManuscriptDetails,
-  ManuscriptElementsMetadata,
-  ParatextTranscriptions,
-  ParatextTranslations,
-  PrintDetails,
-  PrintElementsMetadata,
-  Review,
-  Shelfmarks,
-  StudyCorpuses,
-  VisualElement,
-  VisualElementExample,
-} from "../data/csvTypes.ts";
-import { invalidateCsvCache, loadAndParseCsv } from "../utils/csv.ts";
-import { parseBooks } from "../utils/normalizeNames.ts";
 import MultiSelect from "../components/tps/filters/MultiSelect.tsx";
 import SingleSelect from "../components/tps/filters/SingleSelect.tsx";
 import { Row } from "../components/common.ts";
 import { isValidUrl } from "../utils/util.ts";
+
+type Locator = model_EditionLocator;
 
 type EditionFormData = {
   key: string;
@@ -489,61 +461,9 @@ const getSuggestedKey = (): string => {
   return Math.random().toString(36).slice(2, 8).toUpperCase();
 };
 
-const getReprintOf = (
-  key: string,
-  printsItems: PrintDetails[],
-  clusters: ClusterEntry[],
-  clusterItems: ClusterItem[],
-): string | null => {
-  const reprintClusters = clusters.filter((c) => c.type === "reprint");
-  const relevantCluster = clusterItems.find((ci) => ci.item_key === key);
-
-  if (!relevantCluster) {
-    return null;
-  }
-
-  const clusterKey = relevantCluster.cluster_key;
-  const cluster = reprintClusters.find((c) => c.key === clusterKey);
-
-  if (!cluster) {
-    return null;
-  }
-
-  const itemsInCluster = clusterItems
-    .filter((ci) => ci.cluster_key === clusterKey)
-    .map((ci) => ci.item_key);
-
-  if (itemsInCluster.length < 2) {
-    return null;
-  }
-
-  const itemsWithYears = itemsInCluster
-    .map((itemKey) => {
-      const item = printsItems.find((p) => p.key === itemKey);
-      return item
-        ? { key: itemKey, year: (item.year && parseInt(item.year)) || 0 }
-        : null;
-    })
-    .filter(Boolean) as { key: string; year: number }[];
-
-  const minYear = Math.min(...itemsWithYears.map((i) => i.year));
-  const earliestItems = itemsWithYears.filter((i) => i.year === minYear);
-
-  if (earliestItems.some((i) => i.key === key)) {
-    return null;
-  }
-
-  return earliestItems[0]?.key || null;
-};
-
-const generateCitationWithShortTitle = (
-  item: PrintDetails,
-  transcription?: ParatextTranscriptions,
-): string => {
+const generateCitationWithShortTitle = (item: model_Edition): string => {
   const year = item.year || "s.d.";
-  const authors = item.author_or_editor
-    ? item.author_or_editor.split(",").map((s) => s.trim())
-    : [];
+  const authors = item.editor || [];
 
   const getAuthorLastName = (author: string) => {
     return author.split(",")[0]?.trim() || author.trim();
@@ -561,14 +481,12 @@ const generateCitationWithShortTitle = (
     citation = `${lastNames.slice(0, -1).join(", ")}, and ${lastNames[lastNames.length - 1]} ${year}`;
   }
 
-  const shortTitle = item.short_title?.trim();
+  const shortTitle = item.shortTitle?.trim();
   if (shortTitle) {
     citation += ` (${shortTitle})`;
-  } else if (transcription?.title) {
+  } else if (item.title) {
     const title =
-      transcription.title.length > 50
-        ? transcription.title.substring(0, 50) + "..."
-        : transcription.title;
+      item.title.length > 50 ? item.title.substring(0, 50) + "..." : item.title;
     citation += ` (${title})`;
   }
 
@@ -576,166 +494,90 @@ const generateCitationWithShortTitle = (
 };
 
 const loadExistingItem = async (key: string): Promise<EditionFormData> => {
-  const [
-    manuscriptsItems,
-    manuscriptsMetadata,
-    printsItems,
-    printsMetadata,
-    transcriptions,
-    corpuses,
-    translations,
-    shelfmarks,
-    reviews,
-    bibliography,
-    clusters,
-    clusterItems,
-    visualElements,
-    visualElementExamples,
-    locators,
-  ] = await Promise.all([
-    loadAndParseCsv<ManuscriptDetails>(CSV_PATH_ITEMS_MANUSCRIPT),
-    loadAndParseCsv<ManuscriptElementsMetadata>(CSV_PATH_MD_MANUSCRIPT),
-    loadAndParseCsv<PrintDetails>(CSV_PATH_ITEMS_PRINT),
-    loadAndParseCsv<PrintElementsMetadata>(CSV_PATH_MD_PRINT),
-    loadAndParseCsv<ParatextTranscriptions>(CSV_PATH_TRANSCRIPTIONS),
-    loadAndParseCsv<StudyCorpuses>(CSV_PATH_CORPUSES),
-    loadAndParseCsv<ParatextTranslations>(CSV_PATH_TRANSLATIONS),
-    loadAndParseCsv<Shelfmarks>(CSV_PATH_SHELFMARKS),
-    loadAndParseCsv<Review>(CSV_PATH_REVIEWS),
-    loadAndParseCsv<BibliographyEntry>(CSV_PATH_BIBLIOGRAPHY),
-    loadAndParseCsv<ClusterEntry>(CSV_PATH_CLUSTERS),
-    loadAndParseCsv<ClusterItem>(CSV_PATH_CLUSTER_ITEMS),
-    loadAndParseCsv<VisualElement>(CSV_PATH_VISUAL_ELEMENTS),
-    loadAndParseCsv<VisualElementExample>(CSV_PATH_VISUAL_ELEMENTS_EXAMPLES),
-    loadAndParseCsv<Locator>(CSV_PATH_LOCATORS),
-  ]);
-  const manuscriptItem = manuscriptsItems.find((item) => item.key === key);
-  const manuscriptMd = manuscriptsMetadata.find((item) => item.key === key);
-  const printItem = printsItems.find((item) => item.key === key);
-  const printMd = printsMetadata.find((item) => item.key === key);
-  const isManuscript = !!manuscriptItem;
-  const transcription = transcriptions.find((t) => t.key === key);
-  const isElements = manuscriptMd || printMd;
+  const edition = await getEdition(key);
+  const isManuscript = Boolean(edition.isManuscript);
+
   return {
     key,
-    shortTitle: isManuscript
-      ? manuscriptItem!.short_title || ""
-      : printItem!.short_title || "",
-    shortTitleSource: isManuscript
-      ? manuscriptItem!.short_title_source || ""
-      : printItem!.short_title_source || "",
-    cities: isManuscript
-      ? []
-      : printItem!.city
-        ? printItem!.city.split(",").map((s) => s.trim())
-        : [],
-    notes: isManuscript ? manuscriptItem!.notes || "" : printItem!.notes || "",
-    corpus:
-      corpuses
-        .find((c) => c.key === key)
-        ?.study.split(",")
-        .map((s) => s.trim())
-        .filter(Boolean) || [],
-    shelfmarks: shelfmarks
-      .filter((s) => s.key === key)
-      .map((s) => ({
-        volume: s.volume ? parseInt(s.volume, 10) : null,
-        scan: s.scan,
-        shelfmark: s.shelf_mark,
-        title_page_img: s.title_page_img,
-        frontispiece_img: s.frontispiece_img,
-        annotations: s.annotations,
-        copyright: s.copyright,
+    shortTitle: edition.shortTitle || "",
+    shortTitleSource: edition.shortTitleSource || "",
+    cities: isManuscript ? [] : edition.cities || [],
+    notes: edition.notes || "",
+    corpus: edition.corpus || [],
+    shelfmarks: (edition.shelfmarks || []).map((s) => ({
+      volume: s.volume ?? null,
+      scan: s.scan ?? null,
+      shelfmark: s.shelfmark ?? null,
+      title_page_img: s.title_page_img ?? null,
+      frontispiece_img: s.frontispiece_img ?? null,
+      annotations: s.annotations ?? null,
+      copyright: s.copyright ?? null,
+    })),
+    verified: Boolean(edition.verified),
+    bibliography: edition.bibliography || [],
+    reprintOf: edition.reprintOf || null,
+    visualElements: (edition.visualElements || []).map((ve) => ({
+      visual_element_type: ve.visual_element_type || "",
+      notes: ve.notes || "",
+      locator_type: ve.locator_type || "uncatalogued",
+      locator: ve.locator
+        ? {
+            key: ve.locator.key,
+            first_order_type: ve.locator.first_order_type,
+            first_order_value: ve.locator.first_order_value,
+            type: ve.locator.type,
+            value: ve.locator.value,
+            page_type: ve.locator.page_type,
+            page_value: ve.locator.page_value,
+          }
+        : null,
+      examples: (ve.examples || []).map((example) => ({
+        img: example.img || "",
+        has_locator: Boolean(example.has_locator),
+        locator: example.locator
+          ? {
+              key: example.locator.key,
+              first_order_type: example.locator.first_order_type,
+              first_order_value: example.locator.first_order_value,
+              type: example.locator.type,
+              value: example.locator.value,
+              page_type: example.locator.page_type,
+              page_value: example.locator.page_value,
+            }
+          : null,
       })),
-    verified: reviews.some((r) => r.key === key),
-    bibliography: bibliography
-      .filter((b) => b.key === key)
-      .map((b) => b.citation),
-    reprintOf: getReprintOf(key, printsItems, clusters, clusterItems),
-    visualElements: visualElements
-      .filter((ve) => ve.key === key)
-      .map((ve) => {
-        const locator = ve.locator_key
-          ? locators.find((l) => l.key === ve.locator_key) || null
-          : null;
-        const examples = visualElementExamples
-          .filter((vee) => vee.key === ve.key)
-          .map((vee) => ({
-            img: vee.path,
-            has_locator: !!vee.locator_key,
-            locator: vee.locator_key
-              ? locators.find((l) => l.key === vee.locator_key) || null
-              : null,
-          }));
-
-        return {
-          key: ve.key,
-          visual_element_type: ve.visual_element_type,
-          notes: ve.notes || "",
-          locator_type: ve.locator_type,
-          locator,
-          examples,
-        };
-      }),
+    })),
     ...(isManuscript
       ? {
           isManuscript: true,
-          manuscriptYearFrom: manuscriptItem!.year_from
-            ? parseInt(manuscriptItem!.year_from, 10)
-            : 0,
-          manuscriptYearTo: manuscriptItem!.year_to
-            ? parseInt(manuscriptItem!.year_to, 10)
-            : 0,
-          manuscriptClass: manuscriptMd?.class || "",
-          manuscriptSubclass: manuscriptMd?.subclass || null,
+          manuscriptYearFrom: edition.manuscriptYearFrom || 0,
+          manuscriptYearTo: edition.manuscriptYearTo || 0,
+          manuscriptClass: edition.manuscriptClass || "",
+          manuscriptSubclass: edition.manuscriptSubclass || null,
         }
       : {
           isManuscript: false,
-          year: printItem!.year,
-          languages: printItem!.language
-            ? printItem!.language.split(",").map((s) => s.trim())
-            : [],
-          editor: printItem!.author_or_editor
-            ? printItem!.author_or_editor.split(",").map((s) => s.trim())
-            : [],
-          publisher: printItem!.publisher
-            ? printItem!.publisher.split(",").map((s) => s.trim())
-            : [],
-          format: printItem!.format ? parseInt(printItem!.format, 10) : null,
-          volumes: printItem!.volumes ? parseInt(printItem!.volumes, 10) : 1,
-          ustcId: printItem!.ustc_id || null,
-          title: transcription?.title || null,
-          title_EN:
-            translations.find((t) => t.key === key && t.field === "title")
-              ?.en || null,
-          imprint: transcription?.imprint || null,
-          imprint_EN:
-            translations.find((t) => t.key === key && t.field === "imprint")
-              ?.en || null,
-          colophon: transcription?.colophon || null,
-          colophon_EN:
-            translations.find((t) => t.key === key && t.field === "colophon")
-              ?.en || null,
-          frontispiece: transcription?.frontispiece || null,
-          frontispiece_EN:
-            translations.find(
-              (t) => t.key === key && t.field === "frontispiece",
-            )?.en || null,
+          year: edition.year || "",
+          languages: edition.languages || [],
+          editor: edition.editor || [],
+          publisher: edition.publisher || [],
+          format: edition.format ?? null,
+          volumes: edition.volumes ?? 1,
+          ustcId: edition.ustcId || null,
+          title: edition.title || null,
+          title_EN: edition.title_EN || null,
+          imprint: edition.imprint || null,
+          imprint_EN: edition.imprint_EN || null,
+          colophon: edition.colophon || null,
+          colophon_EN: edition.colophon_EN || null,
+          frontispiece: edition.frontispiece || null,
+          frontispiece_EN: edition.frontispiece_EN || null,
         }),
-    ...(isElements
+    ...(edition.isElements
       ? {
           isElements: true,
-          books: parseBooks(
-            isManuscript
-              ? manuscriptMd!.elements_books
-              : printMd!.elements_books,
-          ).elementsBooksExpanded,
-          additionalContent: isManuscript
-            ? ([] as string[])
-            : printMd!.additional_content
-                ?.split(",")
-                .map((s) => s.trim())
-                .filter(Boolean) || [],
+          books: edition.books || [],
+          additionalContent: edition.additionalContent || [],
         }
       : { isElements: false }),
   };
@@ -784,13 +626,14 @@ const defaultValues = (): EditionFormData => ({
   visualElements: [],
 });
 
-function toOptions<T extends Record<string, string | null>>(
-  items: T[],
-  field: keyof T,
+function toOptionsFromArray(
+  items: model_Edition[],
+  field: "editor" | "publisher",
 ): string[] {
   return uniq(
     items
-      .flatMap((item) => item[field]?.split(",").map((s) => s.trim()) || [])
+      .flatMap((item) => item[field] || [])
+      .map((s) => s.trim())
       .filter(Boolean)
       .sort(),
   );
@@ -853,7 +696,6 @@ export const UpsertEdition = () => {
         value.bibliography = value.bibliography.filter((b) => b);
         deepTrim(value);
         await upsertEdition(toModelEdition(value), images);
-        invalidateCsvCache();
         navigate(CATALOGUE_ROUTE);
       } catch (err) {
         console.error(err);
@@ -992,66 +834,68 @@ export const UpsertEdition = () => {
   }, [key]);
 
   useEffect(() => {
-    Promise.all([
-      loadAndParseCsv<PrintDetails>(CSV_PATH_ITEMS_PRINT),
-      loadAndParseCsv<PrintElementsMetadata>(CSV_PATH_MD_PRINT),
-      loadAndParseCsv<ParatextTranscriptions>(CSV_PATH_TRANSCRIPTIONS),
-      // @ts-expect-error csv record
-      loadAndParseCsv<City>(CSV_PATH_CITIES),
-      loadAndParseCsv<VisualElement>(CSV_PATH_VISUAL_ELEMENTS),
-      loadAndParseCsv<Locator>(CSV_PATH_LOCATORS),
-    ])
-      .then(
-        ([
-          printItems,
-          elementsMd,
-          transcriptions,
-          cities,
-          visualElements,
-          locators,
-        ]) => {
-          const editors = toOptions(printItems, "author_or_editor");
-          const publishers = toOptions(printItems, "publisher");
-          const additionalContents = toOptions(
-            elementsMd,
-            "additional_content",
-          );
-          const cityNames = cities.map((c) => c.city).filter(Boolean);
+    listAllEditions()
+      .then((editions) => {
+        const editors = toOptionsFromArray(editions, "editor");
+        const publishers = toOptionsFromArray(editions, "publisher");
+        const additionalContents = uniq(
+          editions
+            .flatMap((item) => item.additionalContent || [])
+            .map((item) => item.trim())
+            .filter(Boolean)
+            .sort(),
+        );
+        const cityNames = uniq(
+          editions
+            .flatMap((item) => item.cities || [])
+            .map((item) => item.trim())
+            .filter(Boolean)
+            .sort(),
+        );
 
-          const reprintOptions = printItems
-            .map((item) => {
-              const transcription = transcriptions.find(
-                (t) => t.key === item.key,
-              );
-              return {
-                value: item.key,
-                label: generateCitationWithShortTitle(item, transcription),
-              };
-            })
-            .sort((a, b) => a.label.localeCompare(b.label));
+        const reprintOptions = editions
+          .filter((item) => item.key && !item.isManuscript)
+          .map((item) => ({
+            value: item.key!,
+            label: generateCitationWithShortTitle(item),
+          }))
+          .sort((a, b) => a.label.localeCompare(b.label));
 
-          const visualElementTypes = uniq(
-            visualElements.map((ve) => ve.visual_element_type).filter(Boolean),
-          ).sort();
-          const locatorTypes = uniq([
-            ...locators.map((l) => l.type).filter(Boolean),
-            "Proposition",
-            "Definition",
-            "Common notion",
-            "Scholia of proposition",
-          ]).sort() as string[];
+        const visualElementTypes = uniq(
+          editions.flatMap((edition) =>
+            (edition.visualElements || [])
+              .map((ve) => ve.visual_element_type)
+              .filter(Boolean),
+          ),
+        ).sort() as string[];
 
-          setLists({
-            editors,
-            publishers,
-            additionalContents,
-            cities: cityNames,
-            reprintOptions,
-            visualElementTypes,
-            locatorTypes,
-          });
-        },
-      )
+        const locatorTypes = uniq([
+          ...editions.flatMap((edition) =>
+            (edition.visualElements || [])
+              .flatMap((visualElement) => [
+                visualElement.locator?.type,
+                ...(visualElement.examples || []).map(
+                  (example) => example.locator?.type,
+                ),
+              ])
+              .filter(Boolean),
+          ),
+          "Proposition",
+          "Definition",
+          "Common notion",
+          "Scholia of proposition",
+        ]).sort() as string[];
+
+        setLists({
+          editors,
+          publishers,
+          additionalContents,
+          cities: cityNames,
+          reprintOptions,
+          visualElementTypes,
+          locatorTypes,
+        });
+      })
       .finally(() => setListsLoading(false));
   }, []);
 
@@ -1069,7 +913,6 @@ export const UpsertEdition = () => {
     try {
       setIsDeleting(true);
       await deleteEdition(key);
-      invalidateCsvCache();
       navigate(CATALOGUE_ROUTE);
     } catch (err) {
       console.error(err);

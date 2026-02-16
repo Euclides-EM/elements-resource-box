@@ -36,13 +36,6 @@ import { HelpTip } from "../components/map/Filter.tsx";
 import { Switch, SwitchOption } from "../components/map/Switch.tsx";
 import { Stats } from "../components/Stats.tsx";
 import { exportCitationsAsRTF } from "../utils/chicagoCitationExport";
-import {
-  ClusterEntry,
-  ClusterItem,
-  CSV_PATH_CLUSTERS,
-  CSV_PATH_CLUSTER_ITEMS,
-} from "../data/csvTypes.ts";
-import { loadAndParseCsv } from "../utils/csv";
 import { useLocalStorage } from "usehooks-ts";
 import { withAppBasePath } from "../utils/basePath";
 import { PiArrowBendDownRightBold } from "react-icons/pi";
@@ -247,8 +240,6 @@ function Catalogue() {
     "reprint",
   );
   const [expanded, setExpanded] = useState<ExpandedState>({});
-  const [clusters, setClusters] = useState<ClusterEntry[]>([]);
-  const [clusterItems, setClusterItems] = useState<ClusterItem[]>([]);
 
   const handleScroll = () => {
     const el = document.getElementById(MAIN_CONTENT_ID);
@@ -277,77 +268,67 @@ function Catalogue() {
     return () => el?.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const loadClusterData = async () => {
-      try {
-        const [clustersData, clusterItemsData] = await Promise.all([
-          loadAndParseCsv<ClusterEntry>(CSV_PATH_CLUSTERS),
-          loadAndParseCsv<ClusterItem>(CSV_PATH_CLUSTER_ITEMS),
-        ]);
-        setClusters(clustersData);
-        setClusterItems(clusterItemsData);
-      } catch (error) {
-        console.error("Failed to load cluster data:", error);
-      }
-    };
-
-    loadClusterData();
-  }, []);
-
   const processedItems = useMemo(() => {
     if (viewMode === "flat") {
       return filteredItems;
     }
 
-    const reprintClusters = clusters.filter((c) => c.type === "reprint");
     const itemMap = new Map(filteredItems?.map((item) => [item.key, item]));
     const processedItemsMap = new Map<string, ItemWithCluster>();
+    const childrenByParent = new Map<string, Item[]>();
 
     for (const item of filteredItems ?? []) {
-      const clusterItem = clusterItems.find((ci) => ci.item_key === item.key);
-
-      if (clusterItem) {
-        const cluster = reprintClusters.find(
-          (c) => c.key === clusterItem.cluster_key,
-        );
-
-        if (cluster) {
-          const itemsInCluster = clusterItems
-            .filter((ci) => ci.cluster_key === cluster.key)
-            .map((ci) => itemMap.get(ci.item_key))
-            .filter(Boolean) as Item[];
-
-          if (itemsInCluster.length > 1) {
-            const sortedByYear = itemsInCluster.sort((a, b) => {
-              const yearA = a.year ? parseInt(a.year) : 9999;
-              const yearB = b.year ? parseInt(b.year) : 9999;
-              return yearA - yearB;
-            });
-
-            const rootItem = sortedByYear[0];
-
-            if (item.key === rootItem.key) {
-              const clusterMembers = sortedByYear.slice(1);
-              processedItemsMap.set(item.key, {
-                ...item,
-                isClusterRoot: true,
-                clusterKey: cluster.key,
-                clusterMembers,
-              } as ItemWithCluster);
-            }
-          } else {
-            processedItemsMap.set(item.key, item as ItemWithCluster);
-          }
-        } else {
-          processedItemsMap.set(item.key, item as ItemWithCluster);
-        }
-      } else {
-        processedItemsMap.set(item.key, item as ItemWithCluster);
+      if (!item.reprintOf || !itemMap.has(item.reprintOf)) {
+        continue;
       }
+      const existing = childrenByParent.get(item.reprintOf) || [];
+      existing.push(item);
+      childrenByParent.set(item.reprintOf, existing);
+    }
+
+    const collectDescendants = (rootKey: string): Item[] => {
+      const stack = [...(childrenByParent.get(rootKey) || [])];
+      const seen = new Set<string>();
+      const descendants: Item[] = [];
+
+      while (stack.length > 0) {
+        const next = stack.shift()!;
+        if (seen.has(next.key)) {
+          continue;
+        }
+        seen.add(next.key);
+        descendants.push(next);
+        stack.push(...(childrenByParent.get(next.key) || []));
+      }
+
+      return descendants.sort((a, b) => {
+        const yearA = a.year ? parseInt(a.year) : 9999;
+        const yearB = b.year ? parseInt(b.year) : 9999;
+        return yearA - yearB;
+      });
+    };
+
+    for (const item of filteredItems ?? []) {
+      if (item.reprintOf && itemMap.has(item.reprintOf)) {
+        continue;
+      }
+
+      const clusterMembers = collectDescendants(item.key);
+      if (clusterMembers.length > 0) {
+        processedItemsMap.set(item.key, {
+          ...item,
+          isClusterRoot: true,
+          clusterKey: item.key,
+          clusterMembers,
+        } as ItemWithCluster);
+        continue;
+      }
+
+      processedItemsMap.set(item.key, item as ItemWithCluster);
     }
 
     return Array.from(processedItemsMap.values());
-  }, [filteredItems, viewMode, clusters, clusterItems]);
+  }, [filteredItems, viewMode]);
 
   const columnHelper = createColumnHelper<ItemWithCluster>();
 
