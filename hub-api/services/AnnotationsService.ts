@@ -653,7 +653,7 @@ export class AnnotationsService {
     }
     /**
      * Upload Annotation to Roboflow
-     * Upload an annotation to Roboflow for a specific dataset.
+     * Upload an annotation to Roboflow for a specific dataset. Use async=true to return immediately and run the upload in the background.
      * @returns annotation_Annotation OK
      * @throws ApiError
      */
@@ -661,6 +661,7 @@ export class AnnotationsService {
         dataSetId,
         id,
         annotationRoboflowUpload,
+        async,
     }: {
         /**
          * Dataset ID
@@ -674,6 +675,10 @@ export class AnnotationsService {
          * Annotation Roboflow upload details
          */
         annotationRoboflowUpload: annotation_UploadRoboflow,
+        /**
+         * If true, return immediately and perform upload in background
+         */
+        async?: string,
     }): CancelablePromise<annotation_Annotation> {
         return __request(OpenAPI, {
             method: 'PUT',
@@ -681,6 +686,9 @@ export class AnnotationsService {
             path: {
                 'dataSetId': dataSetId,
                 'id': id,
+            },
+            query: {
+                'async': async,
             },
             body: annotationRoboflowUpload,
         });
