@@ -17,7 +17,7 @@ export const getRouterBasename = (): string => {
   return base === "/" ? "/" : base.slice(0, -1);
 };
 
-export const stripBasePath = (path: string): string => {
+const stripBasePath = (path: string): string => {
   const base = getAppBasePath();
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
