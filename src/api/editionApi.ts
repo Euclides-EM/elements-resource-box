@@ -83,7 +83,9 @@ export const deleteEdition = async (key: string): Promise<void> => {
   });
 };
 
-export const ustcLookup = async (ustcId: string): Promise<Partial<model_USTC>> => {
+export const ustcLookup = async (
+  ustcId: string,
+): Promise<Partial<model_USTC>> => {
   return ThirdPartyCatalogsService.postCatalogsUstcLookup({
     ustc: { ustc_id: parseInt(ustcId, 10) },
   });

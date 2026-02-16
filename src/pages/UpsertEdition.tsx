@@ -128,27 +128,31 @@ function toModelEdition(data: EditionFormData): model_Edition {
       visual_element_type: ve.visual_element_type,
       notes: ve.notes,
       locator_type: ve.locator_type,
-      locator: nullToUndef(ve.locator) ? {
-        key: ve.locator!.key,
-        first_order_type: nullToUndef(ve.locator!.first_order_type),
-        first_order_value: nullToUndef(ve.locator!.first_order_value),
-        type: nullToUndef(ve.locator!.type),
-        value: ve.locator!.value,
-        page_type: ve.locator!.page_type,
-        page_value: nullToUndef(ve.locator!.page_value),
-      } : undefined,
+      locator: nullToUndef(ve.locator)
+        ? {
+            key: ve.locator!.key,
+            first_order_type: nullToUndef(ve.locator!.first_order_type),
+            first_order_value: nullToUndef(ve.locator!.first_order_value),
+            type: nullToUndef(ve.locator!.type),
+            value: ve.locator!.value,
+            page_type: ve.locator!.page_type,
+            page_value: nullToUndef(ve.locator!.page_value),
+          }
+        : undefined,
       examples: ve.examples.map((ex) => ({
         img: ex.img,
         has_locator: ex.has_locator,
-        locator: nullToUndef(ex.locator) ? {
-          key: ex.locator!.key,
-          first_order_type: nullToUndef(ex.locator!.first_order_type),
-          first_order_value: nullToUndef(ex.locator!.first_order_value),
-          type: nullToUndef(ex.locator!.type),
-          value: ex.locator!.value,
-          page_type: ex.locator!.page_type,
-          page_value: nullToUndef(ex.locator!.page_value),
-        } : undefined,
+        locator: nullToUndef(ex.locator)
+          ? {
+              key: ex.locator!.key,
+              first_order_type: nullToUndef(ex.locator!.first_order_type),
+              first_order_value: nullToUndef(ex.locator!.first_order_value),
+              type: nullToUndef(ex.locator!.type),
+              value: ex.locator!.value,
+              page_type: ex.locator!.page_type,
+              page_value: nullToUndef(ex.locator!.page_value),
+            }
+          : undefined,
       })),
     })),
     isManuscript: data.isManuscript,
@@ -1475,7 +1479,8 @@ export const UpsertEdition = () => {
                           value={field.state.value ?? null}
                           onBlur={field.handleBlur}
                           onChange={(value) => {
-                            const numValue = typeof value === "number" ? value : undefined;
+                            const numValue =
+                              typeof value === "number" ? value : undefined;
                             field.handleChange(numValue);
                           }}
                           placeholder="Select book format..."
