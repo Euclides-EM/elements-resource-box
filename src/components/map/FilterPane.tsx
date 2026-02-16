@@ -26,6 +26,7 @@ const Pane = styled.div<{ isLoading?: boolean }>`
   min-width: 256px;
   flex-shrink: 0;
   box-sizing: border-box;
+  max-height: 100%;
   overflow-y: ${({ isLoading }) => (isLoading ? "hidden" : "auto")};
   overflow-x: hidden;
   background-color: white;

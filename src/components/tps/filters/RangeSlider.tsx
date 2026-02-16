@@ -11,6 +11,7 @@ export type RangeSliderProps = {
   min: number;
   max: number;
   onChange: (value: [number, number]) => void;
+  emitOnChange?: boolean;
 };
 
 const SliderContainer = styled.div`
@@ -101,6 +102,7 @@ export const RangeSlider = ({
   min,
   max,
   onChange,
+  emitOnChange = false,
 }: RangeSliderProps) => {
   const resolvedMin = Number.isFinite(min) ? min : MIN_YEAR;
   const resolvedMax = Number.isFinite(max) ? max : MAX_YEAR;
@@ -256,6 +258,9 @@ export const RangeSlider = ({
               const nextValue: [number, number] = [clampedMin, localValue[1]];
               setLocalValue(nextValue);
               localValueRef.current = nextValue;
+              if (emitOnChange) {
+                emitChange(nextValue);
+              }
             }
           }}
           onMouseUp={commitChange}
@@ -274,6 +279,9 @@ export const RangeSlider = ({
               const nextValue: [number, number] = [localValue[0], clampedMax];
               setLocalValue(nextValue);
               localValueRef.current = nextValue;
+              if (emitOnChange) {
+                emitChange(nextValue);
+              }
             }
           }}
           onMouseUp={commitChange}

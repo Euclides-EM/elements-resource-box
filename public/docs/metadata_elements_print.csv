@@ -33,13 +33,13 @@ Amsterdam_1701,1–6,,DOU
 Ansbach_1610,1–6,,ZAMBERTI/GRYNAEUS (THEON)
 Amsterdam_1662,1–16 (enunciations),,COMMANDINO
 Oxford_1701,"1-6, 11-12",,COMMANDINO
-Paris_1598a,1–6,,FOIX
+Paris_1598a,1-6,,FOIX
 Paris_1605,1–9,,FOIX
 Paris_1629,1–9,,FOIX
 Paris_1640,"10, ?",,
 Paris_1565,7–9,,MAGNIENUS/GRACILIS and DASYPODIUS
 Paris_1564,1-6,,MAGNIENUS/GRACILIS and DASYPODIUS
-Paris_1654a,1–6,,CLAVIUS
+Paris_1654a,1-6,,CLAVIUS
 Brussels_1701,"1–6, 11–12",,TACQUET
 Seville_1576,1-6,,ZAMBERTI/GRYNAEUS (THEON)
 Brussels_1689,"1–6, 11–12",,TACQUET
@@ -103,7 +103,6 @@ Amsterdam_1634,1–6,,DOU
 London_1686,1–15,,HÉRIGONE/BARROW
 London_1660,1–15,,HÉRIGONE/BARROW
 Amsterdam_1618,1–6,,DOU
-Venice_1482,1-15,,CAMPANUS
 Arnhem_1605,7-9,,MAGNIENUS/GRACILIS and DASYPODIUS
 Vicenza_1491,1–15,,CAMPANUS
 Venice_1498a,14,,
@@ -185,7 +184,7 @@ Paris_1632,1–15,Data,MAGNIENUS/GRACILIS and DASYPODIUS
 Paris_1632a,1–15,,COMMANDINO
 Rotterdam_1632,1–6,,DOU
 Hamburg_1633,1–6,,COMMANDINO
-Paris_1634,1–15,Data,HÉRIGONE/BARROW
+Paris_1634,1-15,Data,HÉRIGONE/BARROW
 Alcala_1637,1–6,,ZAMBERTI/GRYNAEUS (THEON)
 Hamburg_1638,1–6,,COMMANDINO
 Paris_1639,1–6,,HÉRIGONE/BARROW
@@ -216,8 +215,8 @@ Rouen_and_Paris_1685,1–15,Data,MAGNIENUS/GRACILIS and DASYPODIUS
 The_Hague_1690,1–6,,CLAVIUS
 Leiden_1691,1–6,,CLAVIUS
 Leiden_1692,1–6,,CLAVIUS
-Paris_1693,"1–6, 11–12",,CLAVIUS
-Vienna_1694,"1–6, 11–12",,CLAVIUS
+Paris_1693,"1-6, 11-12",,CLAVIUS
+Vienna_1694,"1-6, 11-12",,CLAVIUS
 Amsterdam_1695,1–16,,CLAVIUS
 Amsterdam_1697,"1–6, 11–12",,CLAVIUS
 Paris_1697,"1–6, 11–12",,CLAVIUS
@@ -230,7 +229,7 @@ London_1705,1-15,,HÉRIGONE/BARROW
 s.l_1650,1-6,,CLAVIUS
 Oxford_1703,1-15,"Optica, Catoptrica, Introductio harmonica, Sectio canonis, Phaenomena, Data, De Divisionibus, De levi et ponderoso",GREGORY
 Utrecht_n.d,1-15,,CLAVIUS
-Lyon_1603,1–6,,
+Lyon_1603,1-6,,
 Paris_1667,1-15,,
 Livorno_1709,1-6,,
 Uppsala_1741,"1-6, 11-12",,
@@ -247,7 +246,7 @@ Paris_1794,1-8,,
 Edinburgh_1795,1-6,,
 Paris_1814,1-7,,
 Nuremberg_1821,1,,
-Berlin_1824,1–6,,
+Berlin_1824,1-6,,
 Leipzig_1883,1-13,,
 Antwerp_1665,"1-6, 11-12",,
 Rome_1695,1-13,,
@@ -306,3 +305,5 @@ ZNLALU,,,
 1QQS64,,,
 4ZSED7,,,
 JTZKPV,,,
+Z1AO6P,1-15,,
+8DP4C1,1-6,,
