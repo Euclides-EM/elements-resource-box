@@ -9,16 +9,16 @@ const normalizeBasePath = (value?: string): string => {
     : `${withLeadingSlash}/`;
 };
 
-export const getBasePath = (): string =>
+const getAppBasePath = (): string =>
   normalizeBasePath(import.meta.env.BASE_URL ?? "/");
 
 export const getRouterBasename = (): string => {
-  const base = getBasePath();
+  const base = getAppBasePath();
   return base === "/" ? "/" : base.slice(0, -1);
 };
 
 export const stripBasePath = (path: string): string => {
-  const base = getBasePath();
+  const base = getAppBasePath();
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
   if (base === "/") {
@@ -38,8 +38,8 @@ export const stripBasePath = (path: string): string => {
   return normalizedPath;
 };
 
-export const withBasePath = (path: string): string => {
-  const base = getBasePath();
+export const withAppBasePath = (path: string): string => {
+  const base = getAppBasePath();
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
   if (base === "/") {
@@ -62,4 +62,4 @@ export const getAppPathname = (): string =>
   stripBasePath(window.location.pathname);
 
 export const buildAppUrl = (pathname: string, search = ""): string =>
-  `${withBasePath(pathname)}${search}`;
+  `${withAppBasePath(pathname)}${search}`;

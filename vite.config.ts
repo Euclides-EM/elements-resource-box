@@ -2,8 +2,6 @@ import type { ViteDevServer } from "vite";
 import { defineConfig, loadEnv, Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
-// @ts-expect-error js file
-import { facsimileListingPlugin } from "./vite-plugins/facsimile-listing.js";
 
 const normalizeBasePath = (value?: string): string => {
   const raw = (value ?? "").trim();
@@ -44,12 +42,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     base,
-    plugins: [
-      react(),
-      svgr(),
-      basePathRedirectPlugin(base),
-      facsimileListingPlugin(),
-    ],
+    plugins: [react(), svgr(), basePathRedirectPlugin(base)],
     server: {
       allowedHosts: ["euclides.huma-num.fr"],
       proxy: {

@@ -6,7 +6,7 @@ import { Row } from "../../common";
 import { ModalTextColumn } from "./ModalComponents";
 import { authorDisplayName } from "../../../utils/dataUtils";
 import { joinArr } from "../../../utils/util";
-import { withBasePath } from "../../../utils/basePath";
+import { withAppBasePath } from "../../../utils/basePath";
 import { NO_AUTHOR } from "../../../constants";
 import { LAND_COLOR } from "../../../utils/colors";
 import { TOOLTIP_SCAN } from "../../map/MapTooltips";
@@ -155,7 +155,7 @@ export const ItemInfo = ({
             ))}
             {showDiagramsLink && item.diagramsExtracted === "True" && (
               <StyledAnchor
-                href={withBasePath(`/diagrams?key=${item.key}`)}
+                href={withAppBasePath(`/diagrams?key=${item.key}`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 title="View Diagrams"

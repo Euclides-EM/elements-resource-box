@@ -15,7 +15,11 @@ import { Point } from "react-simple-maps";
 import { NO_CITY } from "../constants";
 import { itemProperties } from "../constants/itemProperties";
 import { NO_FILTER_ROUTES } from "../components/layout/routes";
-import { buildAppUrl, getAppPathname, withBasePath } from "../utils/basePath";
+import {
+  buildAppUrl,
+  getAppPathname,
+  withAppBasePath,
+} from "../utils/basePath";
 
 const STORAGE_KEY = "applied-filters";
 const QUERY_PARAMS = {
@@ -368,7 +372,7 @@ export const FilterAppliedProvider = ({
     loadEditionsData(setData, true);
     loadCitiesAsync().then(setCities);
 
-    workerRef.current = new Worker(withBasePath("/filterWorker.js"));
+    workerRef.current = new Worker(withAppBasePath("/filterWorker.js"));
 
     workerRef.current.addEventListener("message", (e: MessageEvent) => {
       setInternalFilteredItems(e.data);
