@@ -9,7 +9,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "gen-api": "openapi -i common/hub-server.api.yaml -c axios -o ./common/hub-api --useOptions --useUnionTypes"
+    "gen-api": "openapi -i ../commentaria-hub/ocrflow/internal/docs/swagger.json -c axios -o ./common/hub-api --useOptions --useUnionTypes"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
