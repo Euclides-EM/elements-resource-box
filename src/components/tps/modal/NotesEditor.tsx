@@ -101,7 +101,7 @@ export const NotesEditor = ({ item }: NotesEditorProps) => {
     }
     setSaving(true);
     try {
-      await saveNote(token, item.key, {
+      await saveNote(item.key, {
         note: notes,
       });
 

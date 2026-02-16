@@ -1,24 +1,17 @@
-import {
-  EDITION_API_PATH,
-  EditionRequestBody,
-  USTC_LOOKUP_API_PATH,
-  UstcResult,
-} from "../../common/api.ts";
+import { EditionsService, ThirdPartyCatalogsService } from "../../hub-api";
+import type { model_Edition, model_USTC } from "../../hub-api";
 import { uploadImage } from "./imageApi.ts";
-import { withBasePath } from "../utils/basePath.ts";
 
 export const upsertEdition = async (
-  data: EditionRequestBody,
+  data: model_Edition,
   images: Record<string, File>,
-  authToken: string,
 ): Promise<void> => {
   console.log("Upserting edition:", data);
 
   const uploads: Promise<void>[] = [];
 
-  // Handle shelfmark images
-  for (let i = 0; i < data.shelfmarks.length; i++) {
-    const shelfmark = data.shelfmarks[i];
+  for (let i = 0; i < (data.shelfmarks?.length ?? 0); i++) {
+    const shelfmark = data.shelfmarks![i];
     if (shelfmark.title_page_img) {
       const file = images[shelfmark.title_page_img];
       if (!file) {
@@ -27,10 +20,9 @@ export const upsertEdition = async (
       uploads.push(
         (async () => {
           shelfmark.title_page_img = await uploadImage(
-            data.key,
+            data.key!,
             file,
             `tp_${i + 1}`,
-            authToken,
           );
         })(),
       );
@@ -43,21 +35,19 @@ export const upsertEdition = async (
       uploads.push(
         (async () => {
           shelfmark.frontispiece_img = await uploadImage(
-            data.key,
+            data.key!,
             file,
             `frontispiece_${i + 1}`,
-            authToken,
           );
         })(),
       );
     }
   }
 
-  // Handle visual element example images
-  for (let i = 0; i < data.visualElements.length; i++) {
-    const visualElement = data.visualElements[i];
-    for (let j = 0; j < visualElement.examples.length; j++) {
-      const example = visualElement.examples[j];
+  for (let i = 0; i < (data.visualElements?.length ?? 0); i++) {
+    const visualElement = data.visualElements![i];
+    for (let j = 0; j < (visualElement.examples?.length ?? 0); j++) {
+      const example = visualElement.examples![j];
       if (example.img) {
         const file = images[example.img];
         if (!file) {
@@ -66,10 +56,9 @@ export const upsertEdition = async (
         uploads.push(
           (async () => {
             example.img = await uploadImage(
-              data.key,
+              data.key!,
               file,
               `visEl_${i + 1}_ex_${j + 1}`,
-              authToken,
             );
           })(),
         );
@@ -79,61 +68,23 @@ export const upsertEdition = async (
 
   await Promise.all(uploads);
 
-  const response = await fetch(withBasePath(EDITION_API_PATH), {
-    method: "POST",
-    headers: {
-      Authorization: authToken,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to create edition: ${response.status} ${response.statusText}`,
-    );
+  try {
+    await EditionsService.getEditions({ key: data.key! });
+    await EditionsService.putEditions({ key: data.key!, edition: data });
+  } catch {
+    await EditionsService.postEditions({ edition: data });
   }
 };
 
-export const deleteEdition = async (
-  key: string,
-  authToken: string,
-): Promise<void> => {
-  const response = await fetch(withBasePath(EDITION_API_PATH), {
-    method: "DELETE",
-    headers: {
-      Authorization: authToken,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ key }),
+export const deleteEdition = async (key: string): Promise<void> => {
+  await EditionsService.putEditions({
+    key,
+    edition: { key },
   });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to delete edition: ${response.status} ${response.statusText}`,
-    );
-  }
 };
 
-export const ustcLookup = async (
-  ustcId: string,
-  authToken: string,
-): Promise<Partial<UstcResult>> => {
-  const response = await fetch(
-    withBasePath(`${USTC_LOOKUP_API_PATH}/${ustcId}`),
-    {
-      headers: {
-        Authorization: authToken,
-        "Content-Type": "application/json",
-      },
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to lookup in USTC: ${response.status} ${response.statusText}`,
-    );
-  }
-
-  return (await response.json()) as Partial<UstcResult>;
+export const ustcLookup = async (ustcId: string): Promise<Partial<model_USTC>> => {
+  return ThirdPartyCatalogsService.postCatalogsUstcLookup({
+    ustc: { ustc_id: parseInt(ustcId, 10) },
+  });
 };

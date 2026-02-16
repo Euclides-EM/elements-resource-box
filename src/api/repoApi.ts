@@ -1,5 +1,4 @@
-import { REPO_PULL_API_PATH, REPO_PR_API_PATH } from "../../common/api.ts";
-import { withBasePath } from "../utils/basePath.ts";
+import { VersionControlService } from "../../hub-api";
 
 export interface RepoPullResponse {
   success: boolean;
@@ -13,48 +12,22 @@ export interface RepoPrResponse {
   prNumber: number;
 }
 
-export const pullRepo = async (
-  authToken: string,
-): Promise<RepoPullResponse> => {
+export const pullRepo = async (): Promise<RepoPullResponse> => {
   console.log("Pulling repository");
-
-  const response = await fetch(withBasePath(REPO_PULL_API_PATH), {
-    method: "POST",
-    headers: {
-      Authorization: authToken,
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `Failed to pull repository: ${response.status} ${response.statusText} - ${errorText}`,
-    );
-  }
-
-  return response.json();
+  const result = await VersionControlService.postVersionControlPull();
+  return {
+    success: result.success ?? false,
+    branch: result.branch ?? "",
+  };
 };
 
-export const createPullRequest = async (
-  authToken: string,
-): Promise<RepoPrResponse> => {
+export const createPullRequest = async (): Promise<RepoPrResponse> => {
   console.log("Creating pull request");
-
-  const response = await fetch(withBasePath(REPO_PR_API_PATH), {
-    method: "POST",
-    headers: {
-      Authorization: authToken,
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `Failed to create pull request: ${response.status} ${response.statusText} - ${errorText}`,
-    );
-  }
-
-  return response.json();
+  const result = await VersionControlService.postVersionControlPush();
+  return {
+    success: result.success ?? false,
+    branchName: result.branch ?? "",
+    prUrl: result.pr?.url ?? "",
+    prNumber: result.pr?.number ?? 0,
+  };
 };

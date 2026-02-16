@@ -1,5 +1,5 @@
 import { NO_CITY } from "../constants";
-import { City } from "../../common/csv.ts";
+import { City } from "../data/csvTypes.ts";
 
 export type Mode = "texts" | "images";
 

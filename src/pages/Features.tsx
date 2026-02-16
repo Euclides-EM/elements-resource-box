@@ -1,16 +1,9 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import {
-  DefaultService,
-  Feature,
-  FeatureRevision,
-  FeatureRevisionInput,
-  OpenAPI,
-} from "../../hub-api";
+import { FeaturesService, FeatureRevisionsService } from "../../hub-api";
+import type { feature_Feature, feature_Revision } from "../../hub-api";
 import { AuthContext } from "../contexts/Auth";
-
-const DATASET_ID = "tps";
-const HUB_API_BASE = "http://localhost:8085";
+import { TITLE_PAGES_DATASET_ID } from "../constants";
 
 type FeatureEditState = {
   name: string;
@@ -338,11 +331,6 @@ const ErrorText = styled.div`
   font-size: 0.9rem;
 `;
 
-const configureHubApi = (authToken: string | null) => {
-  OpenAPI.BASE = HUB_API_BASE;
-  OpenAPI.TOKEN = authToken ?? "";
-};
-
 const defaultRevisionForm: RevisionFormState = {
   execution_strategy: "prompt",
   type: "annotation",
@@ -388,7 +376,7 @@ const getRevisionPreview = (revision?: string) => {
 
 function Features() {
   const { token } = useContext(AuthContext);
-  const [features, setFeatures] = useState<Feature[]>([]);
+  const [features, setFeatures] = useState<feature_Feature[]>([]);
   const [featureEdits, setFeatureEdits] = useState<
     Record<string, FeatureEditState>
   >({});
@@ -444,9 +432,9 @@ function Features() {
     setLoading(true);
     setError(null);
     try {
-      const response = await DefaultService.getDatasetFeatures({
-        datasetId: DATASET_ID,
-        expand: "revisions",
+      const response = await FeaturesService.getDatasetsFeatures({
+        dataSetId: TITLE_PAGES_DATASET_ID,
+        expand: ["revisions"],
       });
       setFeatures(response);
       const nextEdits: Record<string, FeatureEditState> = {};
@@ -475,12 +463,11 @@ function Features() {
   }, []);
 
   useEffect(() => {
-    configureHubApi(token);
     void loadFeatures();
   }, [token, loadFeatures]);
 
   const handleUpdateFeature = async (
-    feature: Feature,
+    feature: feature_Feature,
     event?: React.FormEvent<HTMLFormElement>,
   ) => {
     event?.preventDefault();
@@ -495,10 +482,10 @@ function Features() {
     setBusyFeatureId(feature.id);
     setError(null);
     try {
-      await DefaultService.putDatasetFeatures({
-        datasetId: DATASET_ID,
+      await FeaturesService.putDatasetsFeatures({
+        dataSetId: TITLE_PAGES_DATASET_ID,
         featureId: feature.id,
-        requestBody: {
+        feature: {
           name: form.name.trim(),
           description: form.description.trim() || undefined,
           is_root: feature.is_root ?? false,
@@ -519,7 +506,7 @@ function Features() {
     }
   };
 
-  const handleDeleteFeature = async (feature: Feature) => {
+  const handleDeleteFeature = async (feature: feature_Feature) => {
     if (!feature.id) {
       return;
     }
@@ -529,8 +516,8 @@ function Features() {
     setBusyFeatureId(feature.id);
     setError(null);
     try {
-      await DefaultService.deleteDatasetFeatures({
-        datasetId: DATASET_ID,
+      await FeaturesService.deleteDatasetsFeatures({
+        dataSetId: TITLE_PAGES_DATASET_ID,
         featureId: feature.id,
       });
       await loadFeatures();
@@ -543,7 +530,7 @@ function Features() {
     }
   };
 
-  const handleCancelEdit = (feature: Feature) => {
+  const handleCancelEdit = (feature: feature_Feature) => {
     if (!feature.id) {
       return;
     }
@@ -562,7 +549,7 @@ function Features() {
 
   const handleToggleCreateRevision = (
     featureId: string,
-    latestRevision?: FeatureRevision,
+    latestRevision?: feature_Revision,
   ) => {
     setCreateRevisionOpen((prev) => {
       const nextOpen = !prev[featureId];
@@ -596,9 +583,9 @@ function Features() {
     setCreatingFeature(true);
     setError(null);
     try {
-      await DefaultService.postDatasetFeatures({
-        datasetId: DATASET_ID,
-        requestBody: {
+      await FeaturesService.postDatasetsFeatures({
+        dataSetId: TITLE_PAGES_DATASET_ID,
+        feature: {
           name: createForm.name.trim(),
           description: createForm.description.trim() || undefined,
           is_root: false,
@@ -618,7 +605,7 @@ function Features() {
   };
 
   const handleCreateRevision = async (
-    feature: Feature,
+    feature: feature_Feature,
     event?: React.FormEvent<HTMLFormElement>,
   ) => {
     event?.preventDefault();
@@ -636,7 +623,7 @@ function Features() {
     }
     setCreatingRevisionFeatureId(feature.id);
     setError(null);
-    const payload: FeatureRevisionInput = {
+    const payload: feature_Revision = {
       execution_strategy: form.execution_strategy,
       type: form.type,
       note: form.note.trim() || undefined,
@@ -646,10 +633,10 @@ function Features() {
         form.execution_strategy === "regex" ? form.regex.trim() : undefined,
     };
     try {
-      await DefaultService.postDatasetFeaturesRevisions({
-        datasetId: DATASET_ID,
+      await FeatureRevisionsService.postDatasetsFeaturesRevisions({
+        dataSetId: TITLE_PAGES_DATASET_ID,
         featureId: feature.id,
-        requestBody: payload,
+        revision: payload,
       });
       setRevisionForms((prev) => ({
         ...prev,

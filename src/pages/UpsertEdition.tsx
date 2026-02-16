@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "@emotion/styled";
 import { deleteEdition, upsertEdition, ustcLookup } from "../api/editionApi";
-import { EditionRequestBody } from "../../common/api.ts";
+import type { model_Edition } from "../../hub-api";
 import { AuthContext } from "../contexts/Auth.ts";
 import { CATALOGUE_ROUTE } from "../components/layout/routes.ts";
 import { isNil, startCase, uniq, uniqueId } from "lodash";
@@ -40,13 +40,142 @@ import {
   StudyCorpuses,
   VisualElement,
   VisualElementExample,
-} from "../../common/csv.ts";
+} from "../data/csvTypes.ts";
 import { invalidateCsvCache, loadAndParseCsv } from "../utils/csv.ts";
 import { parseBooks } from "../utils/normalizeNames.ts";
 import MultiSelect from "../components/tps/filters/MultiSelect.tsx";
 import SingleSelect from "../components/tps/filters/SingleSelect.tsx";
 import { Row } from "../components/common.ts";
 import { isValidUrl } from "../utils/util.ts";
+
+type EditionFormData = {
+  key: string;
+  shortTitle: string;
+  shortTitleSource: string;
+  cities: string[];
+  notes: string;
+  corpus: string[];
+  shelfmarks: {
+    volume: number | null;
+    scan: string | null;
+    shelfmark: string | null;
+    title_page_img: string | null;
+    frontispiece_img: string | null;
+    annotations: string | null;
+    copyright: string | null;
+  }[];
+  verified: boolean;
+  bibliography: string[];
+  reprintOf: string | null;
+  visualElements: {
+    visual_element_type: string;
+    notes: string;
+    locator_type: string;
+    locator: Locator | null;
+    examples: {
+      img: string;
+      has_locator: boolean;
+      locator: Locator | null;
+    }[];
+  }[];
+  isManuscript: boolean;
+  manuscriptYearFrom?: number;
+  manuscriptYearTo?: number;
+  manuscriptClass?: string;
+  manuscriptSubclass?: string | null;
+  year?: string | null;
+  languages?: string[];
+  editor?: string[];
+  publisher?: string[];
+  format?: number | null;
+  volumes?: number | null;
+  ustcId?: string | null;
+  title?: string | null;
+  title_EN?: string | null;
+  imprint?: string | null;
+  imprint_EN?: string | null;
+  colophon?: string | null;
+  colophon_EN?: string | null;
+  frontispiece?: string | null;
+  frontispiece_EN?: string | null;
+  isElements: boolean;
+  books?: number[];
+  additionalContent?: string[];
+};
+
+function toModelEdition(data: EditionFormData): model_Edition {
+  const nullToUndef = <T,>(v: T | null): T | undefined => v ?? undefined;
+  return {
+    key: data.key,
+    shortTitle: data.shortTitle,
+    shortTitleSource: data.shortTitleSource,
+    cities: data.cities,
+    notes: data.notes,
+    corpus: data.corpus,
+    shelfmarks: data.shelfmarks.map((s) => ({
+      volume: nullToUndef(s.volume),
+      scan: nullToUndef(s.scan),
+      shelfmark: nullToUndef(s.shelfmark),
+      title_page_img: nullToUndef(s.title_page_img),
+      frontispiece_img: nullToUndef(s.frontispiece_img),
+      annotations: nullToUndef(s.annotations),
+      copyright: nullToUndef(s.copyright),
+    })),
+    verified: data.verified,
+    bibliography: data.bibliography,
+    reprintOf: nullToUndef(data.reprintOf),
+    visualElements: data.visualElements.map((ve) => ({
+      visual_element_type: ve.visual_element_type,
+      notes: ve.notes,
+      locator_type: ve.locator_type,
+      locator: nullToUndef(ve.locator) ? {
+        key: ve.locator!.key,
+        first_order_type: nullToUndef(ve.locator!.first_order_type),
+        first_order_value: nullToUndef(ve.locator!.first_order_value),
+        type: nullToUndef(ve.locator!.type),
+        value: ve.locator!.value,
+        page_type: ve.locator!.page_type,
+        page_value: nullToUndef(ve.locator!.page_value),
+      } : undefined,
+      examples: ve.examples.map((ex) => ({
+        img: ex.img,
+        has_locator: ex.has_locator,
+        locator: nullToUndef(ex.locator) ? {
+          key: ex.locator!.key,
+          first_order_type: nullToUndef(ex.locator!.first_order_type),
+          first_order_value: nullToUndef(ex.locator!.first_order_value),
+          type: nullToUndef(ex.locator!.type),
+          value: ex.locator!.value,
+          page_type: ex.locator!.page_type,
+          page_value: nullToUndef(ex.locator!.page_value),
+        } : undefined,
+      })),
+    })),
+    isManuscript: data.isManuscript,
+    manuscriptYearFrom: data.manuscriptYearFrom,
+    manuscriptYearTo: data.manuscriptYearTo,
+    manuscriptClass: data.manuscriptClass,
+    manuscriptSubclass: nullToUndef(data.manuscriptSubclass),
+    year: nullToUndef(data.year),
+    languages: data.languages,
+    editor: data.editor,
+    publisher: data.publisher,
+    format: nullToUndef(data.format),
+    volumes: nullToUndef(data.volumes),
+    ustcId: nullToUndef(data.ustcId),
+    title: nullToUndef(data.title),
+    title_EN: nullToUndef(data.title_EN),
+    imprint: nullToUndef(data.imprint),
+    imprint_EN: nullToUndef(data.imprint_EN),
+    colophon: nullToUndef(data.colophon),
+    colophon_EN: nullToUndef(data.colophon_EN),
+    frontispiece: nullToUndef(data.frontispiece),
+    frontispiece_EN: nullToUndef(data.frontispiece_EN),
+    isElements: data.isElements,
+    books: data.books,
+    additionalContent: data.additionalContent,
+  };
+}
 
 const SHORT_TITLE_SOURCES = [
   "Specified in source",
@@ -442,7 +571,7 @@ const generateCitationWithShortTitle = (
   return citation;
 };
 
-const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
+const loadExistingItem = async (key: string): Promise<EditionFormData> => {
   const [
     manuscriptsItems,
     manuscriptsMetadata,
@@ -513,7 +642,7 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
         frontispiece_img: s.frontispiece_img,
         annotations: s.annotations,
         copyright: s.copyright,
-      })) satisfies EditionRequestBody["shelfmarks"],
+      })),
     verified: reviews.some((r) => r.key === key),
     bibliography: bibliography
       .filter((b) => b.key === key)
@@ -608,7 +737,7 @@ const loadExistingItem = async (key: string): Promise<EditionRequestBody> => {
   };
 };
 
-const defaultValues = (): EditionRequestBody => ({
+const defaultValues = (): EditionFormData => ({
   key: getSuggestedKey(),
   shortTitle: "",
   shortTitleSource: "",
@@ -719,7 +848,7 @@ export const UpsertEdition = () => {
       try {
         value.bibliography = value.bibliography.filter((b) => b);
         deepTrim(value);
-        await upsertEdition(value, images, token);
+        await upsertEdition(toModelEdition(value), images);
         invalidateCsvCache();
         navigate(CATALOGUE_ROUTE);
       } catch (err) {
@@ -762,14 +891,12 @@ export const UpsertEdition = () => {
     }
 
     try {
-      const data = await ustcLookup(ustcId, token);
+      const data = await ustcLookup(ustcId);
       if (!data || Object.keys(data).length === 0) {
         return;
       }
 
-      const currentValues = form.state.values as EditionRequestBody & {
-        isManuscript: false;
-      };
+      const currentValues = form.state.values;
 
       if ((data.authors || [])?.length > 0 && !currentValues.editor?.length) {
         form.setFieldValue(
@@ -937,7 +1064,7 @@ export const UpsertEdition = () => {
 
     try {
       setIsDeleting(true);
-      await deleteEdition(key, token);
+      await deleteEdition(key);
       invalidateCsvCache();
       navigate(CATALOGUE_ROUTE);
     } catch (err) {
@@ -1085,7 +1212,7 @@ export const UpsertEdition = () => {
                       name="manuscriptYearFrom"
                       validators={{
                         onBlur: ({ value }) =>
-                          value > 2000 || value < 0
+                          (value ?? 0) > 2000 || (value ?? 0) < 0
                             ? "Year must be between 0 and 2000"
                             : undefined,
                       }}
@@ -1115,7 +1242,7 @@ export const UpsertEdition = () => {
                       name="manuscriptYearTo"
                       validators={{
                         onBlur: ({ value }) =>
-                          value > 2000 || value < 0
+                          (value ?? 0) > 2000 || (value ?? 0) < 0
                             ? "Year must be between 0 and 2000"
                             : undefined,
                       }}
@@ -1345,11 +1472,12 @@ export const UpsertEdition = () => {
                             value: Number(item.replace("º", "")),
                             label: item,
                           }))}
-                          value={field.state.value}
+                          value={field.state.value ?? null}
                           onBlur={field.handleBlur}
-                          onChange={(value) =>
-                            field.handleChange(value as number | null)
-                          }
+                          onChange={(value) => {
+                            const numValue = typeof value === "number" ? value : undefined;
+                            field.handleChange(numValue);
+                          }}
                           placeholder="Select book format..."
                         />
                       )}

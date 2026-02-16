@@ -4,7 +4,6 @@ import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
 // @ts-expect-error js file
 import { facsimileListingPlugin } from "./vite-plugins/facsimile-listing.js";
-import { router } from "./dev-server/router";
 
 const normalizeBasePath = (value?: string): string => {
   const raw = (value ?? "").trim();
@@ -16,15 +15,6 @@ const normalizeBasePath = (value?: string): string => {
     ? withLeadingSlash
     : `${withLeadingSlash}/`;
 };
-
-function devApiPlugin(): Plugin {
-  return {
-    name: "dev-api",
-    configureServer(server: ViteDevServer) {
-      server.middlewares.use(router);
-    },
-  };
-}
 
 function basePathRedirectPlugin(base: string): Plugin {
   return {
@@ -50,6 +40,7 @@ function basePathRedirectPlugin(base: string): Plugin {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const base = normalizeBasePath(env.VITE_BASE_PATH);
+  const hubServerUrl = env.VITE_HUB_SERVER_URL || "http://localhost:8085";
 
   return {
     base,
@@ -57,11 +48,20 @@ export default defineConfig(({ mode }) => {
       react(),
       svgr(),
       basePathRedirectPlugin(base),
-      devApiPlugin(),
       facsimileListingPlugin(),
     ],
     server: {
       allowedHosts: ["euclides.huma-num.fr"],
+      proxy: {
+        "/api/v1": {
+          target: hubServerUrl,
+          changeOrigin: true,
+        },
+        "/store/data": {
+          target: hubServerUrl,
+          changeOrigin: true,
+        },
+      },
     },
   };
 });

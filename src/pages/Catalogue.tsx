@@ -41,7 +41,7 @@ import {
   ClusterItem,
   CSV_PATH_CLUSTERS,
   CSV_PATH_CLUSTER_ITEMS,
-} from "../../common/csv";
+} from "../data/csvTypes.ts";
 import { loadAndParseCsv } from "../utils/csv";
 import { useLocalStorage } from "usehooks-ts";
 import { withBasePath } from "../utils/basePath";

@@ -34,12 +34,14 @@ import { inEuclidesMode } from "./utils/mode.ts";
 import { HomeCommentaria } from "./pages/HomeCommentaria.tsx";
 import Features from "./pages/Features.tsx";
 import { getRouterBasename } from "./utils/basePath.ts";
+import { configureHubApi } from "./api/hubApiConfig.ts";
 
 function App() {
   const [authToken, setAuthToken] = useLocalStorage<string | null>(
     "resource-box-auth",
     null,
   );
+  configureHubApi(authToken);
 
   const router = createBrowserRouter(
     createRoutesFromElements(

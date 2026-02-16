@@ -1,33 +1,17 @@
-import { IMAGE_UPLOAD_API_PATH } from "../../common/api.ts";
-import { withBasePath } from "../utils/basePath.ts";
+import { EditionsService } from "../../hub-api";
+import { TITLE_PAGES_DATASET_ID } from "../constants";
 
 export const uploadImage = async (
   key: string,
   file: File,
   type: string,
-  authToken: string,
 ) => {
   console.log("Uploading image...", file.name);
-
-  const uploadFormData = new FormData();
-  uploadFormData.append("file", file);
-  uploadFormData.append("key", key);
-  uploadFormData.append("type", type);
-
-  const uploadResponse = await fetch(withBasePath(IMAGE_UPLOAD_API_PATH), {
-    method: "POST",
-    headers: {
-      Authorization: authToken,
-    },
-    body: uploadFormData,
+  const result = await EditionsService.postDatasetsImagesUpload({
+    dataSetId: TITLE_PAGES_DATASET_ID,
+    key,
+    type,
+    file,
   });
-
-  if (!uploadResponse.ok) {
-    throw new Error(
-      `Failed to upload image: ${uploadResponse.status} ${uploadResponse.statusText}`,
-    );
-  }
-
-  const uploadResult = await uploadResponse.json();
-  return uploadResult.path;
+  return result.path;
 };

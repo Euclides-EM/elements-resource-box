@@ -19,7 +19,7 @@ import {
   Shelfmarks,
   StudyCorpuses,
   VisualElement,
-} from "../../common/csv.ts";
+} from "../data/csvTypes.ts";
 import { groupBy, isEmpty, startCase, uniq } from "lodash";
 import { Dispatch, SetStateAction } from "react";
 import { FeaturesToSplit, FeatureToColumnName, ItemTypes } from "../constants";
