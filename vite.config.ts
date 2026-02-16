@@ -38,23 +38,12 @@ function basePathRedirectPlugin(base: string): Plugin {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const base = normalizeBasePath(env.VITE_BASE_PATH);
-  const hubServerUrl = env.VITE_HUB_SERVER_URL || "http://localhost:8085";
 
   return {
     base,
     plugins: [react(), svgr(), basePathRedirectPlugin(base)],
     server: {
       allowedHosts: ["euclides.huma-num.fr"],
-      proxy: {
-        "/api/v1": {
-          target: hubServerUrl,
-          changeOrigin: true,
-        },
-        "/store/data": {
-          target: hubServerUrl,
-          changeOrigin: true,
-        },
-      },
     },
   };
 });
