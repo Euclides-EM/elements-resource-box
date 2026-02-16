@@ -6,7 +6,7 @@ import {
   FeatureRevision,
   FeatureRevisionInput,
   OpenAPI,
-} from "../../common/hub-api";
+} from "../../hub-api";
 import { AuthContext } from "../contexts/Auth";
 
 const DATASET_ID = "tps";
