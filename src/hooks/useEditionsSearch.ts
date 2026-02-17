@@ -1,12 +1,16 @@
 import { useMemo } from "react";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import {
+  useQuery,
+  useInfiniteQuery,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import { useAppliedFilter } from "../contexts/FilterAppliedContext";
-import { listAllEditions } from "../api/editionApi";
+import { listAllEditions, searchEditionsPage } from "../api/editionApi";
 import { fetchDiagramDirectories } from "../api/diagramsApi";
 import { mapEditionsToItems } from "../utils/dataUtils";
 import type { FilterValue } from "../components/map/Filter";
 import type { Item } from "../types";
-import type { search_Query } from "../../hub-api";
+import type { search_OrderByOption, search_Query } from "../../hub-api";
 
 const ITEM_FIELD_TO_EDITION_FIELD: Record<string, string> = {
   type: "isElements",
@@ -149,5 +153,106 @@ export function useEditionsSearch() {
     items,
     isLoading: editionsQuery.isLoading,
     isFetching: editionsQuery.isFetching,
+  };
+}
+
+type InfiniteSearchOptions = {
+  pageSize?: number;
+  orderBy?: search_OrderByOption[];
+};
+
+export function useEditionsSearchInfinite(options: InfiniteSearchOptions = {}) {
+  const {
+    filters,
+    filtersInclude,
+    range,
+    includeUndated,
+    textSearch,
+    textSearchFields,
+  } = useAppliedFilter();
+  const pageSize = options.pageSize ?? 25;
+  const orderBy = options.orderBy;
+
+  const searchQuery = useMemo(
+    () =>
+      buildSearchQuery({
+        filters,
+        filtersInclude,
+        range,
+        includeUndated,
+        textSearch,
+        textSearchFields,
+      }),
+    [
+      filters,
+      filtersInclude,
+      range,
+      includeUndated,
+      textSearch,
+      textSearchFields,
+    ],
+  );
+
+  const diagramDirsQuery = useQuery({
+    queryKey: ["diagram-directories"],
+    queryFn: fetchDiagramDirectories,
+    staleTime: Infinity,
+  });
+
+  const editionsQuery = useInfiniteQuery({
+    queryKey: [
+      "editions",
+      "search",
+      "infinite",
+      searchQuery,
+      orderBy,
+      pageSize,
+    ],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) =>
+      searchEditionsPage({
+        ...searchQuery,
+        order_by: orderBy,
+        offset: pageParam,
+        limit: pageSize,
+      }),
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.reduce(
+        (count, page) => count + (page.items?.length ?? 0),
+        0,
+      );
+      if (lastPage.total !== undefined && loaded >= lastPage.total) {
+        return undefined;
+      }
+      if ((lastPage.items?.length ?? 0) < pageSize) {
+        return undefined;
+      }
+      return loaded;
+    },
+  });
+
+  const items = useMemo(() => {
+    const editions = editionsQuery.data?.pages.flatMap(
+      (page) => page.items || [],
+    );
+    if (!editions) return null;
+    return mapEditionsToItems(
+      editions,
+      diagramDirsQuery.data ?? new Set(),
+      true,
+      false,
+    );
+  }, [editionsQuery.data, diagramDirsQuery.data]);
+
+  const total = editionsQuery.data?.pages[0]?.total;
+
+  return {
+    items,
+    total,
+    isLoading: editionsQuery.isLoading,
+    isFetching: editionsQuery.isFetching,
+    isFetchingNextPage: editionsQuery.isFetchingNextPage,
+    hasNextPage: editionsQuery.hasNextPage,
+    fetchNextPage: editionsQuery.fetchNextPage,
   };
 }

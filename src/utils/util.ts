@@ -30,3 +30,18 @@ export function isValidUrl(s: string) {
   }
   return true;
 }
+
+export const toItemImageUrl = (imageUrl: string | null): string | null => {
+  if (!imageUrl) {
+    return null;
+  }
+  if (isValidUrl(imageUrl)) {
+    return imageUrl;
+  }
+  const backendUrl = (import.meta.env.VITE_BACKEND_URL || "").replace(
+    /\/+$/,
+    "",
+  );
+  const normalizedPath = imageUrl.replace(/^\/+/, "");
+  return `${backendUrl}/store/data/${normalizedPath}`;
+};

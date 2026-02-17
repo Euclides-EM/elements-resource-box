@@ -24,6 +24,7 @@
     "@uidotdev/usehooks": "^2.4.1",
     "axios": "^1.13.4",
     "lodash": "^4.17.21",
+    "nuqs": "^2.8.8",
     "papaparse": "^5.5.2",
     "pdfjs-dist": "3.4.120",
     "pluralize": "^8.0.0",

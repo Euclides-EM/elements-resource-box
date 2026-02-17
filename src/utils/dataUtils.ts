@@ -6,6 +6,7 @@ import { Point } from "react-simple-maps";
 import { listAllEditions } from "../api/editionApi.ts";
 import { fetchDiagramDirectories } from "../api/diagramsApi.ts";
 import type { model_Edition } from "../../hub-api";
+import { toItemImageUrl } from "./util.ts";
 
 const ifEmpty = <T>(arr: T[], defaultValue: T[]): T[] =>
   arr.length === 0 ? defaultValue : arr;
@@ -33,8 +34,9 @@ export const mapEditionsToItems = (
   editions: model_Edition[],
   diagramDirectories: Set<string>,
   setFloatingCity = false,
+  sortByYear = true,
 ): Item[] => {
-  return editions
+  const mapped = editions
     .filter((edition) => edition.key)
     .map((edition) => {
       const cities = ifEmpty(
@@ -131,12 +133,16 @@ export const mapEditionsToItems = (
         dotted_lines_other_cases: [],
         reprintOf: edition.reprintOf || null,
       } satisfies Item;
-    })
-    .sort(
-      (a, b) =>
-        (a.year || "").localeCompare(b.year || "") ||
-        a.key.localeCompare(b.key),
-    );
+    });
+
+  if (!sortByYear) {
+    return mapped;
+  }
+
+  return mapped.sort(
+    (a, b) =>
+      (a.year || "").localeCompare(b.year || "") || a.key.localeCompare(b.key),
+  );
 };
 
 export const loadEditionsData = (
@@ -222,5 +228,9 @@ export function openScan(item: Item) {
 }
 
 export function openImage(item: Item) {
-  return window.open(item.imageUrl!, "_blank")?.focus();
+  const imageUrl = toItemImageUrl(item.imageUrl);
+  if (!imageUrl) {
+    return;
+  }
+  return window.open(imageUrl, "_blank")?.focus();
 }

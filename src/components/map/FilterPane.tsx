@@ -170,21 +170,18 @@ export const FilterPane = () => {
 
   const [range, setRange] = useState<[number, number]>(appliedRange);
   const rangeRef = useRef<[number, number]>(appliedRange);
-  const [filters, setFilters] = useState<
-    Record<string, FilterValue[] | undefined>
-  >(appliedFilters);
-  const [filtersInclude, setFiltersInclude] = useState<
-    Record<string, boolean>
-  >(appliedFiltersInclude);
+  const [filters, setFilters] =
+    useState<Record<string, FilterValue[] | undefined>>(appliedFilters);
+  const [filtersInclude, setFiltersInclude] = useState<Record<string, boolean>>(
+    appliedFiltersInclude,
+  );
   const [includeUndated, setIncludeUndated] = useState<boolean>(
     appliedIncludeUndated,
   );
-  const [textSearch, setTextSearch] = useState<string>(
-    appliedTextSearch,
+  const [textSearch, setTextSearch] = useState<string>(appliedTextSearch);
+  const [textSearchFields, setTextSearchFields] = useState<(keyof Item)[]>(
+    appliedTextSearchFields,
   );
-  const [textSearchFields, setTextSearchFields] = useState<
-    (keyof Item)[]
-  >(appliedTextSearchFields);
 
   useEffect(() => {
     rangeRef.current = range;

@@ -95,6 +95,9 @@ export const getEdition = async (key: string): Promise<model_Edition> => {
   return EditionsService.getEditions({ key });
 };
 
+export const searchEditionsPage = async (query?: search_Query) =>
+  EditionsService.postEditionsSearch({ edition: query });
+
 export const listAllEditions = async (
   query?: Omit<search_Query, "offset" | "limit">,
 ): Promise<model_Edition[]> => {
@@ -103,12 +106,10 @@ export const listAllEditions = async (
   const results: model_Edition[] = [];
 
   while (true) {
-    const page = await EditionsService.postEditionsSearch({
-      edition: {
-        ...query,
-        offset,
-        limit,
-      },
+    const page = await searchEditionsPage({
+      ...query,
+      offset,
+      limit,
     });
     const items = page.items || [];
     results.push(...items);

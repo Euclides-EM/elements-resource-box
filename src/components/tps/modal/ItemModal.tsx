@@ -22,6 +22,7 @@ import { ItemInfo } from "./ItemInfo.tsx";
 import { ITEM_EDIT_ROUTE } from "../../layout/routes.ts";
 import { inEditMode } from "../../../utils/mode.ts";
 import { withAppBasePath } from "../../../utils/basePath";
+import { toItemImageUrl } from "../../../utils/util.ts";
 
 const HighlightedText = lazy(() => import("../features/HighlightedText.tsx"));
 
@@ -64,13 +65,11 @@ const EditLink = styled.a`
 const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
   const modalFeatures = features || [];
   const hasTitleText = !!item.title && item.title !== "?";
+  const imageUrl = toItemImageUrl(item.imageUrl);
 
   return (
     <Modal onClick={onClose}>
-      <ModalContent
-        onClick={(e) => e.stopPropagation()}
-        hasImage={!!item.imageUrl}
-      >
+      <ModalContent onClick={(e) => e.stopPropagation()} hasImage={!!imageUrl}>
         {inEditMode() && (
           <EditLink
             href={withAppBasePath(`${ITEM_EDIT_ROUTE}?key=${item.key}`)}
@@ -81,21 +80,21 @@ const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
         <ModalClose title="Close" onClick={onClose}>
           ✕
         </ModalClose>
-        <ItemInfo isRow={Boolean(item.imageUrl || hasTitleText)} item={item} />
+        <ItemInfo isRow={Boolean(imageUrl || hasTitleText)} item={item} />
         <ModalTextContainer>
-          {item.imageUrl && (
+          {imageUrl && (
             <ModalTextColumn isImage>
               <StyledImage
                 large
                 clickable
-                src={item.imageUrl}
+                src={imageUrl}
                 onClick={() => openImage(item)}
               />
             </ModalTextColumn>
           )}
           {hasTitleText ? (
             <TextColumnsContainer>
-              <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
+              <ModalTextColumn isTextContent alignCenter={!!imageUrl}>
                 <ModalTitle justifyStart gap={1}>
                   Original Text
                   <StyledHelpTip tooltipId={TOOLTIP_TRANSCRIPTION} />
@@ -121,7 +120,7 @@ const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
                 )}
               </ModalTextColumn>
               {(item.titleEn || item.imprintEn) && (
-                <ModalTextColumn isTextContent alignCenter={!!item.imageUrl}>
+                <ModalTextColumn isTextContent alignCenter={!!imageUrl}>
                   <ModalTitle justifyStart gap={1}>
                     English Translation{" "}
                     <StyledHelpTip tooltipId={TOOLTIP_EN_TRANSLATION} />

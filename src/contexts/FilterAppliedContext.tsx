@@ -11,11 +11,16 @@ import { Item, MAX_YEAR, MIN_YEAR } from "../types";
 import { FilterValue } from "../components/map/Filter";
 import { loadCitiesAsync, loadEditionsData } from "../utils/dataUtils";
 import { Point } from "react-simple-maps";
-import { itemProperties } from "../constants/itemProperties";
 import { NO_FILTER_ROUTES } from "../components/layout/routes";
 import { buildAppUrl, getAppPathname } from "../utils/basePath";
+import {
+  createLoader,
+  createSerializer,
+  parseAsBoolean,
+  parseAsJson,
+  parseAsString,
+} from "nuqs";
 
-const STORAGE_KEY = "applied-filters";
 const QUERY_PARAMS = {
   FILTERS: "filters",
   FILTERS_INCLUDE: "filtersInclude",
@@ -34,58 +39,92 @@ export type FilterState = {
   textSearchFields: (keyof Item)[];
 };
 
+const isObjectRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const isFilterValue = (value: unknown): value is FilterValue =>
+  isObjectRecord(value) &&
+  typeof value.label === "string" &&
+  typeof value.value === "string";
+
+const isFiltersState = (
+  value: unknown,
+): value is Record<string, FilterValue[] | undefined> => {
+  if (!isObjectRecord(value)) {
+    return false;
+  }
+  return Object.values(value).every(
+    (entry) =>
+      entry === undefined ||
+      (Array.isArray(entry) && entry.every((item) => isFilterValue(item))),
+  );
+};
+
+const isFiltersIncludeState = (
+  value: unknown,
+): value is Record<string, boolean> => {
+  if (!isObjectRecord(value)) {
+    return false;
+  }
+  return Object.values(value).every((entry) => typeof entry === "boolean");
+};
+
+const isRangeState = (value: unknown): value is [number, number] =>
+  Array.isArray(value) &&
+  value.length === 2 &&
+  value.every((entry) => typeof entry === "number" && Number.isFinite(entry));
+
+const isTextSearchFieldsState = (value: unknown): value is (keyof Item)[] =>
+  Array.isArray(value) && value.every((entry) => typeof entry === "string");
+
+const filterQueryParsers = {
+  [QUERY_PARAMS.FILTERS]: parseAsJson<
+    Record<string, FilterValue[] | undefined>
+  >((value) => (isFiltersState(value) ? value : null)),
+  [QUERY_PARAMS.FILTERS_INCLUDE]: parseAsJson<Record<string, boolean>>(
+    (value) => (isFiltersIncludeState(value) ? value : null),
+  ),
+  [QUERY_PARAMS.RANGE]: parseAsJson<[number, number]>((value) =>
+    isRangeState(value) ? value : null,
+  ),
+  [QUERY_PARAMS.INCLUDE_UNDATED]: parseAsBoolean,
+  [QUERY_PARAMS.TEXT_SEARCH]: parseAsString,
+  [QUERY_PARAMS.TEXT_SEARCH_FIELDS]: parseAsJson<(keyof Item)[]>((value) =>
+    isTextSearchFieldsState(value) ? value : null,
+  ),
+};
+
+const loadFilterQueryState = createLoader(filterQueryParsers);
+const serializeFilterQueryState = createSerializer(filterQueryParsers, {
+  clearOnDefault: true,
+});
+
 const parseQueryParams = (): Partial<FilterState> | null => {
-  const params = new URLSearchParams(window.location.search);
+  const params = loadFilterQueryState(window.location.search);
   const queryState: Partial<FilterState> = {};
 
-  const filters = params.get(QUERY_PARAMS.FILTERS);
-  if (filters) {
-    try {
-      queryState.filters = JSON.parse(decodeURIComponent(filters));
-    } catch {
-      console.error("Failed to parse filters from query params", filters);
-    }
+  if (params.filters !== null) {
+    queryState.filters = params.filters;
   }
 
-  const filtersInclude = params.get(QUERY_PARAMS.FILTERS_INCLUDE);
-  if (filtersInclude) {
-    try {
-      queryState.filtersInclude = JSON.parse(
-        decodeURIComponent(filtersInclude),
-      );
-    } catch {
-      console.error("Failed to parse filters from query params", filters);
-    }
+  if (params.filtersInclude !== null) {
+    queryState.filtersInclude = params.filtersInclude;
   }
 
-  const range = params.get(QUERY_PARAMS.RANGE);
-  if (range) {
-    try {
-      queryState.range = JSON.parse(decodeURIComponent(range));
-    } catch {
-      console.error("Failed to parse filters from query params", filters);
-    }
+  if (params.range !== null) {
+    queryState.range = params.range;
   }
 
-  const includeUndated = params.get(QUERY_PARAMS.INCLUDE_UNDATED);
-  if (includeUndated !== null) {
-    queryState.includeUndated = includeUndated === "true";
+  if (params.includeUndated !== null) {
+    queryState.includeUndated = params.includeUndated;
   }
 
-  const textSearch = params.get(QUERY_PARAMS.TEXT_SEARCH);
-  if (textSearch !== null) {
-    queryState.textSearch = decodeURIComponent(textSearch);
+  if (params.textSearch !== null) {
+    queryState.textSearch = params.textSearch;
   }
 
-  const textSearchFields = params.get(QUERY_PARAMS.TEXT_SEARCH_FIELDS);
-  if (textSearchFields) {
-    try {
-      queryState.textSearchFields = JSON.parse(
-        decodeURIComponent(textSearchFields),
-      );
-    } catch {
-      console.error("Failed to parse filters from query params", filters);
-    }
+  if (params.textSearchFields !== null) {
+    queryState.textSearchFields = params.textSearchFields;
   }
 
   return Object.keys(queryState).length > 0 ? queryState : null;
@@ -95,8 +134,6 @@ const updateQueryParams = (state: FilterState, defaultState: FilterState) => {
   if (NO_FILTER_ROUTES.includes(getAppPathname())) {
     return;
   }
-
-  const params = new URLSearchParams();
 
   const isDefault = (key: string, value: unknown) => {
     if (
@@ -135,63 +172,40 @@ const updateQueryParams = (state: FilterState, defaultState: FilterState) => {
     return false;
   };
 
-  if (
-    state.filters &&
-    Object.keys(state.filters).length > 0 &&
-    !isDefault(QUERY_PARAMS.FILTERS, state.filters)
-  ) {
-    params.set(
-      QUERY_PARAMS.FILTERS,
-      encodeURIComponent(JSON.stringify(state.filters)),
-    );
-  }
-
-  if (
-    state.filtersInclude &&
-    Object.keys(state.filtersInclude).length > 0 &&
-    !isDefault(QUERY_PARAMS.FILTERS_INCLUDE, state.filtersInclude)
-  ) {
-    params.set(
+  const queryString = serializeFilterQueryState({
+    [QUERY_PARAMS.FILTERS]: isDefault(QUERY_PARAMS.FILTERS, state.filters)
+      ? null
+      : state.filters,
+    [QUERY_PARAMS.FILTERS_INCLUDE]: isDefault(
       QUERY_PARAMS.FILTERS_INCLUDE,
-      encodeURIComponent(JSON.stringify(state.filtersInclude)),
-    );
-  }
-
-  if (state.range && !isDefault(QUERY_PARAMS.RANGE, state.range)) {
-    params.set(
-      QUERY_PARAMS.RANGE,
-      encodeURIComponent(JSON.stringify(state.range)),
-    );
-  }
-
-  if (
-    state.includeUndated !== undefined &&
-    !isDefault(QUERY_PARAMS.INCLUDE_UNDATED, state.includeUndated)
-  ) {
-    params.set(QUERY_PARAMS.INCLUDE_UNDATED, String(state.includeUndated));
-  }
-
-  if (
-    state.textSearch &&
-    !isDefault(QUERY_PARAMS.TEXT_SEARCH, state.textSearch)
-  ) {
-    params.set(QUERY_PARAMS.TEXT_SEARCH, encodeURIComponent(state.textSearch));
-  }
-
-  if (
-    state.textSearchFields &&
-    state.textSearchFields.length > 0 &&
-    !isDefault(QUERY_PARAMS.TEXT_SEARCH_FIELDS, state.textSearchFields)
-  ) {
-    params.set(
+      state.filtersInclude,
+    )
+      ? null
+      : state.filtersInclude,
+    [QUERY_PARAMS.RANGE]: isDefault(QUERY_PARAMS.RANGE, state.range)
+      ? null
+      : state.range,
+    [QUERY_PARAMS.INCLUDE_UNDATED]: isDefault(
+      QUERY_PARAMS.INCLUDE_UNDATED,
+      state.includeUndated,
+    )
+      ? null
+      : state.includeUndated,
+    [QUERY_PARAMS.TEXT_SEARCH]: isDefault(
+      QUERY_PARAMS.TEXT_SEARCH,
+      state.textSearch,
+    )
+      ? null
+      : state.textSearch,
+    [QUERY_PARAMS.TEXT_SEARCH_FIELDS]: isDefault(
       QUERY_PARAMS.TEXT_SEARCH_FIELDS,
-      encodeURIComponent(JSON.stringify(state.textSearchFields)),
-    );
-  }
-
-  const queryString = params.toString();
+      state.textSearchFields,
+    )
+      ? null
+      : state.textSearchFields,
+  });
   const appPathname = getAppPathname();
-  const newUrl = buildAppUrl(appPathname, queryString ? `?${queryString}` : "");
+  const newUrl = buildAppUrl(appPathname, queryString);
   window.history.replaceState({}, "", newUrl);
 };
 
@@ -283,24 +297,12 @@ export const FilterAppliedProvider = ({
       }
     }
 
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const storedState = JSON.parse(stored);
-        updateQueryParams(storedState, getDefaultState());
-        return storedState;
-      } catch {
-        console.error("Failed to parse stored applied filters", stored);
-      }
-    }
-
     return getDefaultState();
   });
 
   const setAppliedFilters = useCallback(
     (newFilters: FilterState) => {
       setAppliedFiltersState(newFilters);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newFilters));
       updateQueryParams(newFilters, getDefaultState());
     },
     [getDefaultState],
@@ -318,11 +320,9 @@ export const FilterAppliedProvider = ({
       if (queryState) {
         const newState = { ...getDefaultState(), ...queryState };
         setAppliedFiltersState(newState);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
       } else {
         const defaultState = getDefaultState();
         setAppliedFiltersState(defaultState);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState));
       }
     };
 
@@ -351,26 +351,7 @@ export const FilterAppliedProvider = ({
       setTextSearch: React.Dispatch<React.SetStateAction<string>>;
       setTextSearchFields: React.Dispatch<React.SetStateAction<(keyof Item)[]>>;
     }) => {
-      const defaultFilters: Record<string, FilterValue[] | undefined> = {};
-
-      const allFilterKeys = Object.keys(itemProperties).filter(
-        (key) => !itemProperties[key].notFilterable,
-      );
-
-      allFilterKeys.forEach((key) => {
-        if (key !== "type") {
-          defaultFilters[key] = undefined;
-        }
-      });
-
-      const defaultState = {
-        filters: defaultFilters,
-        filtersInclude: {},
-        range: [minYear, maxYear] as [number, number],
-        includeUndated: false,
-        textSearch: "",
-        textSearchFields: ["shortTitle", "title", "titleEn"] as (keyof Item)[],
-      };
+      const defaultState = getDefaultState();
 
       setters.setFilters(() => defaultState.filters);
       setters.setFiltersInclude(() => ({}));
@@ -385,7 +366,7 @@ export const FilterAppliedProvider = ({
         window.history.replaceState({}, "", buildAppUrl(getAppPathname()));
       }
     },
-    [maxYear, minYear, setAppliedFilters],
+    [getDefaultState, setAppliedFilters],
   );
 
   const applyFilters = useCallback(

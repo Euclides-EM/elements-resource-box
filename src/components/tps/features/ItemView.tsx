@@ -13,7 +13,7 @@ import {
 import { openScan } from "../../../utils/dataUtils.ts";
 import ItemModal from "../modal/ItemModal.tsx";
 import { NO_AUTHOR, NO_CITY, NO_YEAR } from "../../../constants";
-import { joinArr } from "../../../utils/util.ts";
+import { joinArr, toItemImageUrl } from "../../../utils/util.ts";
 import styled from "@emotion/styled";
 
 const HighlightedText = lazy(() => import("./HighlightedText.tsx"));
@@ -29,6 +29,7 @@ const ItemView = memo(({ item, height, width, mode, features }: ItemProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
+  const imageUrl = toItemImageUrl(item.imageUrl);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -70,7 +71,7 @@ const ItemView = memo(({ item, height, width, mode, features }: ItemProps) => {
             </>
           ) : (
             <>
-              <TextTile alignCenter={!!item.imageUrl}>
+              <TextTile alignCenter={!!imageUrl}>
                 {!isVisible ? (
                   <div>
                     {item.title}
@@ -128,10 +129,10 @@ const ItemView = memo(({ item, height, width, mode, features }: ItemProps) => {
         </>
       )}
       {mode === "images" &&
-        (item.imageUrl ? (
+        (imageUrl ? (
           <ImageTile>
             <StyledImage
-              src={item.imageUrl}
+              src={imageUrl}
               onClick={() => openScan(item)}
               clickable={!!item.scanUrl && item.scanUrl.length > 0}
             />
