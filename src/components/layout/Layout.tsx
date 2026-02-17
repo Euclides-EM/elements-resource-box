@@ -1,8 +1,8 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Navigation from "./Navigation";
 import styled from "@emotion/styled";
 import { FilterPane } from "../map/FilterPane";
-import { MAIN_CONTENT_ID, NAVBAR_HEIGHT } from "./routes.ts";
+import { MAIN_CONTENT_ID, MAP_ROUTE, NAVBAR_HEIGHT } from "./routes.ts";
 import { useEditFilter } from "../../contexts/FilterEditContext";
 
 const LayoutContainer = styled.div`
@@ -27,12 +27,15 @@ const MainContent = styled.main`
 
 function Layout() {
   const { filterOpen, setFilterOpen } = useEditFilter();
+  const location = useLocation();
+  const isMapRoute = location.pathname === MAP_ROUTE;
 
   return (
     <LayoutContainer>
       <Navigation />
+      {isMapRoute && <FilterPane overlay />}
       <ContentRow>
-        <FilterPane />
+        {!isMapRoute && <FilterPane />}
         <MainContent
           id={MAIN_CONTENT_ID}
           onClick={() => filterOpen && setFilterOpen(false)}

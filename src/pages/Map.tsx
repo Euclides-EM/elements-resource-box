@@ -114,7 +114,7 @@ const Pane = styled.div<{
 const Map = () => {
   const { height } = useWindowSize();
   const isMobile = useIsMobile();
-  const { filterOpen, setFilterOpen } = useEditFilter();
+  const { setFilterOpen } = useEditFilter();
   const { cities } = useAppliedFilter();
   const { items: filteredItems } = useEditionsSearch();
   const [zoom, setZoom] = useLocalStorage<number>("zoom", 1);
@@ -172,7 +172,7 @@ const Map = () => {
 
   useEffect(() => {
     refreshSize();
-  }, [refreshSize, selectedCity, selectedRecordKey, filterOpen]);
+  }, [refreshSize, selectedCity, selectedRecordKey]);
 
   return (
     <Wrapper>

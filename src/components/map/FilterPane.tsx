@@ -8,7 +8,11 @@ import { ScrollbarStyle } from "../common";
 import RangeSlider from "../tps/filters/RangeSlider";
 import { FilterButton as FilterToggleButton } from "../layout/FilterButton.tsx";
 import { itemProperties } from "../../constants/itemProperties.ts";
-import { NO_FILTER_ROUTES } from "../layout/routes.ts";
+import {
+  MAP_ROUTE,
+  NAVBAR_HEIGHT,
+  NO_FILTER_ROUTES,
+} from "../layout/routes.ts";
 import { TextSearchFilter } from "./TextSearchFilter";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FilterValue } from "./Filter";
@@ -18,13 +22,19 @@ import { useLocation } from "react-router-dom";
 
 const FILTER_PANE_WIDTH = "26rem";
 
-const Pane = styled.div<{ isLoading?: boolean }>`
+const Pane = styled.div<{ isLoading?: boolean; overlay?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  position: ${({ overlay }) => (overlay ? "fixed" : "relative")};
+  top: ${({ overlay }) => (overlay ? `${NAVBAR_HEIGHT}px` : "auto")};
+  left: ${({ overlay }) => (overlay ? "0" : "auto")};
+  height: ${({ overlay }) =>
+    overlay ? `calc(100vh - ${NAVBAR_HEIGHT}px)` : "100%"};
+  z-index: ${({ overlay }) => (overlay ? 20 : "auto")};
   width: ${FILTER_PANE_WIDTH};
   min-width: 256px;
-  flex-shrink: 0;
+  flex-shrink: ${({ overlay }) => (overlay ? "unset" : 0)};
   box-sizing: border-box;
   overflow-y: ${({ isLoading }) => (isLoading ? "hidden" : "auto")};
   overflow-x: hidden;
@@ -32,7 +42,6 @@ const Pane = styled.div<{ isLoading?: boolean }>`
   color: black;
   padding: 1rem;
   border-right: 2px ${PANE_BORDER} solid;
-  position: relative;
   pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")};
 
   ${ScrollbarStyle};
@@ -147,7 +156,11 @@ const LoadingText = styled.div`
   }
 `;
 
-export const FilterPane = () => {
+type FilterPaneProps = {
+  overlay?: boolean;
+};
+
+export const FilterPane = ({ overlay }: FilterPaneProps) => {
   const {
     data,
     minYear,
@@ -279,8 +292,14 @@ export const FilterPane = () => {
     return null;
   }
 
+  const isMapOverlay = overlay ?? location.pathname === MAP_ROUTE;
+
   return (
-    <Pane isLoading={isFiltering} onClick={(e) => e.stopPropagation()}>
+    <Pane
+      overlay={isMapOverlay}
+      isLoading={isFiltering}
+      onClick={(e) => e.stopPropagation()}
+    >
       {isFiltering && (
         <LoadingOverlay>
           <LoadingText>

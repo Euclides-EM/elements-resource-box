@@ -748,7 +748,7 @@ function Catalogue() {
                           header.column.columnDef.header,
                           header.getContext(),
                         )}
-                        {header.column.columnDef.enableSorting && (
+                        {header.column.getCanSort() && (
                           <SortIndicator>
                             {{
                               asc: "↑",
