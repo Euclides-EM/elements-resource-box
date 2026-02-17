@@ -271,6 +271,7 @@ function Catalogue() {
   const [columnResizeMode] = useState<ColumnResizeMode>("onChange");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>(
     "catalogue-view-mode",
     "reprint",
@@ -283,6 +284,7 @@ function Catalogue() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    fetchAllItemsForExport,
   } = useEditionsSearchInfinite({
     pageSize: 25,
     orderBy,
@@ -295,12 +297,18 @@ function Catalogue() {
     });
   };
 
-  const handleExportCitations = () => {
-    if (!filteredItems) {
-      return;
+  const handleExportCitations = async () => {
+    setIsExporting(true);
+    try {
+      const itemsForExport = await fetchAllItemsForExport();
+      const timestamp = new Date().toISOString().slice(0, 10);
+      exportCitationsAsRTF(
+        itemsForExport,
+        `chicago_citations_${timestamp}.rtf`,
+      );
+    } finally {
+      setIsExporting(false);
     }
-    const timestamp = new Date().toISOString().slice(0, 10);
-    exportCitationsAsRTF(filteredItems, `chicago_citations_${timestamp}.rtf`);
   };
 
   useEffect(() => {
@@ -707,8 +715,10 @@ function Catalogue() {
           </Switch>
         </ViewModeToggle>
 
-        <ExportButton onClick={handleExportCitations}>
-          Export Citations (Chicago Style)
+        <ExportButton onClick={handleExportCitations} disabled={isExporting}>
+          {isExporting
+            ? "Exporting citations..."
+            : "Export Citations (Chicago Style)"}
         </ExportButton>
       </Row>
 

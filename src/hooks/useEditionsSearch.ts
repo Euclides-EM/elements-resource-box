@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import {
   useQuery,
   useInfiniteQuery,
@@ -245,6 +245,18 @@ export function useEditionsSearchInfinite(options: InfiniteSearchOptions = {}) {
   }, [editionsQuery.data, diagramDirsQuery.data]);
 
   const total = editionsQuery.data?.pages[0]?.total;
+  const fetchAllItemsForExport = useCallback(async () => {
+    const editions = await listAllEditions({
+      ...searchQuery,
+      order_by: orderBy,
+    });
+    return mapEditionsToItems(
+      editions,
+      diagramDirsQuery.data ?? new Set(),
+      true,
+      false,
+    );
+  }, [diagramDirsQuery.data, orderBy, searchQuery]);
 
   return {
     items,
@@ -254,5 +266,6 @@ export function useEditionsSearchInfinite(options: InfiniteSearchOptions = {}) {
     isFetchingNextPage: editionsQuery.isFetchingNextPage,
     hasNextPage: editionsQuery.hasNextPage,
     fetchNextPage: editionsQuery.fetchNextPage,
+    fetchAllItemsForExport,
   };
 }
