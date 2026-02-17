@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
-import { useNavigate } from "react-router-dom";
 import { CATALOGUE_ROUTE, NAVBAR_HEIGHT } from "../components/layout/routes";
+import { useNavigateWithQuery } from "../utils/navigationUtils";
 
 const BackgroundContainer = styled.div`
   position: fixed;
@@ -119,7 +119,7 @@ const Features = styled.div`
 `;
 
 export const HomeCommentaria = () => {
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
 
   return (
     <>
@@ -130,7 +130,7 @@ export const HomeCommentaria = () => {
           A platform for studying modern editions and commentaries of Euclid's
           Elements
         </Subtitle>
-        <BrowseButton onClick={() => navigate(CATALOGUE_ROUTE)}>
+        <BrowseButton onClick={() => navigateWithQuery(CATALOGUE_ROUTE)}>
           Browse the Catalogue
         </BrowseButton>
         <Features>

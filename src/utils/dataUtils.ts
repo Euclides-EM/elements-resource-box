@@ -2,7 +2,6 @@ import { FLOATING_CITY_ENTRY, Item } from "../types";
 import { startCase, uniq } from "lodash";
 import { Dispatch, SetStateAction } from "react";
 import { ItemTypes } from "../constants";
-import { Point } from "react-simple-maps";
 import { listAllEditions } from "../api/editionApi.ts";
 import { fetchDiagramDirectories } from "../api/diagramsApi.ts";
 import type { model_Edition } from "../../hub-api/models/model_Edition";
@@ -156,15 +155,6 @@ export const loadEditionsData = (
       );
     })
     .catch((error) => console.error("Error loading editions data:", error));
-};
-
-export const loadCitiesAsync = async (): Promise<Record<string, Point>> => {
-  return {
-    [FLOATING_CITY_ENTRY.city]: [
-      FLOATING_CITY_ENTRY.lon,
-      FLOATING_CITY_ENTRY.lat,
-    ],
-  };
 };
 
 export const authorDisplayName = (author: string) => {

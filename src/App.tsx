@@ -35,6 +35,7 @@ import { HomeCommentaria } from "./pages/HomeCommentaria.tsx";
 import { Features } from "./pages/Features.tsx";
 import { getRouterBasename } from "./utils/basePath.ts";
 import { configureHubApi } from "./api/hubApiConfig.ts";
+import { NuqsAdapter } from "nuqs/adapters/react-router/v7";
 
 export function App() {
   const [authToken, setAuthToken] = useLocalStorage<string | null>(
@@ -45,7 +46,13 @@ export function App() {
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route element={<Layout />}>
+      <Route
+        element={
+          <NuqsAdapter>
+            <Layout />
+          </NuqsAdapter>
+        }
+      >
         <Route
           path={HOME_ROUTE}
           element={inEuclidesMode() ? <HomeCommentaria /> : <HomeResourceBox />}

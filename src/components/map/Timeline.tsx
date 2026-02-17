@@ -39,21 +39,17 @@ const PLAY_STEP_YEARS = 10;
 const PLAY_STEP_SEC = 1;
 
 export const Timeline = () => {
-  const { range, minYear, maxYear } = useAppliedFilter();
-  const [localRange, setLocalRange] = useState<[number, number]>(range);
+  const { range, minYear, maxYear, applyRange } = useAppliedFilter();
   const [isPlay, setPlay] = useState<boolean>(false);
 
-  const playStep = useCallback(
-    () =>
-      setLocalRange(([from, to]) => {
-        to = Math.min(maxYear, to + PLAY_STEP_YEARS);
-        if (to >= maxYear) {
-          setPlay(false);
-        }
-        return [from, to];
-      }),
-    [maxYear],
-  );
+  const playStep = useCallback(() => {
+    const [from, to] = range;
+    const nextTo = Math.min(maxYear, to + PLAY_STEP_YEARS);
+    if (nextTo >= maxYear) {
+      setPlay(false);
+    }
+    applyRange([from, nextTo]);
+  }, [applyRange, maxYear, range]);
 
   useEffect(() => {
     if (!isPlay) {
@@ -74,12 +70,12 @@ export const Timeline = () => {
         {isPlay ? <MdPause /> : <MdPlayArrow />}
       </PlayButton>
       <RangeWrapper id={TIMELINE_RANGE_ID}>
-        {localRange[0] > 0 && localRange[1] > 0 && (
+        {range[0] > 0 && range[1] > 0 && (
           <StyledRangeSlider
             min={minYear}
             max={maxYear}
-            value={localRange}
-            onChange={setLocalRange}
+            value={range}
+            onChange={applyRange}
           />
         )}
       </RangeWrapper>

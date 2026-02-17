@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Point } from "react-simple-maps";
 import styled from "@emotion/styled";
 import { isEmpty } from "lodash";
+import { useQuery } from "@tanstack/react-query";
 import { CityMarkers } from "../components/map/Markers";
 import { MapControls } from "../components/map/MapControls";
 import { useElementSize } from "../utils/useElementSize";
@@ -22,14 +23,14 @@ import {
 import { Timeline } from "../components/map/Timeline";
 import { HeatLegend } from "../components/map/HeatMap";
 import { useTour } from "@reactour/tour";
-import { useAppliedFilter } from "../contexts/FilterAppliedContext";
 import { useEditionsSearch } from "../hooks/useEditionsSearch";
 import { ItemModal } from "../components/tps/modal/ItemModal.tsx";
 import { CityDetails } from "../components/map/CityDetails.tsx";
 import { NAVBAR_HEIGHT } from "../components/layout/routes.ts";
 import { useIsMobile } from "../components/layout/isMobile.ts";
 import { useEditFilter } from "../contexts/FilterEditContext.tsx";
-import { Item } from "../types";
+import { FLOATING_CITY_ENTRY, Item } from "../types";
+import { EditionsService } from "../../hub-api/services/EditionsService.ts";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -111,12 +112,39 @@ const Pane = styled.div<{
     borderRight ? "border-right" : "border-left"}: 2px ${PANE_BORDER} solid;
 `;
 
+const loadCitiesAsync = async (): Promise<Record<string, Point>> => {
+  const apiCities = await EditionsService.getCities();
+  const mappedCities = apiCities.reduce<Record<string, Point>>((acc, city) => {
+    if (
+      !city.name ||
+      !Number.isFinite(city.longitude) ||
+      !Number.isFinite(city.latitude)
+    ) {
+      return acc;
+    }
+    acc[city.name] = [city.longitude, city.latitude];
+    return acc;
+  }, {});
+
+  return {
+    ...mappedCities,
+    [FLOATING_CITY_ENTRY.city]: [
+      FLOATING_CITY_ENTRY.lon,
+      FLOATING_CITY_ENTRY.lat,
+    ],
+  };
+};
+
 export const Map = () => {
   const { height } = useWindowSize();
   const isMobile = useIsMobile();
   const { setFilterOpen } = useEditFilter();
-  const { cities } = useAppliedFilter();
   const { items: filteredItems } = useEditionsSearch();
+  const citiesQuery = useQuery({
+    queryKey: ["cities"],
+    queryFn: loadCitiesAsync,
+  });
+  const cities = citiesQuery.data ?? {};
   const [zoom, setZoom] = useLocalStorage<number>("zoom", 1);
   const {
     ref: mapSectionRef,

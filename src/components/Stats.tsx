@@ -5,19 +5,24 @@ import { MARKER_4 } from "../utils/colors.ts";
 import { useMemo } from "react";
 import styled from "@emotion/styled";
 import pluralize from "pluralize";
+import { isNil } from "lodash";
 
 const Highlight = styled.span`
   color: ${MARKER_4};
 `;
 
-export const Stats = ({ verb }: { verb?: string }) => {
-  const { items: filteredItems } = useEditionsSearch();
+type StatsProps = {
+  verb?: string;
+};
+
+export const Stats = ({ verb }: StatsProps) => {
+  const { items } = useEditionsSearch();
 
   const { authorsCount, languagesCount, citiesCount } = useMemo(() => {
     const authorsSet = new Set<string>();
     const citiesSet = new Set<string>();
     const languagesSet = new Set<string>();
-    filteredItems?.forEach((item) => {
+    items?.forEach((item) => {
       item.authors?.forEach((author) =>
         authorsSet.add(authorDisplayName(author)),
       );
@@ -29,20 +34,20 @@ export const Stats = ({ verb }: { verb?: string }) => {
       citiesCount: citiesSet.size,
       languagesCount: languagesSet.size,
     };
-  }, [filteredItems]);
+  }, [items]);
 
-  if (filteredItems == null) {
-    return null;
+  if (isNil(items)) {
+    return;
   }
 
   return (
     <Row>
-      {filteredItems.length === 0 ? (
+      {items.length === 0 ? (
         <Highlight>No matches. Try adjusting the filters or search.</Highlight>
       ) : (
         <Text size={1}>
-          {verb || "Listing"} <Highlight>{filteredItems.length}</Highlight>{" "}
-          {pluralize("edition", filteredItems.length)}, by{" "}
+          {verb || "Listing"} <Highlight>{items.length}</Highlight>{" "}
+          {pluralize("edition", items.length)}, by{" "}
           <Highlight>{authorsCount}</Highlight>{" "}
           {pluralize("author", authorsCount)}, in{" "}
           <Highlight>{languagesCount}</Highlight>{" "}

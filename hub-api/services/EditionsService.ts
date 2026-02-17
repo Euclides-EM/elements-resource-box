@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { api_editionDiagramsResponse } from '../models/api_editionDiagramsResponse';
+import type { model_City } from '../models/model_City';
 import type { model_Edition } from '../models/model_Edition';
 import type { model_EditionListResult } from '../models/model_EditionListResult';
 import type { model_ImageUpload } from '../models/model_ImageUpload';
@@ -12,6 +13,18 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class EditionsService {
+    /**
+     * List cities
+     * Returns cities metadata with city name, longitude, and latitude.
+     * @returns model_City OK
+     * @throws ApiError
+     */
+    public static getCities(): CancelablePromise<Array<model_City>> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/cities',
+        });
+    }
     /**
      * Upload Edition Image
      * Upload an image for a specific edition identified by key. The image file is provided as multipart form data.

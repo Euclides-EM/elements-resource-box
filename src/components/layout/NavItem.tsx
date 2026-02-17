@@ -109,8 +109,6 @@ function NavItem({
   mobile,
   hideSeparator = false,
 }: NavItemProps) {
-  const location = useLocation();
-
   if (external) {
     return (
       <StyledNavItem
@@ -126,7 +124,7 @@ function NavItem({
     );
   }
 
-  const pathWithQuery = preserveQueryParams(to, location.search);
+  const pathWithQuery = preserveQueryParams(to, window.location.search);
 
   return (
     <StyledNavItem
@@ -220,7 +218,9 @@ export const NavItems = ({ mobile }: { mobile: boolean }) => {
             <ActionsMenu
               mobile={mobile}
               onShowCreateModal={() => {
-                window.location.href = withAppBasePath(ITEM_EDIT_ROUTE);
+                window.location.href = withAppBasePath(
+                  preserveQueryParams(ITEM_EDIT_ROUTE, window.location.search),
+                );
               }}
             />
           </DevNavItem>

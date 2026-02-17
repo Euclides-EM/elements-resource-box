@@ -21,7 +21,7 @@ import {
 import { MultiSelect } from "../components/tps/filters/MultiSelect";
 import { Radio } from "../components/tps/filters/Radio";
 import { ItemView } from "../components/tps/features/ItemView";
-import { useEditionsSearch } from "../hooks/useEditionsSearch";
+import { useEditionsSearchInfinite } from "../hooks/useEditionsSearch";
 import { IoWarning } from "react-icons/io5";
 import styled from "@emotion/styled";
 import Switch from "react-switch";
@@ -42,7 +42,20 @@ const SearchInput = styled.input`
 `;
 
 export function TitlePage() {
-  const { items: filteredItems } = useEditionsSearch();
+  const {
+    items,
+    total,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useEditionsSearchInfinite({
+    pageSize: 25,
+    orderBy: [
+      { field: "year", descending: false },
+      { field: "key", descending: false },
+    ],
+  });
 
   const [titlePagesModeOn, setTitlePagesModeOn] = useLocalStorageState<boolean>(
     "tp-on",
@@ -74,9 +87,17 @@ export function TitlePage() {
 
   const handleScroll = useCallback(() => {
     const el = document.getElementById(MAIN_CONTENT_ID);
-    const scrollTop = el ? el.scrollTop : 0;
+    if (!el) {
+      return;
+    }
+    const scrollTop = el.scrollTop;
     setShowScrollTop(scrollTop > 200);
-  }, []);
+
+    const remaining = el.scrollHeight - (el.scrollTop + el.clientHeight);
+    if (remaining < 300 && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const scrollToTop = () => {
     document.getElementById(MAIN_CONTENT_ID)?.scrollTo({
@@ -87,11 +108,11 @@ export function TitlePage() {
 
   const filteredBySearchItems = useMemo(() => {
     if (!searchText.trim() || !titlePagesModeOn) {
-      return filteredItems;
+      return items;
     }
 
     const searchLower = searchText.toLowerCase();
-    return filteredItems?.filter((item) => {
+    return items?.filter((item) => {
       const title = item.title?.toLowerCase() || "";
       const imprint = item.imprint?.toLowerCase() || "";
       const titleEn = item.titleEn?.toLowerCase() || "";
@@ -121,7 +142,7 @@ export function TitlePage() {
         item.year?.toLowerCase().includes(searchLower)
       );
     });
-  }, [filteredItems, searchText, titlePagesModeOn]);
+  }, [items, searchText, titlePagesModeOn]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -138,12 +159,23 @@ export function TitlePage() {
   useEffect(() => {
     const el = document.getElementById(MAIN_CONTENT_ID);
     el?.addEventListener("scroll", handleScroll);
+    handleScroll();
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       el?.removeEventListener("scroll", handleScroll);
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleScroll, handleKeyDown]);
+
+  useEffect(() => {
+    const el = document.getElementById(MAIN_CONTENT_ID);
+    if (!el || !hasNextPage || isFetchingNextPage) {
+      return;
+    }
+    if (el.scrollHeight - el.clientHeight < 300) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, items?.length, hasNextPage, isFetchingNextPage]);
 
   return (
     <Container
@@ -159,7 +191,7 @@ export function TitlePage() {
         </ScrollToTopButton>
       )}
       <Column minWidth="min(820px, 90%)">
-        <Stats />
+        <Stats items={items} total={total} />
         {!inEuclidesMode() && (
           <>
             <Row gap={0.5}>
@@ -260,6 +292,15 @@ export function TitlePage() {
           </Text>
         )}
       </Row>
+      <Text size={1}>
+        {isLoading
+          ? "Loading editions..."
+          : isFetchingNextPage
+            ? "Loading more editions..."
+            : hasNextPage
+              ? "Scroll to load more editions."
+              : "All matching editions loaded."}
+      </Text>
       <Text size={1} style={{ marginTop: "auto" }}>
         À la Croisée des Hyperliens, chez le scribe fatigué et son félin
         passivement investi, MMXXV.

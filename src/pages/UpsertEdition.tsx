@@ -1,6 +1,6 @@
 import { useForm, useStore } from "@tanstack/react-form";
 import { useContext, useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import styled from "@emotion/styled";
 import {
   deleteEdition,
@@ -18,6 +18,7 @@ import { MultiSelect } from "../components/tps/filters/MultiSelect.tsx";
 import { SingleSelect } from "../components/tps/filters/SingleSelect.tsx";
 import { Row } from "../components/common.ts";
 import { isValidUrl } from "../utils/util.ts";
+import { useNavigateWithQuery } from "../utils/navigationUtils.ts";
 
 type Locator = model_EditionLocator;
 
@@ -667,7 +668,7 @@ function deepTrim<T>(input: T): T {
 }
 
 export const UpsertEdition = () => {
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const [searchParams] = useSearchParams();
   const key = searchParams.get("key");
   const { token } = useContext(AuthContext);
@@ -697,7 +698,7 @@ export const UpsertEdition = () => {
         value.bibliography = value.bibliography.filter((b) => b);
         deepTrim(value);
         await upsertEdition(toModelEdition(value), images);
-        navigate(CATALOGUE_ROUTE);
+        navigateWithQuery(CATALOGUE_ROUTE);
       } catch (err) {
         console.error(err);
         alert("Failed to submit form");
@@ -914,7 +915,7 @@ export const UpsertEdition = () => {
     try {
       setIsDeleting(true);
       await deleteEdition(key);
-      navigate(CATALOGUE_ROUTE);
+      navigateWithQuery(CATALOGUE_ROUTE);
     } catch (err) {
       console.error(err);
       alert("Failed to delete edition");
@@ -2018,12 +2019,8 @@ export const UpsertEdition = () => {
                                         `visualElements[${i}].locator`,
                                         {
                                           key: getSuggestedKey(),
-                                          first_order_type: null,
-                                          first_order_value: null,
-                                          type: null,
                                           value: "",
                                           page_type: "",
-                                          page_value: null,
                                         },
                                       );
                                     } else {
@@ -2369,12 +2366,8 @@ export const UpsertEdition = () => {
                                                   `visualElements[${i}].examples[${j}].locator`,
                                                   {
                                                     key: getSuggestedKey(),
-                                                    first_order_type: null,
-                                                    first_order_value: null,
-                                                    type: null,
                                                     value: "",
                                                     page_type: "",
-                                                    page_value: null,
                                                   },
                                                 );
                                               } else {
@@ -2396,12 +2389,8 @@ export const UpsertEdition = () => {
                                                   `visualElements[${i}].examples[${j}].locator`,
                                                   {
                                                     key: getSuggestedKey(),
-                                                    first_order_type: null,
-                                                    first_order_value: null,
-                                                    type: null,
                                                     value: "",
                                                     page_type: "",
-                                                    page_value: null,
                                                   },
                                                 );
                                               } else {

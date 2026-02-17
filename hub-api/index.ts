@@ -55,6 +55,7 @@ export type { feature_ResultValue } from './models/feature_ResultValue';
 export type { feature_Revision } from './models/feature_Revision';
 export type { feature_Type } from './models/feature_Type';
 export type { model_AnnotationReference } from './models/model_AnnotationReference';
+export type { model_City } from './models/model_City';
 export type { model_Dataset } from './models/model_Dataset';
 export type { model_Edition } from './models/model_Edition';
 export type { model_EditionListResult } from './models/model_EditionListResult';
