@@ -134,7 +134,7 @@ function escapeRegExpLoose(str: string): string {
 const getTotalLength = (arr?: string[]) =>
   arr?.reduce((sum, str) => sum + str.length, 0) || 0;
 
-const HighlightedText = memo(
+export const HighlightedText = memo(
   ({ text, features, mapping }: HighlightedTextProps) => {
     const [isReady, setIsReady] = useState(false);
     const [processedLayers, setProcessedLayers] = useState<string[]>([]);
@@ -222,5 +222,3 @@ const HighlightedText = memo(
     );
   },
 );
-
-export default HighlightedText;

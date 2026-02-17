@@ -24,7 +24,7 @@ import { HeatLegend } from "../components/map/HeatMap";
 import { useTour } from "@reactour/tour";
 import { useAppliedFilter } from "../contexts/FilterAppliedContext";
 import { useEditionsSearch } from "../hooks/useEditionsSearch";
-import ItemModal from "../components/tps/modal/ItemModal.tsx";
+import { ItemModal } from "../components/tps/modal/ItemModal.tsx";
 import { CityDetails } from "../components/map/CityDetails.tsx";
 import { NAVBAR_HEIGHT } from "../components/layout/routes.ts";
 import { useIsMobile } from "../components/layout/isMobile.ts";
@@ -111,7 +111,7 @@ const Pane = styled.div<{
     borderRight ? "border-right" : "border-left"}: 2px ${PANE_BORDER} solid;
 `;
 
-const Map = () => {
+export const Map = () => {
   const { height } = useWindowSize();
   const isMobile = useIsMobile();
   const { setFilterOpen } = useEditFilter();
@@ -241,5 +241,3 @@ const Map = () => {
     </Wrapper>
   );
 };
-
-export default Map;

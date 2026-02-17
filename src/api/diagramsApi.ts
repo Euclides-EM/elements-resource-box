@@ -1,8 +1,6 @@
-import {
-  EditionsService,
-  type api_editionDiagramVolume,
-  type api_editionDiagramsResponse,
-} from "../../hub-api";
+import { EditionsService } from "../../hub-api/services/EditionsService";
+import type { api_editionDiagramVolume } from "../../hub-api/models/api_editionDiagramVolume";
+import type { api_editionDiagramsResponse } from "../../hub-api/models/api_editionDiagramsResponse";
 
 export interface VolumeData {
   volume?: number;

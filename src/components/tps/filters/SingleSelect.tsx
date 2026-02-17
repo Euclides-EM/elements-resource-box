@@ -12,7 +12,7 @@ type SingleSelectProps = {
   isCreatable?: boolean;
 };
 
-const SingleSelect = ({
+export const SingleSelect = ({
   name,
   options,
   value,
@@ -56,5 +56,3 @@ const SingleSelect = ({
     />
   );
 };
-
-export default SingleSelect;

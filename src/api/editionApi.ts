@@ -1,5 +1,8 @@
-import { EditionsService, ThirdPartyCatalogsService } from "../../hub-api";
-import type { model_Edition, model_USTC, search_Query } from "../../hub-api";
+import { EditionsService } from "../../hub-api/services/EditionsService";
+import { ThirdPartyCatalogsService } from "../../hub-api/services/ThirdPartyCatalogsService";
+import type { model_Edition } from "../../hub-api/models/model_Edition";
+import type { model_USTC } from "../../hub-api/models/model_USTC";
+import type { search_Query } from "../../hub-api/models/search_Query";
 import { uploadImage } from "./imageApi.ts";
 
 export const upsertEdition = async (

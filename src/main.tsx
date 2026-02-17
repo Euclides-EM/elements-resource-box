@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import "react-tooltip/dist/react-tooltip.css";
-import App from "./App.tsx";
+import { App } from "./App.tsx";
 import { Tooltip } from "react-tooltip";
 import {
   MapTooltips,

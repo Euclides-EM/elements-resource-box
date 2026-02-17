@@ -135,10 +135,22 @@ const updateQueryParams = (state: FilterState, defaultState: FilterState) => {
     return;
   }
 
+  const normalizeFilters = (
+    filters: Record<string, FilterValue[] | undefined>,
+  ): Record<string, FilterValue[] | undefined> =>
+    Object.fromEntries(
+      Object.entries(filters).filter(
+        ([, value]) => value !== undefined && value.length > 0,
+      ),
+    );
+
+  const normalizedFilters = normalizeFilters(state.filters);
+  const normalizedDefaultFilters = normalizeFilters(defaultState.filters);
+
   const isDefault = (key: string, value: unknown) => {
     if (
       key === QUERY_PARAMS.FILTERS &&
-      JSON.stringify(value) === JSON.stringify(defaultState.filters)
+      JSON.stringify(value) === JSON.stringify(normalizedDefaultFilters)
     ) {
       return true;
     }
@@ -173,9 +185,9 @@ const updateQueryParams = (state: FilterState, defaultState: FilterState) => {
   };
 
   const queryString = serializeFilterQueryState({
-    [QUERY_PARAMS.FILTERS]: isDefault(QUERY_PARAMS.FILTERS, state.filters)
+    [QUERY_PARAMS.FILTERS]: isDefault(QUERY_PARAMS.FILTERS, normalizedFilters)
       ? null
-      : state.filters,
+      : normalizedFilters,
     [QUERY_PARAMS.FILTERS_INCLUDE]: isDefault(
       QUERY_PARAMS.FILTERS_INCLUDE,
       state.filtersInclude,

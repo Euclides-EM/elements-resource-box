@@ -24,7 +24,11 @@ import { inEditMode } from "../../../utils/mode.ts";
 import { withAppBasePath } from "../../../utils/basePath";
 import { toItemImageUrl } from "../../../utils/util.ts";
 
-const HighlightedText = lazy(() => import("../features/HighlightedText.tsx"));
+const HighlightedText = lazy(() =>
+  import("../features/HighlightedText.tsx").then((module) => ({
+    default: module.HighlightedText,
+  })),
+);
 
 type ItemModalProps = {
   item: Item;
@@ -62,7 +66,7 @@ const EditLink = styled.a`
   }
 `;
 
-const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
+export const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
   const modalFeatures = features || [];
   const hasTitleText = !!item.title && item.title !== "?";
   const imageUrl = toItemImageUrl(item.imageUrl);
@@ -158,5 +162,3 @@ const ItemModal = ({ item, features, onClose }: ItemModalProps) => {
     </Modal>
   );
 };
-
-export default ItemModal;

@@ -10,7 +10,8 @@ import { fetchDiagramDirectories } from "../api/diagramsApi";
 import { mapEditionsToItems } from "../utils/dataUtils";
 import type { FilterValue } from "../components/map/Filter";
 import type { Item } from "../types";
-import type { search_OrderByOption, search_Query } from "../../hub-api";
+import type { search_OrderByOption } from "../../hub-api/models/search_OrderByOption";
+import type { search_Query } from "../../hub-api/models/search_Query";
 
 const ITEM_FIELD_TO_EDITION_FIELD: Record<string, string> = {
   type: "isElements",

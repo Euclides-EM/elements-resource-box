@@ -13,7 +13,7 @@ import {
   getExpandedRowModel,
 } from "@tanstack/react-table";
 import styled from "@emotion/styled";
-import type { search_OrderByOption } from "../../hub-api";
+import type { search_OrderByOption } from "../../hub-api/models/search_OrderByOption";
 import { SiMaterialdesign } from "react-icons/si";
 import { Item } from "../types";
 import { useAppliedFilter } from "../contexts/FilterAppliedContext";
@@ -24,7 +24,7 @@ import {
   ScrollbarStyle,
   ScrollToTopButton,
 } from "../components/common";
-import ItemModal from "../components/tps/modal/ItemModal";
+import { ItemModal } from "../components/tps/modal/ItemModal";
 import { NO_AUTHOR, NO_CITY, NO_YEAR } from "../constants";
 import { joinArr } from "../utils/util.ts";
 import { FaBookReader, FaChevronDown, FaChevronRight } from "react-icons/fa";
@@ -262,7 +262,7 @@ const toServerOrderBy = (sorting: SortingState): search_OrderByOption[] => {
   return [...mapped, { field: "key", descending: false }];
 };
 
-function Catalogue() {
+export function Catalogue() {
   const { filters } = useAppliedFilter();
   const { token } = useContext(AuthContext);
   const [sorting, setSorting] = useState<SortingState>([
@@ -815,5 +815,3 @@ function Catalogue() {
     </Container>
   );
 }
-
-export default Catalogue;

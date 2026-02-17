@@ -37,7 +37,7 @@ type MultiSelectProps = {
   placeholder?: string;
 };
 
-const MultiSelect = ({
+export const MultiSelect = ({
   name,
   options,
   onChange,
@@ -150,5 +150,3 @@ const MultiSelect = ({
     />
   );
 };
-
-export default MultiSelect;

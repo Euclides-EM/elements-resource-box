@@ -235,7 +235,7 @@ const parseImageName = (imagePath: string): ImageInfo => {
   };
 };
 
-const Diagrams = () => {
+export const Diagrams = () => {
   const [searchParams] = useSearchParams();
   const editionKey = searchParams.get("key");
   const { data } = useAppliedFilter();
@@ -658,5 +658,3 @@ const Diagrams = () => {
     </>
   );
 };
-
-export default Diagrams;

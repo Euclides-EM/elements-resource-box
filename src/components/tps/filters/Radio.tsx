@@ -1,7 +1,7 @@
 import { RadioProps } from "../../../types";
 import { Row } from "../../common.ts";
 
-const Radio = ({ name, options, value, onChange }: RadioProps) => (
+export const Radio = ({ name, options, value, onChange }: RadioProps) => (
   <Row>
     <div>{name}:</div>
     <label>
@@ -22,5 +22,3 @@ const Radio = ({ name, options, value, onChange }: RadioProps) => (
     </label>
   </Row>
 );
-
-export default Radio;

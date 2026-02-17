@@ -4,7 +4,7 @@ import styled from "@emotion/styled";
 import { ButtonStyle, TRANSPARENT_WHITE } from "../../utils/colors";
 import { TOOLTIP_TIMELINE_BUTTON } from "./MapTooltips.tsx";
 import { TIMELINE_PLAY_ID, TIMELINE_RANGE_ID } from "./Tour";
-import RangeSlider from "../../RangeSlider.tsx";
+import { RangeSlider } from "../../components/tps/filters/RangeSlider.tsx";
 import { useAppliedFilter } from "../../contexts/FilterAppliedContext";
 
 const PlayButton = styled.div`

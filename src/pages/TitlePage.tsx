@@ -18,9 +18,9 @@ import {
   TILE_HEIGHT,
   TILE_WIDTH,
 } from "../constants";
-import MultiSelect from "../components/tps/filters/MultiSelect";
-import Radio from "../components/tps/filters/Radio";
-import ItemView from "../components/tps/features/ItemView";
+import { MultiSelect } from "../components/tps/filters/MultiSelect";
+import { Radio } from "../components/tps/filters/Radio";
+import { ItemView } from "../components/tps/features/ItemView";
 import { useEditionsSearch } from "../hooks/useEditionsSearch";
 import { IoWarning } from "react-icons/io5";
 import styled from "@emotion/styled";
@@ -41,7 +41,7 @@ const SearchInput = styled.input`
   font-size: 1rem;
 `;
 
-function TitlePage() {
+export function TitlePage() {
   const { items: filteredItems } = useEditionsSearch();
 
   const [titlePagesModeOn, setTitlePagesModeOn] = useLocalStorageState<boolean>(
@@ -268,5 +268,3 @@ function TitlePage() {
     </Container>
   );
 }
-
-export default TitlePage;

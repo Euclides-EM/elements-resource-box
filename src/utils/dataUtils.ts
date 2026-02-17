@@ -5,7 +5,7 @@ import { ItemTypes } from "../constants";
 import { Point } from "react-simple-maps";
 import { listAllEditions } from "../api/editionApi.ts";
 import { fetchDiagramDirectories } from "../api/diagramsApi.ts";
-import type { model_Edition } from "../../hub-api";
+import type { model_Edition } from "../../hub-api/models/model_Edition";
 import { toItemImageUrl } from "./util.ts";
 
 const ifEmpty = <T>(arr: T[], defaultValue: T[]): T[] =>

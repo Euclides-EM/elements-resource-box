@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
-import Navigation from "./Navigation";
+import { Navigation } from "./Navigation";
 import styled from "@emotion/styled";
 import { FilterPane } from "../map/FilterPane";
 import { MAIN_CONTENT_ID, MAP_ROUTE, NAVBAR_HEIGHT } from "./routes.ts";
@@ -25,7 +25,7 @@ const MainContent = styled.main`
   }
 `;
 
-function Layout() {
+export function Layout() {
   const { filterOpen, setFilterOpen } = useEditFilter();
   const location = useLocation();
   const isMapRoute = location.pathname === MAP_ROUTE;
@@ -46,5 +46,3 @@ function Layout() {
     </LayoutContainer>
   );
 }
-
-export default Layout;

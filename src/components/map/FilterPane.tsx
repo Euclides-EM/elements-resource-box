@@ -5,7 +5,7 @@ import { useAppliedFilter } from "../../contexts/FilterAppliedContext";
 import { useEditionsSearch } from "../../hooks/useEditionsSearch";
 import { useEditFilter } from "../../contexts/FilterEditContext";
 import { ScrollbarStyle } from "../common";
-import RangeSlider from "../tps/filters/RangeSlider";
+import { RangeSlider } from "../tps/filters/RangeSlider";
 import { FilterButton as FilterToggleButton } from "../layout/FilterButton.tsx";
 import { itemProperties } from "../../constants/itemProperties.ts";
 import {

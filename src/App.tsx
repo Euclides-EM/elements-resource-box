@@ -6,12 +6,12 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { HomeResourceBox } from "./pages/HomeResourceBox.tsx";
-import TitlePage from "./pages/TitlePage";
-import Layout from "./components/layout/Layout";
+import { TitlePage } from "./pages/TitlePage";
+import { Layout } from "./components/layout/Layout";
 import { TourProvider } from "@reactour/tour";
 import { tourSteps } from "./components/map/Tour.tsx";
 import { PANE_COLOR_ALT } from "./utils/colors.ts";
-import Map from "./pages/Map.tsx";
+import { Map } from "./pages/Map.tsx";
 import { UpsertEdition } from "./pages/UpsertEdition.tsx";
 import {
   CATALOGUE_ROUTE,
@@ -24,19 +24,19 @@ import {
   TITLE_PAGES_ROUTE,
   TRENDS_ROUTE,
 } from "./components/layout/routes.ts";
-import Catalogue from "./pages/Catalogue.tsx";
-import Trends from "./pages/Trends.tsx";
-import Presentation from "./pages/Presentation.tsx";
-import Diagrams from "./pages/Diagrams.tsx";
+import { Catalogue } from "./pages/Catalogue.tsx";
+import { Trends } from "./pages/trends/index.tsx";
+import { Presentation } from "./pages/Presentation.tsx";
+import { Diagrams } from "./pages/Diagrams.tsx";
 import { useLocalStorage } from "usehooks-ts";
 import { AuthContext } from "./contexts/Auth.ts";
 import { inEuclidesMode } from "./utils/mode.ts";
 import { HomeCommentaria } from "./pages/HomeCommentaria.tsx";
-import Features from "./pages/Features.tsx";
+import { Features } from "./pages/Features.tsx";
 import { getRouterBasename } from "./utils/basePath.ts";
 import { configureHubApi } from "./api/hubApiConfig.ts";
 
-function App() {
+export function App() {
   const [authToken, setAuthToken] = useLocalStorage<string | null>(
     "resource-box-auth",
     null,
@@ -92,5 +92,3 @@ function App() {
     </AuthContext.Provider>
   );
 }
-
-export default App;

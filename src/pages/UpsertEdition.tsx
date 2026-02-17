@@ -9,12 +9,13 @@ import {
   upsertEdition,
   ustcLookup,
 } from "../api/editionApi";
-import type { model_Edition, model_EditionLocator } from "../../hub-api";
+import type { model_Edition } from "../../hub-api/models/model_Edition";
+import type { model_EditionLocator } from "../../hub-api/models/model_EditionLocator";
 import { AuthContext } from "../contexts/Auth.ts";
 import { CATALOGUE_ROUTE } from "../components/layout/routes.ts";
 import { isNil, startCase, uniq, uniqueId } from "lodash";
-import MultiSelect from "../components/tps/filters/MultiSelect.tsx";
-import SingleSelect from "../components/tps/filters/SingleSelect.tsx";
+import { MultiSelect } from "../components/tps/filters/MultiSelect.tsx";
+import { SingleSelect } from "../components/tps/filters/SingleSelect.tsx";
 import { Row } from "../components/common.ts";
 import { isValidUrl } from "../utils/util.ts";
 

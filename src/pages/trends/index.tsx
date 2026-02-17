@@ -58,5 +58,3 @@ export function Trends() {
     </Container>
   );
 }
-
-export default Trends;

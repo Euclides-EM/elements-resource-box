@@ -1,7 +1,9 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import { FeaturesService, FeatureRevisionsService } from "../../hub-api";
-import type { feature_Feature, feature_Revision } from "../../hub-api";
+import { FeatureRevisionsService } from "../../hub-api/services/FeatureRevisionsService";
+import { FeaturesService } from "../../hub-api/services/FeaturesService";
+import type { feature_Feature } from "../../hub-api/models/feature_Feature";
+import type { feature_Revision } from "../../hub-api/models/feature_Revision";
 import { AuthContext } from "../contexts/Auth";
 import { TITLE_PAGES_DATASET_ID } from "../constants";
 
@@ -374,7 +376,7 @@ const getRevisionPreview = (revision?: string) => {
   return `${revision.slice(0, 160)}…`;
 };
 
-function Features() {
+export function Features() {
   const { token } = useContext(AuthContext);
   const [features, setFeatures] = useState<feature_Feature[]>([]);
   const [featureEdits, setFeatureEdits] = useState<
@@ -1143,5 +1145,3 @@ function Features() {
     </PageContainer>
   );
 }
-
-export default Features;

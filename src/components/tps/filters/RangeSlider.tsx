@@ -312,5 +312,3 @@ export const RangeSlider = ({
     </Row>
   );
 };
-
-export default RangeSlider;

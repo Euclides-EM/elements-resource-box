@@ -64,7 +64,7 @@ const MobileMenu = styled.div<{ isOpen: boolean }>`
   transition: transform 0.3s ease-in-out;
 `;
 
-function MobileNavigation() {
+export function MobileNavigation() {
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -101,5 +101,3 @@ function MobileNavigation() {
     </>
   );
 }
-
-export default MobileNavigation;

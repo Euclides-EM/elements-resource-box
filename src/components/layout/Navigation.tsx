@@ -10,7 +10,7 @@ import { MARKER_5 } from "../../utils/colors.ts";
 import { useLayoutEffect } from "react";
 import { BsBoundingBoxCircles } from "react-icons/bs";
 import { FilterButton } from "./FilterButton";
-import MobileNavigation from "./MobileNavigation";
+import { MobileNavigation } from "./MobileNavigation";
 import { NavItems } from "./NavItem";
 import { useIsMobile } from "./isMobile.ts";
 import { inEuclidesMode } from "../../utils/mode.ts";
@@ -63,7 +63,7 @@ const FixedFilterButtonContainer = styled.div`
   z-index: 90;
 `;
 
-function Navigation() {
+export function Navigation() {
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const isMobile = useIsMobile();
@@ -109,5 +109,3 @@ function Navigation() {
     </>
   );
 }
-
-export default Navigation;

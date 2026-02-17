@@ -1,4 +1,4 @@
-import { VersionControlService } from "../../hub-api";
+import { VersionControlService } from "../../hub-api/services/VersionControlService";
 
 export interface RepoPullResponse {
   success: boolean;

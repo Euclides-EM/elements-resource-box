@@ -21,7 +21,7 @@ type MapProps = {
 
 export const MAX_ZOOM = 10;
 export const MIN_ZOOM = 1;
-export const DEFAULT_POSITION: Point = [3.3, 45];
+export const DEFAULT_POSITION: Point = [-2, 45];
 
 export const CitiesMap = ({
   height,
