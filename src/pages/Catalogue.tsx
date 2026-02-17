@@ -17,6 +17,7 @@ import styled from "@emotion/styled";
 import { SiMaterialdesign } from "react-icons/si";
 import { Item } from "../types";
 import { useAppliedFilter } from "../contexts/FilterAppliedContext";
+import { useEditionsSearch } from "../hooks/useEditionsSearch";
 import {
   Container,
   Row,
@@ -227,7 +228,8 @@ type ItemWithCluster = Item & {
 };
 
 function Catalogue() {
-  const { filteredItems, filters } = useAppliedFilter();
+  const { filters } = useAppliedFilter();
+  const { items: filteredItems } = useEditionsSearch();
   const { token } = useContext(AuthContext);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "year", desc: false },

@@ -5,21 +5,15 @@ import React, {
   useEffect,
   useMemo,
   useState,
-  useRef,
   useCallback,
 } from "react";
 import { Item, MAX_YEAR, MIN_YEAR } from "../types";
 import { FilterValue } from "../components/map/Filter";
 import { loadCitiesAsync, loadEditionsData } from "../utils/dataUtils";
 import { Point } from "react-simple-maps";
-import { NO_CITY } from "../constants";
 import { itemProperties } from "../constants/itemProperties";
 import { NO_FILTER_ROUTES } from "../components/layout/routes";
-import {
-  buildAppUrl,
-  getAppPathname,
-  withAppBasePath,
-} from "../utils/basePath";
+import { buildAppUrl, getAppPathname } from "../utils/basePath";
 
 const STORAGE_KEY = "applied-filters";
 const QUERY_PARAMS = {
@@ -31,7 +25,7 @@ const QUERY_PARAMS = {
   TEXT_SEARCH_FIELDS: "textSearchFields",
 } as const;
 
-type FilterState = {
+export type FilterState = {
   filters: Record<string, FilterValue[] | undefined>;
   filtersInclude: Record<string, boolean>;
   range: [number, number];
@@ -98,7 +92,6 @@ const parseQueryParams = (): Partial<FilterState> | null => {
 };
 
 const updateQueryParams = (state: FilterState, defaultState: FilterState) => {
-  // Don't update query params on pages without filters
   if (NO_FILTER_ROUTES.includes(getAppPathname())) {
     return;
   }
@@ -205,7 +198,6 @@ const updateQueryParams = (state: FilterState, defaultState: FilterState) => {
 type FilterAppliedContextType = {
   data: Item[];
   cities: Record<string, Point>;
-  filteredItems: Item[] | null;
   filters: Record<string, FilterValue[] | undefined>;
   filtersInclude: Record<string, boolean>;
   range: [number, number];
@@ -214,7 +206,6 @@ type FilterAppliedContextType = {
   textSearchFields: (keyof Item)[];
   minYear: number;
   maxYear: number;
-  isFiltering: boolean;
   applyFilters: (filterState: FilterState) => void;
   resetFilters: (setters: {
     setFilters: React.Dispatch<
@@ -266,30 +257,6 @@ export const FilterAppliedProvider = ({
     ];
   }, [data]);
 
-  const [isFiltering, setIsFiltering] = useState(false);
-  const isFilteringRef = useRef(false);
-  const [internalFilteredItems, setInternalFilteredItems] = useState<
-    Item[] | null
-  >(null);
-  const workerRef = useRef<Worker | null>(null);
-  const pendingMessageRef = useRef<FilterWorkerMessage | null>(null);
-  const dataRef = useRef<Item[]>([]);
-
-  type FilterWorkerMessage =
-    | { type: "setData"; payload: Item[] }
-    | {
-        type: "filter";
-        payload: {
-          range: [number, number];
-          filters: Record<string, FilterValue[] | undefined>;
-          filtersInclude: Record<string, boolean>;
-          includeUndated: boolean;
-          textSearch: string;
-          textSearchFields: (keyof Item)[];
-          NO_CITY: string;
-        };
-      };
-
   const getDefaultState = useCallback((): FilterState => {
     return {
       filters: {
@@ -309,7 +276,6 @@ export const FilterAppliedProvider = ({
   }, [minYear, maxYear]);
 
   const [appliedFilters, setAppliedFiltersState] = useState<FilterState>(() => {
-    // Don't read query params on pages without filters
     if (!NO_FILTER_ROUTES.includes(getAppPathname())) {
       const queryState = parseQueryParams();
       if (queryState) {
@@ -344,7 +310,6 @@ export const FilterAppliedProvider = ({
 
   useEffect(() => {
     const handlePopState = () => {
-      // Don't process query params on pages without filters
       if (NO_FILTER_ROUTES.includes(getAppPathname())) {
         return;
       }
@@ -371,69 +336,7 @@ export const FilterAppliedProvider = ({
   useEffect(() => {
     loadEditionsData(setData, true);
     loadCitiesAsync().then(setCities);
-
-    workerRef.current = new Worker(withAppBasePath("/filterWorker.js"));
-
-    workerRef.current.addEventListener("message", (e: MessageEvent) => {
-      setInternalFilteredItems(e.data);
-      isFilteringRef.current = false;
-      setIsFiltering(false);
-
-      if (pendingMessageRef.current) {
-        const pending = pendingMessageRef.current;
-        pendingMessageRef.current = null;
-        setTimeout(() => {
-          workerRef.current?.postMessage(pending);
-          isFilteringRef.current = true;
-          setIsFiltering(true);
-        }, 0);
-      }
-    });
-
-    return () => {
-      workerRef.current?.terminate();
-    };
   }, []);
-
-  useEffect(() => {
-    dataRef.current = data;
-    if (data.length > 0) {
-      workerRef.current?.postMessage({
-        type: "setData",
-        payload: data,
-      } satisfies FilterWorkerMessage);
-      setAppliedFiltersState((prev) => ({ ...prev }));
-    }
-  }, [data]);
-
-  useEffect(() => {
-    if (!workerRef.current || dataRef.current.length === 0) {
-      return;
-    }
-
-    const message: FilterWorkerMessage = {
-      type: "filter",
-      payload: {
-        range: appliedFilters.range,
-        filters: appliedFilters.filters,
-        filtersInclude: appliedFilters.filtersInclude,
-        includeUndated: appliedFilters.includeUndated,
-        textSearch: appliedFilters.textSearch,
-        textSearchFields: appliedFilters.textSearchFields,
-        NO_CITY,
-      },
-    };
-
-    if (isFilteringRef.current) {
-      pendingMessageRef.current = message;
-    } else {
-      isFilteringRef.current = true;
-      setIsFiltering(true);
-      workerRef.current.postMessage(message);
-    }
-  }, [appliedFilters]);
-
-  const filteredItems = internalFilteredItems;
 
   const resetFilters = useCallback(
     (setters: {
@@ -478,7 +381,6 @@ export const FilterAppliedProvider = ({
 
       setAppliedFilters(defaultState);
       setHasUnappliedChanges(false);
-      // Only clear URL if not on a no-filter route
       if (!NO_FILTER_ROUTES.includes(getAppPathname())) {
         window.history.replaceState({}, "", buildAppUrl(getAppPathname()));
       }
@@ -502,7 +404,6 @@ export const FilterAppliedProvider = ({
     () => ({
       data,
       cities,
-      filteredItems,
       filters: appliedFilters.filters,
       filtersInclude: appliedFilters.filtersInclude,
       range: appliedFilters.range,
@@ -511,7 +412,6 @@ export const FilterAppliedProvider = ({
       textSearchFields: appliedFilters.textSearchFields,
       minYear,
       maxYear,
-      isFiltering,
       applyFilters,
       resetFilters,
       updateHasUnappliedChanges,
@@ -520,7 +420,6 @@ export const FilterAppliedProvider = ({
     [
       data,
       cities,
-      filteredItems,
       appliedFilters.filters,
       appliedFilters.filtersInclude,
       appliedFilters.range,
@@ -529,7 +428,6 @@ export const FilterAppliedProvider = ({
       appliedFilters.textSearchFields,
       minYear,
       maxYear,
-      isFiltering,
       applyFilters,
       resetFilters,
       hasUnappliedChanges,

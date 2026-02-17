@@ -23,6 +23,7 @@ import { Timeline } from "../components/map/Timeline";
 import { HeatLegend } from "../components/map/HeatMap";
 import { useTour } from "@reactour/tour";
 import { useAppliedFilter } from "../contexts/FilterAppliedContext";
+import { useEditionsSearch } from "../hooks/useEditionsSearch";
 import ItemModal from "../components/tps/modal/ItemModal.tsx";
 import { CityDetails } from "../components/map/CityDetails.tsx";
 import { NAVBAR_HEIGHT } from "../components/layout/routes.ts";
@@ -114,7 +115,8 @@ const Map = () => {
   const { height } = useWindowSize();
   const isMobile = useIsMobile();
   const { filterOpen, setFilterOpen } = useEditFilter();
-  const { cities, filteredItems } = useAppliedFilter();
+  const { cities } = useAppliedFilter();
+  const { items: filteredItems } = useEditionsSearch();
   const [zoom, setZoom] = useLocalStorage<number>("zoom", 1);
   const {
     ref: mapSectionRef,

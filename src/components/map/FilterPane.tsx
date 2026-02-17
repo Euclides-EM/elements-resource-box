@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { PANE_BORDER } from "../../utils/colors";
 import { FiltersGroup } from "./FiltersGroup";
 import { useAppliedFilter } from "../../contexts/FilterAppliedContext";
+import { useEditionsSearch } from "../../hooks/useEditionsSearch";
 import { useEditFilter } from "../../contexts/FilterEditContext";
 import { ScrollbarStyle } from "../common";
 import RangeSlider from "../tps/filters/RangeSlider";
@@ -11,9 +12,8 @@ import { NO_FILTER_ROUTES } from "../layout/routes.ts";
 import { TextSearchFilter } from "./TextSearchFilter";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FilterValue } from "./Filter";
-import { useLocalStorage } from "usehooks-ts";
 import { Item } from "../../types";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 const FILTER_PANE_WIDTH = "26rem";
@@ -149,12 +149,10 @@ const LoadingText = styled.div`
 
 export const FilterPane = () => {
   const {
-    filteredItems,
     data,
     minYear,
     maxYear,
     resetFilters,
-    isFiltering,
     applyFilters,
     hasUnappliedChanges,
     updateHasUnappliedChanges,
@@ -165,43 +163,28 @@ export const FilterPane = () => {
     textSearch: appliedTextSearch,
     textSearchFields: appliedTextSearchFields,
   } = useAppliedFilter();
+  const { isFetching: isFiltering } = useEditionsSearch();
   const location = useLocation();
 
   const { filterOpen } = useEditFilter();
 
-  const [range, setRange] = useLocalStorage<[number, number]>("time-range", [
-    minYear,
-    maxYear,
-  ]);
-  const rangeRef = useRef<[number, number]>(range);
-  const [filters, setFilters] = useLocalStorage<
+  const [range, setRange] = useState<[number, number]>(appliedRange);
+  const rangeRef = useRef<[number, number]>(appliedRange);
+  const [filters, setFilters] = useState<
     Record<string, FilterValue[] | undefined>
-  >("filters", {
-    type: [
-      {
-        label: "Elements",
-        value: "Elements",
-      },
-    ],
-  });
-  const [filtersInclude, setFiltersInclude] = useLocalStorage<
+  >(appliedFilters);
+  const [filtersInclude, setFiltersInclude] = useState<
     Record<string, boolean>
-  >("filter-include", {});
-  const [includeUndated, setIncludeUndated] = useLocalStorage<boolean>(
-    "include-undated",
-    false,
+  >(appliedFiltersInclude);
+  const [includeUndated, setIncludeUndated] = useState<boolean>(
+    appliedIncludeUndated,
   );
-  const [textSearch, setTextSearch] = useLocalStorage<string>(
-    "text-search",
-    "",
+  const [textSearch, setTextSearch] = useState<string>(
+    appliedTextSearch,
   );
-  const [textSearchFields, setTextSearchFields] = useLocalStorage<
+  const [textSearchFields, setTextSearchFields] = useState<
     (keyof Item)[]
-  >("text-search-fields", ["shortTitle", "title", "titleEn"]);
-
-  useEffect(() => {
-    setRange([minYear, maxYear]);
-  }, [maxYear, minYear, setRange]);
+  >(appliedTextSearchFields);
 
   useEffect(() => {
     rangeRef.current = range;
@@ -294,7 +277,6 @@ export const FilterPane = () => {
     !filterOpen ||
     !range[0] ||
     !range[1] ||
-    filteredItems == null ||
     NO_FILTER_ROUTES.includes(location.pathname)
   ) {
     return null;

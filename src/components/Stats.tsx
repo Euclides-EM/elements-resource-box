@@ -1,6 +1,6 @@
 import { authorDisplayName } from "../utils/dataUtils.ts";
 import { Row, Text } from "./common.ts";
-import { useAppliedFilter } from "../contexts/FilterAppliedContext.tsx";
+import { useEditionsSearch } from "../hooks/useEditionsSearch.ts";
 import { MARKER_4 } from "../utils/colors.ts";
 import { useMemo } from "react";
 import styled from "@emotion/styled";
@@ -11,7 +11,7 @@ const Highlight = styled.span`
 `;
 
 export const Stats = ({ verb }: { verb?: string }) => {
-  const { filteredItems } = useAppliedFilter();
+  const { items: filteredItems } = useEditionsSearch();
 
   const { authorsCount, languagesCount, citiesCount } = useMemo(() => {
     const authorsSet = new Set<string>();

@@ -21,7 +21,7 @@ import {
 import MultiSelect from "../components/tps/filters/MultiSelect";
 import Radio from "../components/tps/filters/Radio";
 import ItemView from "../components/tps/features/ItemView";
-import { useAppliedFilter } from "../contexts/FilterAppliedContext";
+import { useEditionsSearch } from "../hooks/useEditionsSearch";
 import { IoWarning } from "react-icons/io5";
 import styled from "@emotion/styled";
 import Switch from "react-switch";
@@ -42,7 +42,7 @@ const SearchInput = styled.input`
 `;
 
 function TitlePage() {
-  const { filteredItems } = useAppliedFilter();
+  const { items: filteredItems } = useEditionsSearch();
 
   const [titlePagesModeOn, setTitlePagesModeOn] = useLocalStorageState<boolean>(
     "tp-on",
