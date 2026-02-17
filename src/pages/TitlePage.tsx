@@ -42,20 +42,14 @@ const SearchInput = styled.input`
 `;
 
 export function TitlePage() {
-  const {
-    items,
-    total,
-    isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useEditionsSearchInfinite({
-    pageSize: 25,
-    orderBy: [
-      { field: "year", descending: false },
-      { field: "key", descending: false },
-    ],
-  });
+  const { items, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useEditionsSearchInfinite({
+      pageSize: 25,
+      orderBy: [
+        { field: "year", descending: false },
+        { field: "key", descending: false },
+      ],
+    });
 
   const [titlePagesModeOn, setTitlePagesModeOn] = useLocalStorageState<boolean>(
     "tp-on",
@@ -191,7 +185,7 @@ export function TitlePage() {
         </ScrollToTopButton>
       )}
       <Column minWidth="min(820px, 90%)">
-        <Stats items={items} total={total} />
+        <Stats />
         {!inEuclidesMode() && (
           <>
             <Row gap={0.5}>
