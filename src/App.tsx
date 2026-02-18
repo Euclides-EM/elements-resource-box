@@ -36,6 +36,7 @@ import { Features } from "./pages/Features.tsx";
 import { getRouterBasename } from "./utils/basePath.ts";
 import { configureHubApi } from "./api/hubApiConfig.ts";
 import { NuqsAdapter } from "nuqs/adapters/react-router/v7";
+import { FilterAppliedProvider } from "./contexts/FilterAppliedContext.tsx";
 
 export function App() {
   const [authToken, setAuthToken] = useLocalStorage<string | null>(
@@ -49,7 +50,9 @@ export function App() {
       <Route
         element={
           <NuqsAdapter>
-            <Layout />
+            <FilterAppliedProvider>
+              <Layout />
+            </FilterAppliedProvider>
           </NuqsAdapter>
         }
       >

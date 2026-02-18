@@ -1,4 +1,5 @@
 import { reduce } from "lodash";
+import { Range } from "../types";
 
 export const groupByMap = <TFrom, TKey extends string, TValue = TFrom>(
   data: TFrom[],
@@ -20,6 +21,36 @@ export const joinArr = (arr: string[]): string => {
   if (arr.length === 1) return arr[0];
   if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
   return `${arr.slice(0, -1).join(", ")}, and ${arr[arr.length - 1]}`;
+};
+
+export const formatBookRanges = (ranges: Range[]): string => {
+  if (!ranges.length) {
+    return "";
+  }
+
+  const merged = ranges
+    .map((range) => ({
+      start: Math.min(range.start, range.end),
+      end: Math.max(range.start, range.end),
+    }))
+    .sort((a, b) => a.start - b.start)
+    .reduce<Range[]>((acc, range) => {
+      const previous = acc[acc.length - 1];
+      if (!previous || range.start > previous.end + 1) {
+        acc.push({ ...range });
+        return acc;
+      }
+      previous.end = Math.max(previous.end, range.end);
+      return acc;
+    }, []);
+
+  return merged
+    .map((range) =>
+      range.start === range.end
+        ? `${range.start}`
+        : `${range.start}-${range.end}`,
+    )
+    .join(", ");
 };
 
 export function isValidUrl(s: string) {

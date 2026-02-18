@@ -5,7 +5,7 @@ import { Item } from "../../../types";
 import { Row } from "../../common";
 import { ModalTextColumn } from "./ModalComponents";
 import { authorDisplayName } from "../../../utils/dataUtils";
-import { joinArr } from "../../../utils/util";
+import { formatBookRanges, joinArr } from "../../../utils/util";
 import { withAppBasePath } from "../../../utils/basePath";
 import { NO_AUTHOR } from "../../../constants";
 import { LAND_COLOR } from "../../../utils/colors";
@@ -180,14 +180,7 @@ export const ItemInfo = ({
       )}
       {item.elementsBooks && (
         <Row justifyStart>
-          <InfoTitle>Books:</InfoTitle>{" "}
-          {joinArr(
-            item.elementsBooks.map((range) =>
-              range.end === range.start
-                ? range.start.toString()
-                : `${range.start}-${range.end}`,
-            ),
-          )}
+          <InfoTitle>Books:</InfoTitle> {formatBookRanges(item.elementsBooks)}
         </Row>
       )}
       {item.class && (

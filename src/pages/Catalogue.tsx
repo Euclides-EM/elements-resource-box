@@ -1,16 +1,16 @@
 import { upperFirst } from "lodash";
 import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
-import { useEffect, useMemo, useState, useContext } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   ColumnDef,
   ColumnResizeMode,
   createColumnHelper,
+  ExpandedState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   SortingState,
   useReactTable,
-  ExpandedState,
-  getExpandedRowModel,
 } from "@tanstack/react-table";
 import styled from "@emotion/styled";
 import type { search_OrderByOption } from "../../hub-api/models/search_OrderByOption";
@@ -26,7 +26,7 @@ import {
 } from "../components/common";
 import { ItemModal } from "../components/tps/modal/ItemModal";
 import { NO_AUTHOR, NO_CITY, NO_YEAR } from "../constants";
-import { joinArr } from "../utils/util.ts";
+import { formatBookRanges, joinArr } from "../utils/util.ts";
 import { FaBookReader, FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { AiFillEdit } from "react-icons/ai";
 import { SEA_COLOR } from "../utils/colors.ts";
@@ -107,8 +107,6 @@ const StyledTable = styled.table`
 
   th {
     font-weight: bold;
-    cursor: pointer;
-    user-select: none;
     position: relative;
     padding-right: 1.5rem;
 
@@ -626,15 +624,7 @@ export function Catalogue() {
           columnHelper.accessor("elementsBooks", {
             header: "Elements Books",
             enableSorting: false,
-            cell: (info) =>
-              info
-                .getValue()
-                .map((range) =>
-                  range.start === range.end
-                    ? range.start
-                    : `${range.start}-${range.end}`,
-                )
-                .join(", "),
+            cell: (info) => formatBookRanges(info.getValue()),
             size: 105,
           }),
         columnHelper.accessor("volumesCount", {
@@ -655,7 +645,7 @@ export function Catalogue() {
                 Classification <StyledHelpTip tooltipId={TOOLTIP_BOOK_TYPE} />
               </Row>
             ),
-            size: 120,
+            size: 140,
           }),
         inEuclidesMode() &&
           columnHelper.accessor("study_corpora", {
@@ -737,12 +727,16 @@ export function Catalogue() {
                   >
                     {header.isPlaceholder ? null : (
                       <div
-                        {...{
-                          className: header.column.getCanSort()
-                            ? "cursor-pointer select-none"
-                            : "",
-                          onClick: header.column.getToggleSortingHandler(),
-                        }}
+                        onClick={header.column.getToggleSortingHandler()}
+                        style={
+                          header.column.getCanSort()
+                            ? {
+                                display: "inline-flex",
+                                cursor: "pointer",
+                                userSelect: "none",
+                              }
+                            : {}
+                        }
                       >
                         {flexRender(
                           header.column.columnDef.header,

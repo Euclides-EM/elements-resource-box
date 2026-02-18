@@ -14,7 +14,10 @@ import {
 import { MACTUTOR_URL } from "../../constants";
 import { ActionsMenu } from "./ActionsMenu.tsx";
 import { inEditMode, inEuclidesMode } from "../../utils/mode.ts";
-import { preserveQueryParams } from "../../utils/navigationUtils";
+import {
+  preserveQueryParams,
+  useNavigateWithQuery,
+} from "../../utils/navigationUtils";
 import { AuthContext } from "../../contexts/Auth.ts";
 import { useContext } from "react";
 import { withAppBasePath } from "../../utils/basePath";
@@ -109,6 +112,8 @@ function NavItem({
   mobile,
   hideSeparator = false,
 }: NavItemProps) {
+  const navigateWithQuery = useNavigateWithQuery();
+
   if (external) {
     return (
       <StyledNavItem
@@ -124,8 +129,6 @@ function NavItem({
     );
   }
 
-  const pathWithQuery = preserveQueryParams(to, window.location.search);
-
   return (
     <StyledNavItem
       active={active}
@@ -133,7 +136,15 @@ function NavItem({
       mobile={mobile}
       hideSeparator={hideSeparator}
     >
-      <Link to={pathWithQuery}>{children}</Link>
+      <Link
+        to={to}
+        onClick={(e) => {
+          e.preventDefault();
+          navigateWithQuery(to);
+        }}
+      >
+        {children}
+      </Link>
     </StyledNavItem>
   );
 }
