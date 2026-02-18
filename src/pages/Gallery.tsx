@@ -38,7 +38,7 @@ const SearchInput = styled.input`
   font-size: 1rem;
 `;
 
-export function TitlePage() {
+export function Gallery() {
   const { items, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useEditionsSearchInfinite({
       pageSize: 25,

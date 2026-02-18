@@ -34,7 +34,7 @@ export type Item = {
   languages: string[];
   authors: string[];
   publishers: string[];
-  imageUrl: string | null;
+  tpImageName: string | null;
   hasTitle: string;
   shortTitle: string | null;
   title: string | null;

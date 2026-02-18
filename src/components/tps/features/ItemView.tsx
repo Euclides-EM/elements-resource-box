@@ -34,7 +34,7 @@ export const ItemView = memo(
     const [modalOpen, setModalOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
-    const imageUrl = toItemImageUrl(item.imageUrl);
+    const imageUrl = toItemImageUrl(item.tpImageName);
 
     useEffect(() => {
       const observer = new IntersectionObserver(
@@ -130,10 +130,10 @@ export const ItemView = memo(
           </>
         )}
         {mode === "images" &&
-          (item.imageUrl ? (
+          (item.tpImageName ? (
             <ImageTile>
               <StyledImage
-                src={item.imageUrl}
+                src={toItemImageUrl(item.tpImageName)!}
                 onClick={() => openScan(item)}
                 clickable={!!item.scanUrl && item.scanUrl.length > 0}
               />

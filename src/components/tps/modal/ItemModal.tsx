@@ -171,7 +171,7 @@ type PendingHighlightEdit = {
 export const ItemModal = ({ item, featuresById, onClose }: ItemModalProps) => {
   const highlightFeatures = useMemo(() => featuresById || {}, [featuresById]);
   const hasTitleText = !!item.title && item.title !== "?";
-  const imageUrl = toItemImageUrl(item.imageUrl);
+  const imageUrl = toItemImageUrl(item.tpImageName);
   const canEditHighlights =
     inEditMode() && Object.keys(highlightFeatures).length > 0;
   const [pendingEdits, setPendingEdits] = useState<PendingHighlightEdit[]>([]);
@@ -342,7 +342,7 @@ export const ItemModal = ({ item, featuresById, onClose }: ItemModalProps) => {
     <Modal onClick={onClose}>
       <ModalContent
         onClick={(e) => e.stopPropagation()}
-        hasImage={!!item.imageUrl}
+        hasImage={!!item.tpImageName}
       >
         <ModalClose title="Close" onClick={onClose}>
           ✕

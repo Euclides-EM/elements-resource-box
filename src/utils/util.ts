@@ -1,5 +1,6 @@
 import { reduce } from "lodash";
 import { Range } from "../types";
+import { TITLE_PAGES_DATASET_ID } from "../constants";
 
 export const groupByMap = <TFrom, TKey extends string, TValue = TFrom>(
   data: TFrom[],
@@ -62,17 +63,12 @@ export function isValidUrl(s: string) {
   return true;
 }
 
-export const toItemImageUrl = (imageUrl: string | null): string | null => {
-  if (!imageUrl) {
+export const toItemImageUrl = (imageName: string | null): string | null => {
+  if (!imageName) {
     return null;
   }
-  if (isValidUrl(imageUrl)) {
-    return imageUrl;
+  if (isValidUrl(imageName)) {
+    return imageName;
   }
-  const backendUrl = (import.meta.env.VITE_BACKEND_URL || "").replace(
-    /\/+$/,
-    "",
-  );
-  const normalizedPath = imageUrl.replace(/^\/+/, "");
-  return `${backendUrl}/store/data/${normalizedPath}`;
+  return `${import.meta.env.VITE_BACKEND_URL}/store/data/${TITLE_PAGES_DATASET_ID}/imgs/${imageName}`;
 };

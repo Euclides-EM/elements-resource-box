@@ -6,7 +6,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { HomeResourceBox } from "./pages/HomeResourceBox.tsx";
-import { TitlePage } from "./pages/TitlePage";
+import { Gallery } from "./pages/Gallery.tsx";
 import { Layout } from "./components/layout/Layout";
 import { TourProvider } from "@reactour/tour";
 import { tourSteps } from "./components/map/Tour.tsx";
@@ -60,7 +60,7 @@ export function App() {
           path={HOME_ROUTE}
           element={inEuclidesMode() ? <HomeCommentaria /> : <HomeResourceBox />}
         />
-        <Route path={TITLE_PAGES_ROUTE} element={<TitlePage />} />
+        <Route path={TITLE_PAGES_ROUTE} element={<Gallery />} />
         <Route path={CATALOGUE_ROUTE} element={<Catalogue />} />
         <Route path={TRENDS_ROUTE} element={<Trends />} />
         <Route path={PRESENTATION_ROUTE} element={<Presentation />} />

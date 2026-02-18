@@ -26,6 +26,20 @@ const toFormat = (value: number | undefined): string | null => {
   return `${value}º`;
 };
 
+const toBookRanges = (books: number[]) => {
+  return Array.from(new Set(books))
+    .sort((a, b) => a - b)
+    .reduce<{ start: number; end: number }[]>((ranges, book) => {
+      const previous = ranges[ranges.length - 1];
+      if (!previous || book > previous.end + 1) {
+        ranges.push({ start: book, end: book });
+        return ranges;
+      }
+      previous.end = book;
+      return ranges;
+    }, []);
+};
+
 export const mapEditionsToItems = (editions: model_Edition[]): Item[] => {
   return editions
     .filter((edition) => edition.key)
@@ -57,7 +71,7 @@ export const mapEditionsToItems = (editions: model_Edition[]): Item[] => {
         publishers: (edition.publisher || [])
           .map((name) => name.trim())
           .filter(Boolean),
-        imageUrl:
+        tpImageName:
           firstOrNull(
             shelfmarks.map((s) => s.title_page_img).filter(Boolean) as string[],
           ) ||
@@ -76,7 +90,7 @@ export const mapEditionsToItems = (editions: model_Edition[]): Item[] => {
           .filter(Boolean) as string[],
         type: edition.isElements ? ItemTypes.elements : ItemTypes.secondary,
         format: toFormat(edition.format),
-        elementsBooks: books.map((book) => ({ start: book, end: book })),
+        elementsBooks: toBookRanges(books),
         elementsBooksExpanded: books,
         additionalContent: edition.additionalContent || [],
         volumesCount: edition.volumes ?? null,
@@ -170,7 +184,7 @@ export function openScan(item: Item) {
 }
 
 export function openImage(item: Item) {
-  const imageUrl = toItemImageUrl(item.imageUrl);
+  const imageUrl = toItemImageUrl(item.tpImageName);
   if (!imageUrl) {
     return;
   }
