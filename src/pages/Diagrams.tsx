@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
 import { useSearchParams } from "react-router-dom";
 import styled from "@emotion/styled";
@@ -15,6 +15,7 @@ import { NO_AUTHOR, NO_CITY, NO_YEAR } from "../constants";
 import { joinArr } from "../utils/util.ts";
 import { fetchDiagrams, VolumeData } from "../api/diagramsApi.ts";
 import { LAND_COLOR, SEA_COLOR } from "../utils/colors.ts";
+import { useQuery } from "@tanstack/react-query";
 
 const DiagramsContainer = styled.div`
   max-width: 80vw;
@@ -238,15 +239,10 @@ export const Diagrams = () => {
   const [searchParams] = useSearchParams();
   const editionKey = searchParams.get("key");
   const { data } = useAppliedFilter();
-  const [item, setItem] = useState<Item | null>(null);
-  const [images, setImages] = useState<string[]>([]);
-  const [volumes, setVolumes] = useState<VolumeData[]>([]);
   const [collapsedVolumes, setCollapsedVolumes] = useState<Set<string>>(
     new Set(),
   );
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [modal, setModal] = useState<ModalState>({
     isOpen: false,
     imagePath: "",
@@ -255,43 +251,27 @@ export const Diagrams = () => {
   const [pageRangeFrom, setPageRangeFrom] = useState<string>("");
   const [pageRangeTo, setPageRangeTo] = useState<string>("");
 
-  useEffect(() => {
-    if (editionKey && data.length > 0) {
-      const foundItem = data.find((item) => item.key === editionKey);
-      setItem(foundItem || null);
-      if (!foundItem) {
-        setError("Edition not found");
-        setLoading(false);
-        return;
-      }
-    }
-  }, [editionKey, data]);
+  const item = useMemo<Item | null>(
+    () => data.find((row) => row.key === editionKey) || null,
+    [data, editionKey],
+  );
 
-  useEffect(() => {
-    const loadDiagrams = async () => {
-      if (!editionKey) {
-        setError("No key provided");
-        setLoading(false);
-        return;
-      }
+  const diagramsQuery = useQuery({
+    queryKey: ["diagrams", editionKey],
+    queryFn: () => fetchDiagrams(editionKey!),
+    enabled: Boolean(editionKey),
+  });
 
-      const result = await fetchDiagrams(editionKey);
-
-      if (result.error) {
-        setError(result.error);
-      } else if (result.volumes) {
-        setVolumes(result.volumes);
-        setImages([]);
-      } else {
-        setImages(result.images || []);
-        setVolumes([]);
-      }
-
-      setLoading(false);
-    };
-
-    loadDiagrams();
-  }, [editionKey]);
+  const diagramsData = diagramsQuery.data;
+  const volumes: VolumeData[] = diagramsData?.volumes || [];
+  const images: string[] = diagramsData?.volumes
+    ? []
+    : diagramsData?.images || [];
+  const loading = diagramsQuery.isLoading;
+  const error =
+    (editionKey && data.length > 0 && !item ? "Edition not found" : null) ||
+    diagramsData?.error ||
+    null;
 
   const openImageModal = (
     imagePath: string,

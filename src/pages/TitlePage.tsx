@@ -1,11 +1,5 @@
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import useLocalStorageState from "use-local-storage-state";
 import { Mode } from "../types";
 import {
@@ -23,12 +17,10 @@ import Switch from "react-switch";
 import { LAND_COLOR, MARKER_3 } from "../utils/colors.ts";
 import { Stats } from "../components/Stats.tsx";
 import { inEuclidesMode } from "../utils/mode.ts";
-import { AuthContext } from "../contexts/Auth";
-import { configureHubApi } from "../api/hubApi.ts";
 import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
 import { groupByMap } from "../utils/util.ts";
 import { useEditionsSearchInfinite } from "../hooks/useEditionsSearch.ts";
-import { feature_Feature } from "../../hub-api/models/feature_Feature.ts";
+import { feature_Feature } from "../../hub-api";
 import { FeaturesService } from "../../hub-api";
 import { Radio } from "../components/tps/filters/Radio.tsx";
 import { MultiSelect } from "../components/tps/filters/MultiSelect.tsx";
@@ -55,7 +47,6 @@ export function TitlePage() {
         { field: "key", descending: false },
       ],
     });
-  const { token } = useContext(AuthContext);
 
   const [titlePagesModeOn, setTitlePagesModeOn] = useLocalStorageState<boolean>(
     "tp-on",
@@ -66,16 +57,6 @@ export function TitlePage() {
   const [mode, setMode] = useLocalStorageState<Mode>("tp-mode", {
     defaultValue: "images",
   });
-  const [availableFeatures, setAvailableFeatures] = useState<feature_Feature[]>(
-    [],
-  );
-  const [featureColors, setFeatureColors] = useState<Record<string, string>>(
-    {},
-  );
-  const [featureTooltips, setFeatureTooltips] = useState<
-    Record<string, string>
-  >({});
-  const [defaultFeatureIds, setDefaultFeatureIds] = useState<string[]>([]);
   const [selectedFeatureIds, setSelectedFeatureIds] = useLocalStorageState<
     string[]
   >("tp-features", {
@@ -87,8 +68,51 @@ export function TitlePage() {
   );
   const [showScrollTop, setShowScrollTop] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const [hubApiReady, setHubApiReady] = useState(false);
-  const [featuresLoaded, setFeaturesLoaded] = useState(false);
+  const featuresQuery = useQuery({
+    queryKey: ["title-pages", "features", TITLE_PAGES_DATASET_ID],
+    queryFn: () =>
+      FeaturesService.getDatasetsFeatures({
+        dataSetId: TITLE_PAGES_DATASET_ID,
+      }),
+  });
+
+  const {
+    availableFeatures,
+    featureColors,
+    featureTooltips,
+    defaultFeatureIds,
+  } = useMemo(() => {
+    const response = featuresQuery.data ?? [];
+    const sortedFeatures = response
+      .filter((feature) => feature.id && feature.name)
+      .slice()
+      .sort((a, b) =>
+        (a.name || "").localeCompare(b.name || "", undefined, {
+          sensitivity: "base",
+        }),
+      );
+    const colorMap: Record<string, string> = {};
+    const tooltipMap: Record<string, string> = {};
+    response.forEach((feature: feature_Feature) => {
+      if (!feature.id) {
+        return;
+      }
+      if (feature.color) {
+        colorMap[feature.id] = feature.color;
+      }
+      if (feature.description) {
+        tooltipMap[feature.id] = feature.description;
+      }
+    });
+    return {
+      availableFeatures: sortedFeatures,
+      featureColors: colorMap,
+      featureTooltips: tooltipMap,
+      defaultFeatureIds: sortedFeatures
+        .filter((feature) => feature.is_default)
+        .map((feature) => feature.id as string),
+    };
+  }, [featuresQuery.data]);
 
   const featureNameById = useMemo(() => {
     const map: Record<string, string> = {};
@@ -101,15 +125,7 @@ export function TitlePage() {
   }, [availableFeatures]);
 
   const sortedFeatureIds = useMemo(() => {
-    return availableFeatures
-      .filter((feature) => feature.id && feature.name)
-      .slice()
-      .sort((a, b) =>
-        (a.name || "").localeCompare(b.name || "", undefined, {
-          sensitivity: "base",
-        }),
-      )
-      .map((feature) => feature.id as string);
+    return availableFeatures.map((feature) => feature.id as string);
   }, [availableFeatures]);
 
   const sortFeatures = useCallback(
@@ -131,92 +147,40 @@ export function TitlePage() {
   }, [mode, setMode, titlePagesModeOn]);
 
   useEffect(() => {
-    configureHubApi(token);
-    setHubApiReady(true);
-  }, [token]);
-
-  useEffect(() => {
-    const loadFeatures = async () => {
-      if (!hubApiReady || featuresLoaded) {
-        return;
-      }
-      try {
-        const response = await FeaturesService.getDatasetsFeatures({
-          dataSetId: TITLE_PAGES_DATASET_ID,
-        });
-        const sortedFeatures = (response ?? [])
-          .filter((feature) => feature.id && feature.name)
-          .slice()
-          .sort((a, b) =>
-            (a.name || "").localeCompare(b.name || "", undefined, {
-              sensitivity: "base",
-            }),
+    if (availableFeatures.length === 0) {
+      return;
+    }
+    setSelectedFeatureIds((prev) => {
+      const normalized = prev
+        .map((value) => {
+          if (availableFeatures.some((f) => f.id === value)) {
+            return value;
+          }
+          const matching = availableFeatures.filter(
+            (feature) => feature.name === value,
           );
-        const nameById: Record<string, string> = {};
-        sortedFeatures.forEach((feature) => {
-          if (feature.id && feature.name) {
-            nameById[feature.id] = feature.name;
+          if (matching.length === 1) {
+            return matching[0].id as string;
           }
-        });
-        const sortIdsByName = (ids: string[]) =>
-          [...ids].sort((a, b) =>
-            (nameById[a] || "").localeCompare(nameById[b] || "", undefined, {
-              sensitivity: "base",
-            }),
-          );
-        const defaultIds = sortedFeatures
-          .filter((feature) => feature.is_default)
-          .map((feature) => feature.id as string);
-        const colorMap: Record<string, string> = {};
-        const tooltipMap: Record<string, string> = {};
-        (response ?? []).forEach((feature: feature_Feature) => {
-          if (!feature.id) {
-            return;
-          }
-          if (feature.color) {
-            colorMap[feature.id] = feature.color;
-          }
-          if (feature.description) {
-            tooltipMap[feature.id] = feature.description;
-          }
-        });
-        setFeatureColors(colorMap);
-        setFeatureTooltips(tooltipMap);
-        setDefaultFeatureIds(sortIdsByName(defaultIds));
-        setAvailableFeatures(sortedFeatures);
-        if (sortedFeatures.length > 0) {
-          setSelectedFeatureIds((prev) => {
-            const normalized = prev
-              .map((value) => {
-                if (sortedFeatures.some((f) => f.id === value)) {
-                  return value;
-                }
-                const matching = sortedFeatures.filter(
-                  (feature) => feature.name === value,
-                );
-                if (matching.length === 1) {
-                  return matching[0].id as string;
-                }
-                return null;
-              })
-              .filter((value): value is string => Boolean(value));
-            if (normalized.length > 0) {
-              return sortIdsByName(normalized);
-            }
-            if (defaultIds.length > 0) {
-              return sortIdsByName(defaultIds);
-            }
-            return sortIdsByName(
-              sortedFeatures.map((feature) => feature.id as string),
-            );
-          });
-        }
-      } finally {
-        setFeaturesLoaded(true);
+          return null;
+        })
+        .filter((value): value is string => Boolean(value));
+      if (normalized.length > 0) {
+        return sortFeatures(normalized);
       }
-    };
-    void loadFeatures();
-  }, [hubApiReady, featuresLoaded, setSelectedFeatureIds]);
+      if (defaultFeatureIds.length > 0) {
+        return sortFeatures(defaultFeatureIds);
+      }
+      return sortFeatures(
+        availableFeatures.map((feature) => feature.id as string),
+      );
+    });
+  }, [
+    availableFeatures,
+    defaultFeatureIds,
+    setSelectedFeatureIds,
+    sortFeatures,
+  ]);
 
   const handleScroll = useCallback(() => {
     const el = document.getElementById(MAIN_CONTENT_ID);
@@ -428,7 +392,6 @@ export function TitlePage() {
                       )
                     : null
                 }
-                hubApiReady={hubApiReady}
               />
             ))
         ) : (

@@ -2,20 +2,21 @@ import React, {
   createContext,
   ReactNode,
   useContext,
-  useEffect,
   useMemo,
   useState,
   useCallback,
 } from "react";
 import { Item, MAX_YEAR, MIN_YEAR } from "../types";
 import { FilterValue } from "../components/map/Filter";
-import { loadEditionsData } from "../utils/dataUtils";
+import { mapEditionsToItems } from "../utils/dataUtils";
 import {
   FilterState,
   filterQueryParsers,
   mergeFilterQueryWithDefaults,
 } from "../utils/filterQueryState";
 import { useQueryStates } from "nuqs";
+import { useQuery } from "@tanstack/react-query";
+import { listAllEditions } from "../api/editionApi";
 
 export type { FilterState } from "../utils/filterQueryState";
 
@@ -69,7 +70,14 @@ export const FilterAppliedProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const [data, setData] = useState<Item[]>([]);
+  const editionsQuery = useQuery({
+    queryKey: ["editions", "all", "filter-applied"],
+    queryFn: () => listAllEditions(),
+  });
+  const data = useMemo<Item[]>(
+    () => mapEditionsToItems(editionsQuery.data || []),
+    [editionsQuery.data],
+  );
   const [minYear, maxYear] = useMemo(() => {
     const years = data
       .filter((t) => !!t.year)
@@ -106,10 +114,6 @@ export const FilterAppliedProvider = ({
   );
 
   const [hasUnappliedChanges, setHasUnappliedChanges] = useState(false);
-
-  useEffect(() => {
-    loadEditionsData(setData);
-  }, []);
 
   const resetFilters = useCallback(
     (setters: {

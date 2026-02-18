@@ -29,7 +29,6 @@ type HighlightedTextProps = {
   text: string;
   featuresById: Record<string, feature_Feature>;
   itemKey: string;
-  apiReady: boolean;
   editable?: boolean;
   addedHighlights?: HighlightSpan[];
   removedHighlightIds?: Set<string>;
@@ -42,7 +41,6 @@ export const HighlightedText = memo(
     text,
     featuresById,
     itemKey,
-    apiReady,
     editable = false,
     addedHighlights = [],
     removedHighlightIds,
@@ -126,7 +124,7 @@ export const HighlightedText = memo(
       const loadHighlights = async () => {
         setIsReady(false);
 
-        if (!itemKey || !apiReady) {
+        if (!itemKey) {
           finalize(plainHtml, [], normalizedPlainText);
           return;
         }
@@ -154,7 +152,7 @@ export const HighlightedText = memo(
       return () => {
         isMounted = false;
       };
-    }, [apiReady, featuresById, itemKey, normalizedPlainText, plainHtml]);
+    }, [featuresById, itemKey, normalizedPlainText, plainHtml]);
 
     const handleSelectionUpdate = useCallback(() => {
       setSelectionState(

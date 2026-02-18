@@ -264,7 +264,6 @@ export const Map = () => {
           item={selectedRecord}
           featuresById={{}}
           onClose={() => setSelectedRecordId(undefined)}
-          apiReady
         />
       )}
     </Wrapper>

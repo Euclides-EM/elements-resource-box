@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-/* eslint-disable */
+ 
 import type { annotation_Annotation } from '../models/annotation_Annotation';
 import type { annotation_DuplicateRequest } from '../models/annotation_DuplicateRequest';
 import type { annotation_ExpectedBlocks } from '../models/annotation_ExpectedBlocks';

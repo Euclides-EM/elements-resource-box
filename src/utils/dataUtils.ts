@@ -1,7 +1,6 @@
 import { FLOATING_CITY_ENTRY, Item } from "../types";
 import { isNil, startCase, uniq } from "lodash";
 import { ItemTypes } from "../constants";
-import { listAllEditions } from "../api/editionApi.ts";
 import type { model_Edition } from "../../hub-api";
 import { toItemImageUrl } from "./util.ts";
 
@@ -108,16 +107,6 @@ export const mapEditionsToItems = (editions: model_Edition[]): Item[] => {
         (a.year || "").localeCompare(b.year || "") ||
         a.key.localeCompare(b.key),
     );
-};
-
-export const loadEditionsData = (
-  setItems: React.Dispatch<React.SetStateAction<Item[]>>,
-) => {
-  listAllEditions()
-    .then((editions) => {
-      setItems(mapEditionsToItems(editions));
-    })
-    .catch((error) => console.error("Error loading editions data:", error));
 };
 
 export const authorDisplayName = (author: string) => {

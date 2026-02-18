@@ -40,7 +40,6 @@ const HighlightedText = lazy(() =>
 type ItemModalProps = {
   item: Item;
   featuresById: Record<string, feature_Feature> | null;
-  apiReady: boolean;
   onClose: () => void;
 };
 
@@ -169,12 +168,7 @@ type PendingHighlightEdit = {
   note?: string;
 };
 
-export const ItemModal = ({
-  item,
-  featuresById,
-  apiReady,
-  onClose,
-}: ItemModalProps) => {
+export const ItemModal = ({ item, featuresById, onClose }: ItemModalProps) => {
   const highlightFeatures = useMemo(() => featuresById || {}, [featuresById]);
   const hasTitleText = !!item.title && item.title !== "?";
   const imageUrl = toItemImageUrl(item.imageUrl);
@@ -301,7 +295,7 @@ export const ItemModal = ({
   };
 
   const handleSaveEdits = async () => {
-    if (!apiReady || pendingEdits.length === 0) {
+    if (pendingEdits.length === 0) {
       return;
     }
     setIsSaving(true);
@@ -385,7 +379,6 @@ export const ItemModal = ({
                     text={item.title!}
                     featuresById={highlightFeatures}
                     itemKey={item.key}
-                    apiReady={apiReady}
                     editable={canEditHighlights}
                     addedHighlights={addedHighlights}
                     removedHighlightIds={removedHighlightIds}

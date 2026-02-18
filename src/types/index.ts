@@ -69,5 +69,4 @@ export type ItemProps = {
   width: number;
   mode: Mode;
   featuresById: Record<string, feature_Feature> | null;
-  hubApiReady: boolean;
 };

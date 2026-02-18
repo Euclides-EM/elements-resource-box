@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-/* eslint-disable */
+ 
 import type { annotation_Annotation } from '../models/annotation_Annotation';
 import type { annotationrule_AddMargin } from '../models/annotationrule_AddMargin';
 import type { annotationrule_ApplyRules } from '../models/annotationrule_ApplyRules';

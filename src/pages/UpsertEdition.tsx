@@ -19,6 +19,7 @@ import { SingleSelect } from "../components/tps/filters/SingleSelect.tsx";
 import { Row } from "../components/common.ts";
 import { isValidUrl } from "../utils/util.ts";
 import { useNavigateWithQuery } from "../utils/navigationUtils.ts";
+import { useQuery } from "@tanstack/react-query";
 
 type Locator = model_EditionLocator;
 
@@ -641,6 +642,78 @@ function toOptionsFromArray(
   );
 }
 
+type OptionLists = {
+  editors: string[];
+  publishers: string[];
+  additionalContents: string[];
+  cities: string[];
+  reprintOptions: { value: string; label: string }[];
+  visualElementTypes: string[];
+  locatorTypes: string[];
+};
+
+const buildOptionLists = (editions: model_Edition[]): OptionLists => {
+  const editors = toOptionsFromArray(editions, "editor");
+  const publishers = toOptionsFromArray(editions, "publisher");
+  const additionalContents = uniq(
+    editions
+      .flatMap((item) => item.additionalContent || [])
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .sort(),
+  );
+  const cityNames = uniq(
+    editions
+      .flatMap((item) => item.cities || [])
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .sort(),
+  );
+
+  const reprintOptions = editions
+    .filter((item) => item.key && !item.isManuscript)
+    .map((item) => ({
+      value: item.key!,
+      label: generateCitationWithShortTitle(item),
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  const visualElementTypes = uniq(
+    editions.flatMap((edition) =>
+      (edition.visualElements || [])
+        .map((ve) => ve.visual_element_type)
+        .filter(Boolean),
+    ),
+  ).sort() as string[];
+
+  const locatorTypes = uniq([
+    ...editions.flatMap((edition) =>
+      (edition.visualElements || [])
+        .flatMap((visualElement) => [
+          visualElement.locator?.type,
+          ...(visualElement.examples || []).map(
+            (example) => example.locator?.type,
+          ),
+        ])
+        .filter(Boolean),
+    ),
+    "Proposition",
+    "Definition",
+    "Common notion",
+    "Scholia of proposition",
+  ]).sort() as string[];
+
+  return {
+    editors,
+    publishers,
+    additionalContents,
+    cities: cityNames,
+    reprintOptions,
+    visualElementTypes,
+    locatorTypes,
+  };
+};
+
 function deepTrim<T>(input: T): T {
   if (typeof input === "string") {
     return input.trim() as unknown as T;
@@ -674,19 +747,24 @@ export const UpsertEdition = () => {
   const { token } = useContext(AuthContext);
   const [images, setImages] = useState<Record<string, File>>({});
   const [values, setValues] = useState(defaultValues());
-  const [valuesLoading, setValuesLoading] = useState(!!key);
-  const [listsLoading, setListsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [lists, setLists] = useState<{
-    editors: string[];
-    publishers: string[];
-    additionalContents: string[];
-    cities: string[];
-    reprintOptions: { value: string; label: string }[];
-    visualElementTypes: string[];
-    locatorTypes: string[];
-  }>();
+  const [lists, setLists] = useState<OptionLists>();
   const formContainerRef = useRef<HTMLDivElement>(null);
+  const existingItemQuery = useQuery({
+    queryKey: ["edition", "upsert", key],
+    queryFn: () => loadExistingItem(key!),
+    enabled: Boolean(key),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
+  const editionsForListsQuery = useQuery({
+    queryKey: ["editions", "upsert", "lists"],
+    queryFn: () => listAllEditions(),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
+  const valuesLoading = Boolean(key) && existingItemQuery.isLoading;
+  const listsLoading = !lists && editionsForListsQuery.isLoading;
 
   const form = useForm({
     defaultValues: values,
@@ -821,85 +899,28 @@ export const UpsertEdition = () => {
   };
 
   useEffect(() => {
-    if (!key) {
-      return;
+    if (existingItemQuery.data) {
+      setValues(existingItemQuery.data);
     }
-    loadExistingItem(key)
-      .then((item) => {
-        setValues(item);
-        setValuesLoading(false);
-      })
-      .catch((e) => {
-        console.error("Failed to load existing item:", { key }, e);
-        alert("Failed to load existing item");
-      });
-  }, [key]);
+  }, [existingItemQuery.data]);
 
   useEffect(() => {
-    listAllEditions()
-      .then((editions) => {
-        const editors = toOptionsFromArray(editions, "editor");
-        const publishers = toOptionsFromArray(editions, "publisher");
-        const additionalContents = uniq(
-          editions
-            .flatMap((item) => item.additionalContent || [])
-            .map((item) => item.trim())
-            .filter(Boolean)
-            .sort(),
-        );
-        const cityNames = uniq(
-          editions
-            .flatMap((item) => item.cities || [])
-            .map((item) => item.trim())
-            .filter(Boolean)
-            .sort(),
-        );
+    if (!lists && editionsForListsQuery.data) {
+      setLists(buildOptionLists(editionsForListsQuery.data));
+    }
+  }, [lists, editionsForListsQuery.data]);
 
-        const reprintOptions = editions
-          .filter((item) => item.key && !item.isManuscript)
-          .map((item) => ({
-            value: item.key!,
-            label: generateCitationWithShortTitle(item),
-          }))
-          .sort((a, b) => a.label.localeCompare(b.label));
-
-        const visualElementTypes = uniq(
-          editions.flatMap((edition) =>
-            (edition.visualElements || [])
-              .map((ve) => ve.visual_element_type)
-              .filter(Boolean),
-          ),
-        ).sort() as string[];
-
-        const locatorTypes = uniq([
-          ...editions.flatMap((edition) =>
-            (edition.visualElements || [])
-              .flatMap((visualElement) => [
-                visualElement.locator?.type,
-                ...(visualElement.examples || []).map(
-                  (example) => example.locator?.type,
-                ),
-              ])
-              .filter(Boolean),
-          ),
-          "Proposition",
-          "Definition",
-          "Common notion",
-          "Scholia of proposition",
-        ]).sort() as string[];
-
-        setLists({
-          editors,
-          publishers,
-          additionalContents,
-          cities: cityNames,
-          reprintOptions,
-          visualElementTypes,
-          locatorTypes,
-        });
-      })
-      .finally(() => setListsLoading(false));
-  }, []);
+  useEffect(() => {
+    if (!existingItemQuery.error) {
+      return;
+    }
+    console.error(
+      "Failed to load existing item:",
+      { key },
+      existingItemQuery.error,
+    );
+    alert("Failed to load existing item");
+  }, [existingItemQuery.error, key]);
 
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
 

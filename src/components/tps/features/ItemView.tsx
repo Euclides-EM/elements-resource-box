@@ -30,7 +30,7 @@ const NoTitlePage = styled.div`
 `;
 
 export const ItemView = memo(
-  ({ item, height, width, mode, featuresById, hubApiReady }: ItemProps) => {
+  ({ item, height, width, mode, featuresById }: ItemProps) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
@@ -106,7 +106,6 @@ export const ItemView = memo(
                           text={item.title}
                           featuresById={featuresById || {}}
                           itemKey={item.key}
-                          apiReady={hubApiReady}
                         />
                       )}
                       {item.imprint && (
@@ -161,7 +160,6 @@ export const ItemView = memo(
           <ItemModal
             item={item}
             featuresById={featuresById}
-            apiReady={hubApiReady}
             onClose={() => setModalOpen(false)}
           />
         )}
