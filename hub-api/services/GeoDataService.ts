@@ -2,21 +2,21 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { common_HealthStatus } from '../models/common_HealthStatus';
+import type { model_City } from '../models/model_City';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-export class HealthService {
+export class GeoDataService {
     /**
-     * Health check
-     * Returns service and DB status
-     * @returns common_HealthStatus OK
+     * List cities
+     * Returns cities metadata with city name, longitude, and latitude.
+     * @returns model_City OK
      * @throws ApiError
      */
-    public static getHealth(): CancelablePromise<common_HealthStatus> {
+    public static getCities(): CancelablePromise<Array<model_City>> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/health',
+            url: '/cities',
         });
     }
 }

@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
- 
+/* eslint-disable */
 import type { model_AnnotationReference } from './model_AnnotationReference';
 import type { model_Model } from './model_Model';
 import type { model_TrainingStatus } from './model_TrainingStatus';

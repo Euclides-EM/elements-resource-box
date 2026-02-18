@@ -20,7 +20,7 @@ type YesNoBool = "Yes" | "No";
 export const MIN_YEAR = 1482;
 export const MAX_YEAR = 1883;
 
-export const FLOATING_CITY_ENTRY: model_City = {
+export const FLOATING_CITY_ENTRY: Required<model_City> = {
   name: NO_CITY,
   longitude: -16,
   latitude: 42,

@@ -30,7 +30,7 @@ import { NAVBAR_HEIGHT } from "../components/layout/routes.ts";
 import { useIsMobile } from "../components/layout/isMobile.ts";
 import { useEditFilter } from "../contexts/FilterEditContext.tsx";
 import { FLOATING_CITY_ENTRY, Item } from "../types";
-import { EditionsService } from "../../hub-api";
+import { GeoDataService } from "../../hub-api";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -113,7 +113,7 @@ const Pane = styled.div<{
 `;
 
 const loadCitiesAsync = async (): Promise<Record<string, Point>> => {
-  const apiCities = await EditionsService.getCities();
+  const apiCities = await GeoDataService.getCities();
   const mappedCities = apiCities.reduce<Record<string, Point>>((acc, city) => {
     if (
       !city.name ||
@@ -122,7 +122,7 @@ const loadCitiesAsync = async (): Promise<Record<string, Point>> => {
     ) {
       return acc;
     }
-    acc[city.name] = [city.longitude, city.latitude];
+    acc[city.name] = [city.longitude!, city.latitude!];
     return acc;
   }, {});
 

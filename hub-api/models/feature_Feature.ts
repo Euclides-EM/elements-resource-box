@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
- 
+/* eslint-disable */
 import type { common_Reference } from './common_Reference';
 import type { feature_Revision } from './feature_Revision';
 import type { feature_Type } from './feature_Type';
