@@ -34,7 +34,7 @@ export const ItemView = memo(
     const [modalOpen, setModalOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
-      const imageUrl = toItemImageUrl(item.imageUrl);
+    const imageUrl = toItemImageUrl(item.imageUrl);
 
     useEffect(() => {
       const observer = new IntersectionObserver(
@@ -76,7 +76,7 @@ export const ItemView = memo(
               </>
             ) : (
               <>
-                  <TextTile alignCenter={!!imageUrl}>
+                <TextTile alignCenter={!!imageUrl}>
                   {!isVisible ? (
                     <div>
                       {item.title}
@@ -169,4 +169,3 @@ export const ItemView = memo(
     );
   },
 );
-

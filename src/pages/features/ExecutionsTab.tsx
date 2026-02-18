@@ -1,9 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { TITLE_PAGES_DATASET_ID } from "../../constants";
 import { mapEditionsToItems } from "../../utils/dataUtils";
 import { Item } from "../../types";
@@ -154,8 +150,10 @@ export function ExecutionsTab() {
   const executions = executionsQuery.data ?? [];
   const editionItems = editionsQuery.data ?? [];
   const loading = featuresQuery.isLoading;
-  const executionsLoading = executionsQuery.isLoading || executionsQuery.isFetching;
-  const editionItemsLoading = editionsQuery.isLoading || editionsQuery.isFetching;
+  const executionsLoading =
+    executionsQuery.isLoading || executionsQuery.isFetching;
+  const editionItemsLoading =
+    editionsQuery.isLoading || editionsQuery.isFetching;
   const submittingExecution = createExecutionMutation.isPending;
   const executionsError = useMemo(() => {
     if (actionError) {
@@ -174,7 +172,12 @@ export function ExecutionsTab() {
       return "Failed to load features data.";
     }
     return null;
-  }, [actionError, editionsQuery.error, executionsQuery.error, featuresQuery.error]);
+  }, [
+    actionError,
+    editionsQuery.error,
+    executionsQuery.error,
+    featuresQuery.error,
+  ]);
 
   const corpusEditionItems = useMemo(
     () =>

@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   feature_ExecutionStrategy,
   feature_Feature,
