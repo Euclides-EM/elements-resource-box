@@ -15,12 +15,12 @@ export type model_Edition = {
     colophon?: string;
     colophon_EN?: string;
     corpus?: Array<string>;
-    diagramsExtracted?: string;
+    diagramCropsAvailable?: boolean;
     editor?: Array<string>;
     format?: number;
     frontispiece?: string;
     frontispiece_EN?: string;
-    hasDiagrams?: string;
+    hasDiagrams?: boolean;
     imprint?: string;
     imprint_EN?: string;
     /**
@@ -48,10 +48,6 @@ export type model_Edition = {
     ustcId?: string;
     verified?: boolean;
     visualElements?: Array<model_EditionVisualElement>;
-    /**
-     * Computed
-     */
-    visualElementsTypes?: Array<string>;
     volumes?: number;
     year?: string;
 };

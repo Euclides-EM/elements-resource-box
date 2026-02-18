@@ -1,12 +1,12 @@
 import { EditionsService } from "../../hub-api/services/EditionsService";
 
 export const saveNote = async (
-  key: string,
+  editionId: string,
   data: { note: string },
 ): Promise<void> => {
-  console.log("Saving note", { key, ...data });
+  console.log("Saving note", { editionId, ...data });
   await EditionsService.postEditionsNotes({
-    key,
+    editionId,
     note: { note: data.note },
   });
 };

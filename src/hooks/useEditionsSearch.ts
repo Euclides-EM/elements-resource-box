@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-query";
 import { useAppliedFilter } from "../contexts/FilterAppliedContext";
 import { listAllEditions, searchEditionsPage } from "../api/editionApi";
-import { fetchDiagramDirectories } from "../api/diagramsApi";
 import { mapEditionsToItems } from "../utils/dataUtils";
 import type { FilterValue } from "../components/map/Filter";
 import type { Item } from "../types";
@@ -129,12 +128,6 @@ export function useEditionsSearch() {
     ],
   );
 
-  const diagramDirsQuery = useQuery({
-    queryKey: ["diagram-directories"],
-    queryFn: fetchDiagramDirectories,
-    staleTime: Infinity,
-  });
-
   const editionsQuery = useQuery({
     queryKey: ["editions", "search", searchQuery],
     queryFn: () => listAllEditions(searchQuery),
@@ -143,11 +136,7 @@ export function useEditionsSearch() {
 
   const items = useMemo(() => {
     if (!editionsQuery.data) return null;
-    return mapEditionsToItems(
-      editionsQuery.data,
-      diagramDirsQuery.data ?? new Set(),
-      true,
-    );
+    return mapEditionsToItems(editionsQuery.data);
   }, [editionsQuery.data, diagramDirsQuery.data]);
 
   return {
@@ -237,12 +226,7 @@ export function useEditionsSearchInfinite(options: InfiniteSearchOptions = {}) {
       (page) => page.items || [],
     );
     if (!editions) return null;
-    return mapEditionsToItems(
-      editions,
-      diagramDirsQuery.data ?? new Set(),
-      true,
-      false,
-    );
+    return mapEditionsToItems(editions);
   }, [editionsQuery.data, diagramDirsQuery.data]);
 
   const total = editionsQuery.data?.pages[0]?.total;
@@ -251,12 +235,7 @@ export function useEditionsSearchInfinite(options: InfiniteSearchOptions = {}) {
       ...searchQuery,
       order_by: orderBy,
     });
-    return mapEditionsToItems(
-      editions,
-      diagramDirsQuery.data ?? new Set(),
-      true,
-      false,
-    );
+    return mapEditionsToItems(editions);
   }, [diagramDirsQuery.data, orderBy, searchQuery]);
 
   return {

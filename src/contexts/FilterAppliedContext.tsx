@@ -108,7 +108,7 @@ export const FilterAppliedProvider = ({
   const [hasUnappliedChanges, setHasUnappliedChanges] = useState(false);
 
   useEffect(() => {
-    loadEditionsData(setData, true);
+    loadEditionsData(setData);
   }, []);
 
   const resetFilters = useCallback(

@@ -1,6 +1,5 @@
-import { EditionsService } from "../../hub-api/services/EditionsService";
-import type { api_editionDiagramVolume } from "../../hub-api/models/api_editionDiagramVolume";
-import type { api_editionDiagramsResponse } from "../../hub-api/models/api_editionDiagramsResponse";
+import { EditionsService, model_DiagramCropVolume } from "../../hub-api";
+import type { model_DiagramCrops } from "../../hub-api";
 
 export interface VolumeData {
   volume?: number;
@@ -22,33 +21,35 @@ const mapImages = (imagesByName?: Record<string, string>): string[] => {
 
 const mapVolume = (
   key: string,
-  volume: api_editionDiagramVolume,
+  volume: model_DiagramCropVolume,
 ): VolumeData => ({
   volume: volume.volume,
   key: volume.key || key,
   images: mapImages(volume.imageUrlsByName),
-  hasNoDiagrams: Boolean(volume.hasNoDiagrams),
+  hasNoDiagrams: !volume.hasDiagrams,
 });
 
 const mapDiagramResponse = (
   key: string,
-  response: api_editionDiagramsResponse,
+  response: model_DiagramCrops,
 ): DiagramsResult => {
   if (response.volumes && response.volumes.length > 0) {
     return {
-      hasNoDiagrams: Boolean(response.hasNoDiagrams),
+      hasNoDiagrams: !response.hasDiagrams,
       volumes: response.volumes.map((volume) => mapVolume(key, volume)),
     };
   }
 
   return {
-    hasNoDiagrams: Boolean(response.hasNoDiagrams),
-    images: mapImages(response.imageUrlsByName),
+    hasNoDiagrams: !response.hasDiagrams,
+    images: mapImages(response.imageURLsByName),
   };
 };
 
-export const fetchDiagrams = async (key: string): Promise<DiagramsResult> => {
-  if (!key) {
+export const fetchDiagrams = async (
+  editionId: string,
+): Promise<DiagramsResult> => {
+  if (!editionId) {
     return {
       images: [],
       hasNoDiagrams: false,
@@ -57,22 +58,13 @@ export const fetchDiagrams = async (key: string): Promise<DiagramsResult> => {
   }
 
   try {
-    const response = await EditionsService.getEditionsDiagrams1({ key });
-    return mapDiagramResponse(key, response);
+    const response = await EditionsService.getEditionsDiagrams({ editionId });
+    return mapDiagramResponse(editionId, response);
   } catch {
     return {
       images: [],
       hasNoDiagrams: false,
       error: "Failed to load diagrams",
     };
-  }
-};
-
-export const fetchDiagramDirectories = async (): Promise<Set<string>> => {
-  try {
-    const keys = await EditionsService.getEditionsDiagrams();
-    return new Set(keys);
-  } catch {
-    return new Set();
   }
 };

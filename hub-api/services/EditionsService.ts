@@ -2,8 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { api_editionDiagramsResponse } from '../models/api_editionDiagramsResponse';
 import type { model_City } from '../models/model_City';
+import type { model_DiagramCrops } from '../models/model_DiagramCrops';
 import type { model_Edition } from '../models/model_Edition';
 import type { model_EditionListResult } from '../models/model_EditionListResult';
 import type { model_ImageUpload } from '../models/model_ImageUpload';
@@ -88,18 +88,6 @@ export class EditionsService {
         });
     }
     /**
-     * List Edition Diagram Directories
-     * Get all available edition diagram directory keys.
-     * @returns string OK
-     * @throws ApiError
-     */
-    public static getEditionsDiagrams(): CancelablePromise<Array<string>> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/editions/diagrams',
-        });
-    }
-    /**
      * List Editions
      * Get a paginated list of editions. Filter by corpus; use offset/limit for paging.
      * @returns model_EditionListResult OK
@@ -120,24 +108,24 @@ export class EditionsService {
         });
     }
     /**
-     * Get Edition by key
-     * Get a single edition by its key.
+     * Get Edition by ID
+     * Get a single edition by its ID.
      * @returns model_Edition OK
      * @throws ApiError
      */
     public static getEditions({
-        key,
+        editionId,
     }: {
         /**
-         * Edition key
+         * Edition ID
          */
-        key: string,
+        editionId: string,
     }): CancelablePromise<model_Edition> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/editions/{key}',
+            url: '/editions/{editionId}',
             path: {
-                'key': key,
+                'editionId': editionId,
             },
             errors: {
                 404: `Edition not found`,
@@ -151,13 +139,13 @@ export class EditionsService {
      * @throws ApiError
      */
     public static putEditions({
-        key,
+        editionId,
         edition,
     }: {
         /**
-         * Edition key
+         * Edition ID
          */
-        key: string,
+        editionId: string,
         /**
          * Edition data to update
          */
@@ -165,77 +153,71 @@ export class EditionsService {
     }): CancelablePromise<model_Edition> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/editions/{key}',
+            url: '/editions/{editionId}',
             path: {
-                'key': key,
+                'editionId': editionId,
             },
             body: edition,
         });
     }
     /**
      * Delete Edition
-     * Delete an edition identified by key.
+     * Delete an edition identified by ID.
      * @returns any OK
      * @throws ApiError
      */
     public static deleteEditions({
-        key,
+        editionId,
     }: {
         /**
-         * Edition key
+         * Edition ID
          */
-        key: string,
+        editionId: string,
     }): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/editions/{key}',
+            url: '/editions/{editionId}',
             path: {
-                'key': key,
-            },
-            errors: {
-                400: `Missing key`,
+                'editionId': editionId,
             },
         });
     }
     /**
      * Get Edition Diagrams
      * Get diagram image URLs for a specific edition key.
-     * @returns api_editionDiagramsResponse OK
+     * @returns model_DiagramCrops OK
      * @throws ApiError
      */
-    public static getEditionsDiagrams1({
-        key,
+    public static getEditionsDiagrams({
+        editionId,
     }: {
         /**
          * Edition key
          */
-        key: string,
-    }): CancelablePromise<api_editionDiagramsResponse> {
+        editionId: string,
+    }): CancelablePromise<model_DiagramCrops> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/editions/{key}/diagrams',
+            url: '/editions/{editionId}/diagrams',
             path: {
-                'key': key,
-            },
-            errors: {
-                400: `Missing key`,
+                'editionId': editionId,
             },
         });
     }
     /**
      * Update Edition Notes
-     * Update the notes for an edition identified by key. The note content is provided in the JSON body.
+     * Update the notes for an edition identified by id. The note content is provided in the JSON body.
      * @returns model_Edition OK
      * @throws ApiError
      */
     public static postEditionsNotes({
-        key,
+        editionId,
         note,
     }: {
         /**
-         * Edition key
+         * Edition ID
          */
-        key: string,
+        editionId: string,
         /**
          * Note content
          */
@@ -243,9 +225,9 @@ export class EditionsService {
     }): CancelablePromise<model_Edition> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/editions/{key}/notes',
+            url: '/editions/{editionId}/notes',
             path: {
-                'key': key,
+                'editionId': editionId,
             },
             body: note,
         });

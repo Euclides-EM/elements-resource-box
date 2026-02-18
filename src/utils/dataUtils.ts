@@ -1,10 +1,8 @@
 import { FLOATING_CITY_ENTRY, Item } from "../types";
-import { startCase, uniq } from "lodash";
-import { Dispatch, SetStateAction } from "react";
+import { isNil, startCase, uniq } from "lodash";
 import { ItemTypes } from "../constants";
 import { listAllEditions } from "../api/editionApi.ts";
-import { fetchDiagramDirectories } from "../api/diagramsApi.ts";
-import type { model_Edition } from "../../hub-api/models/model_Edition";
+import type { model_Edition } from "../../hub-api";
 import { toItemImageUrl } from "./util.ts";
 
 const ifEmpty = <T>(arr: T[], defaultValue: T[]): T[] =>
@@ -29,18 +27,13 @@ const toFormat = (value: number | undefined): string | null => {
   return `${value}º`;
 };
 
-export const mapEditionsToItems = (
-  editions: model_Edition[],
-  diagramDirectories: Set<string>,
-  setFloatingCity = false,
-  sortByYear = true,
-): Item[] => {
-  const mapped = editions
+export const mapEditionsToItems = (editions: model_Edition[]): Item[] => {
+  return editions
     .filter((edition) => edition.key)
     .map((edition) => {
       const cities = ifEmpty(
         (edition.cities || []).map((c) => c.trim()).filter(Boolean),
-        setFloatingCity ? [FLOATING_CITY_ENTRY.city] : [],
+        [FLOATING_CITY_ENTRY.city],
       );
       const shelfmarks = edition.shelfmarks || [];
       const books = (edition.books || []).filter((value): value is number =>
@@ -95,64 +88,34 @@ export const mapEditionsToItems = (
             ? "Yes, based on catalog long title"
             : "Unknown",
         study_corpora: uniq(studyCorpora),
-        tp_illustration: "No or uncatalogued",
-        colorInTitle: null,
-        titlePageDesign: null,
-        titlePageNumberOfTypes: null,
-        titlePageFrameType: null,
-        titlePageEngraving: null,
-        hasPrintersDevice: null,
-        fontTypes: [],
-        calligraphicFeatures: null,
         notes: edition.notes || null,
-        otherNamesClassification: null,
-        hasIntendedAudience: null,
-        hasPatronageDedication: null,
-        hasAdapterAttribution: null,
-        hasPublishingPrivileges: null,
-        hasGreekDesignation: null,
-        explicitLanguageReferences: null,
-        institutions: null,
-        otherNames: null,
-        features: {},
-        diagramsExtracted: diagramDirectories.has(edition.key!)
-          ? "True"
-          : "False",
-        hasDiagrams: "Uncatalogued",
+        diagramsExtracted: edition.diagramCropsAvailable ? "Yes" : "No",
+        hasDiagrams: isNil(edition.hasDiagrams)
+          ? "Uncatalogued"
+          : edition.hasDiagrams
+            ? "Yes"
+            : "No",
         visualElementsTypes: uniq(
           (edition.visualElements || [])
             .map((v) => v.visual_element_type)
             .filter(Boolean) as string[],
         ),
-        dotted_lines_cases: ["Uncatalogued"],
-        dotted_lines_b79_cases: "Unknown",
-        dotted_lines_b10_case: "Unknown",
-        dotted_lines_b2_cases: [],
-        dotted_lines_geo_cases: [],
-        dotted_lines_other_cases: [],
         reprintOf: edition.reprintOf || null,
       } satisfies Item;
-    });
-
-  if (!sortByYear) {
-    return mapped;
-  }
-
-  return mapped.sort(
-    (a, b) =>
-      (a.year || "").localeCompare(b.year || "") || a.key.localeCompare(b.key),
-  );
+    })
+    .sort(
+      (a, b) =>
+        (a.year || "").localeCompare(b.year || "") ||
+        a.key.localeCompare(b.key),
+    );
 };
 
 export const loadEditionsData = (
-  setItems: Dispatch<SetStateAction<Item[]>>,
-  setFloatingCity = false,
+  setItems: React.Dispatch<React.SetStateAction<Item[]>>,
 ) => {
-  Promise.all([listAllEditions(), fetchDiagramDirectories()])
-    .then(([editions, diagramDirectories]) => {
-      setItems(
-        mapEditionsToItems(editions, diagramDirectories, setFloatingCity),
-      );
+  listAllEditions()
+    .then((editions) => {
+      setItems(mapEditionsToItems(editions));
     })
     .catch((error) => console.error("Error loading editions data:", error));
 };

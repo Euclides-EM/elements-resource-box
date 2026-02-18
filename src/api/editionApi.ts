@@ -1,8 +1,5 @@
-import { EditionsService } from "../../hub-api/services/EditionsService";
-import { ThirdPartyCatalogsService } from "../../hub-api/services/ThirdPartyCatalogsService";
-import type { model_Edition } from "../../hub-api/models/model_Edition";
-import type { model_USTC } from "../../hub-api/models/model_USTC";
-import type { search_Query } from "../../hub-api/models/search_Query";
+import type { model_Edition, model_USTC, search_Query } from "../../hub-api";
+import { EditionsService, ThirdPartyCatalogsService } from "../../hub-api";
 import { uploadImage } from "./imageApi.ts";
 
 export const upsertEdition = async (
@@ -72,18 +69,15 @@ export const upsertEdition = async (
   await Promise.all(uploads);
 
   try {
-    await EditionsService.getEditions({ key: data.key! });
-    await EditionsService.putEditions({ key: data.key!, edition: data });
+    await EditionsService.getEditions({ editionId: data.key! });
+    await EditionsService.putEditions({ editionId: data.key!, edition: data });
   } catch {
     await EditionsService.postEditions({ edition: data });
   }
 };
 
-export const deleteEdition = async (key: string): Promise<void> => {
-  await EditionsService.putEditions({
-    key,
-    edition: { key },
-  });
+export const deleteEdition = async (editionId: string): Promise<void> => {
+  await EditionsService.deleteEditions({ editionId });
 };
 
 export const ustcLookup = async (
@@ -94,8 +88,8 @@ export const ustcLookup = async (
   });
 };
 
-export const getEdition = async (key: string): Promise<model_Edition> => {
-  return EditionsService.getEditions({ key });
+export const getEdition = async (editionId: string): Promise<model_Edition> => {
+  return EditionsService.getEditions({ editionId });
 };
 
 export const searchEditionsPage = async (query?: search_Query) =>
