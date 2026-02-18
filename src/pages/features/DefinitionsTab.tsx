@@ -1,11 +1,18 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import { FeatureRevisionsService } from "../../hub-api/services/FeatureRevisionsService";
-import { FeaturesService } from "../../hub-api/services/FeaturesService";
-import type { feature_Feature } from "../../hub-api/models/feature_Feature";
-import type { feature_Revision } from "../../hub-api/models/feature_Revision";
-import { AuthContext } from "../contexts/Auth";
-import { TITLE_PAGES_DATASET_ID } from "../constants";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
+  feature_ExecutionStrategy,
+  feature_Feature,
+  feature_Revision,
+  FeatureRevisionsService,
+  FeaturesService,
+} from "../../../hub-api";
+import { TITLE_PAGES_DATASET_ID } from "../../constants";
 
 type FeatureEditState = {
   name: string;
@@ -13,8 +20,7 @@ type FeatureEditState = {
 };
 
 type RevisionFormState = {
-  execution_strategy: "prompt" | "regex";
-  type: "annotation" | "ner";
+  execution_strategy: feature_ExecutionStrategy;
   prompt: string;
   regex: string;
   note: string;
@@ -335,7 +341,6 @@ const ErrorText = styled.div`
 
 const defaultRevisionForm: RevisionFormState = {
   execution_strategy: "prompt",
-  type: "annotation",
   prompt: "",
   regex: "",
   note: "",
@@ -343,13 +348,11 @@ const defaultRevisionForm: RevisionFormState = {
 
 const getRevisionDefaults = (revision?: {
   execution_strategy?: "prompt" | "regex";
-  type?: "annotation" | "ner";
   prompt?: string;
   regex?: string;
   note?: string;
 }): RevisionFormState => ({
   execution_strategy: revision?.execution_strategy ?? "prompt",
-  type: revision?.type ?? "annotation",
   prompt: revision?.prompt ?? "",
   regex: revision?.regex ?? "",
   note: revision?.note ?? "",
@@ -376,9 +379,8 @@ const getRevisionPreview = (revision?: string) => {
   return `${revision.slice(0, 160)}…`;
 };
 
-export function Features() {
-  const { token } = useContext(AuthContext);
-  const [features, setFeatures] = useState<feature_Feature[]>([]);
+export function DefinitionsTab() {
+  const queryClient = useQueryClient();
   const [featureEdits, setFeatureEdits] = useState<
     Record<string, FeatureEditState>
   >({});
@@ -392,10 +394,8 @@ export function Features() {
   const [expandedFeatures, setExpandedFeatures] = useState<
     Record<string, boolean>
   >({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [busyFeatureId, setBusyFeatureId] = useState<string | null>(null);
-  const [creatingFeature, setCreatingFeature] = useState(false);
   const [creatingRevisionFeatureId, setCreatingRevisionFeatureId] = useState<
     string | null
   >(null);
@@ -407,6 +407,22 @@ export function Features() {
     Record<string, boolean>
   >({});
   const [searchQuery, setSearchQuery] = useState("");
+  const featuresQueryKey = [
+    "features",
+    "definitions",
+    TITLE_PAGES_DATASET_ID,
+  ] as const;
+
+  const featuresQuery = useQuery({
+    queryKey: featuresQueryKey,
+    queryFn: () =>
+      FeaturesService.getDatasetsFeatures({
+        dataSetId: TITLE_PAGES_DATASET_ID,
+        expand: ["revisions"],
+      }),
+    refetchOnWindowFocus: false,
+  });
+  const features = featuresQuery.data ?? [];
 
   const sortedFeatures = useMemo(
     () =>
@@ -430,43 +446,103 @@ export function Features() {
     });
   }, [searchQuery, sortedFeatures]);
 
-  const loadFeatures = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await FeaturesService.getDatasetsFeatures({
-        dataSetId: TITLE_PAGES_DATASET_ID,
-        expand: ["revisions"],
-      });
-      setFeatures(response);
-      const nextEdits: Record<string, FeatureEditState> = {};
-      setRevisionForms((prev) => {
-        const nextRevisionForms: Record<string, RevisionFormState> = {};
-        response.forEach((feature) => {
-          if (!feature.id) {
-            return;
-          }
-          nextEdits[feature.id] = {
-            name: feature.name || "",
-            description: feature.description || "",
-          };
-          nextRevisionForms[feature.id] = prev[feature.id] ?? {
-            ...defaultRevisionForm,
-          };
-        });
-        setFeatureEdits(nextEdits);
-        return nextRevisionForms;
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load features.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    void loadFeatures();
-  }, [token, loadFeatures]);
+    setFeatureEdits((previous) => {
+      const next: Record<string, FeatureEditState> = {};
+      for (const feature of features) {
+        if (!feature.id) {
+          continue;
+        }
+        if (editingFeatures[feature.id] && previous[feature.id]) {
+          next[feature.id] = previous[feature.id];
+          continue;
+        }
+        next[feature.id] = {
+          name: feature.name || "",
+          description: feature.description || "",
+        };
+      }
+      return next;
+    });
+    setRevisionForms((previous) => {
+      const next: Record<string, RevisionFormState> = {};
+      for (const feature of features) {
+        if (!feature.id) {
+          continue;
+        }
+        next[feature.id] = previous[feature.id] ?? { ...defaultRevisionForm };
+      }
+      return next;
+    });
+  }, [features, editingFeatures]);
+
+  const updateFeatureMutation = useMutation({
+    mutationFn: ({
+      featureId,
+      feature,
+    }: {
+      featureId: string;
+      feature: feature_Feature;
+    }) =>
+      FeaturesService.putDatasetsFeatures({
+        dataSetId: TITLE_PAGES_DATASET_ID,
+        featureId,
+        feature,
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: featuresQueryKey });
+    },
+  });
+
+  const deleteFeatureMutation = useMutation({
+    mutationFn: (featureId: string) =>
+      FeaturesService.deleteDatasetsFeatures({
+        dataSetId: TITLE_PAGES_DATASET_ID,
+        featureId,
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: featuresQueryKey });
+    },
+  });
+
+  const createFeatureMutation = useMutation({
+    mutationFn: (feature: feature_Feature) =>
+      FeaturesService.postDatasetsFeatures({
+        dataSetId: TITLE_PAGES_DATASET_ID,
+        feature,
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: featuresQueryKey });
+    },
+  });
+
+  const createRevisionMutation = useMutation({
+    mutationFn: ({
+      featureId,
+      revision,
+    }: {
+      featureId: string;
+      revision: feature_Revision;
+    }) =>
+      FeatureRevisionsService.postDatasetsFeaturesRevisions({
+        dataSetId: TITLE_PAGES_DATASET_ID,
+        featureId,
+        revision,
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: featuresQueryKey });
+    },
+  });
+
+  const queryError =
+    featuresQuery.error instanceof Error
+      ? featuresQuery.error.message
+      : featuresQuery.error
+        ? "Failed to load features."
+        : null;
+  const error = actionError ?? queryError;
+  const loading = featuresQuery.isLoading;
+  const creatingFeature = createFeatureMutation.isPending;
 
   const handleUpdateFeature = async (
     feature: feature_Feature,
@@ -478,14 +554,13 @@ export function Features() {
     }
     const form = featureEdits[feature.id];
     if (!form?.name?.trim()) {
-      setError("Feature name is required.");
+      setActionError("Feature name is required.");
       return;
     }
     setBusyFeatureId(feature.id);
-    setError(null);
+    setActionError(null);
     try {
-      await FeaturesService.putDatasetsFeatures({
-        dataSetId: TITLE_PAGES_DATASET_ID,
+      await updateFeatureMutation.mutateAsync({
         featureId: feature.id,
         feature: {
           name: form.name.trim(),
@@ -498,9 +573,8 @@ export function Features() {
         ...prev,
         [feature.id as string]: false,
       }));
-      await loadFeatures();
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : "Failed to update feature.",
       );
     } finally {
@@ -516,15 +590,11 @@ export function Features() {
       return;
     }
     setBusyFeatureId(feature.id);
-    setError(null);
+    setActionError(null);
     try {
-      await FeaturesService.deleteDatasetsFeatures({
-        dataSetId: TITLE_PAGES_DATASET_ID,
-        featureId: feature.id,
-      });
-      await loadFeatures();
+      await deleteFeatureMutation.mutateAsync(feature.id);
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : "Failed to delete feature.",
       );
     } finally {
@@ -579,30 +649,23 @@ export function Features() {
   ) => {
     event?.preventDefault();
     if (!createForm.name.trim()) {
-      setError("Feature name is required.");
+      setActionError("Feature name is required.");
       return;
     }
-    setCreatingFeature(true);
-    setError(null);
+    setActionError(null);
     try {
-      await FeaturesService.postDatasetsFeatures({
-        dataSetId: TITLE_PAGES_DATASET_ID,
-        feature: {
-          name: createForm.name.trim(),
-          description: createForm.description.trim() || undefined,
-          is_root: false,
-          is_default: false,
-        },
+      await createFeatureMutation.mutateAsync({
+        name: createForm.name.trim(),
+        description: createForm.description.trim() || undefined,
+        is_root: false,
+        is_default: false,
       });
       setCreateForm({ name: "", description: "" });
-      await loadFeatures();
       setCreateFormOpen(false);
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : "Failed to create feature.",
       );
-    } finally {
-      setCreatingFeature(false);
     }
   };
 
@@ -616,18 +679,17 @@ export function Features() {
     }
     const form = revisionForms[feature.id] ?? defaultRevisionForm;
     if (form.execution_strategy === "prompt" && !form.prompt.trim()) {
-      setError("Prompt text is required for prompt-based revisions.");
+      setActionError("Prompt text is required for prompt-based revisions.");
       return;
     }
     if (form.execution_strategy === "regex" && !form.regex.trim()) {
-      setError("Regex text is required for regex-based revisions.");
+      setActionError("Regex text is required for regex-based revisions.");
       return;
     }
     setCreatingRevisionFeatureId(feature.id);
-    setError(null);
+    setActionError(null);
     const payload: feature_Revision = {
       execution_strategy: form.execution_strategy,
-      type: form.type,
       note: form.note.trim() || undefined,
       prompt:
         form.execution_strategy === "prompt" ? form.prompt.trim() : undefined,
@@ -635,8 +697,7 @@ export function Features() {
         form.execution_strategy === "regex" ? form.regex.trim() : undefined,
     };
     try {
-      await FeatureRevisionsService.postDatasetsFeaturesRevisions({
-        dataSetId: TITLE_PAGES_DATASET_ID,
+      await createRevisionMutation.mutateAsync({
         featureId: feature.id,
         revision: payload,
       });
@@ -644,9 +705,8 @@ export function Features() {
         ...prev,
         [feature.id as string]: { ...defaultRevisionForm },
       }));
-      await loadFeatures();
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : "Failed to create revision.",
       );
     } finally {
@@ -930,10 +990,6 @@ export function Features() {
                             </div>
                             {index === 0 && <LatestTag>Latest</LatestTag>}
                             <div>
-                              <InlineValue>Type:</InlineValue>{" "}
-                              {revision.type || "—"}
-                            </div>
-                            <div>
                               <InlineValue>Strategy:</InlineValue>{" "}
                               {revision.execution_strategy || "—"}
                             </div>
@@ -1030,30 +1086,6 @@ export function Features() {
                                 >
                                   <option value="prompt">Prompt</option>
                                   <option value="regex">Regex</option>
-                                </Select>
-                              </Field>
-                              <Field>
-                                <Label>Type</Label>
-                                <Select
-                                  value={
-                                    revisionForms[featureId]?.type ??
-                                    "annotation"
-                                  }
-                                  onChange={(event) =>
-                                    featureId &&
-                                    setRevisionForms((prev) => ({
-                                      ...prev,
-                                      [featureId]: {
-                                        ...prev[featureId],
-                                        type: event.target
-                                          .value as RevisionFormState["type"],
-                                      },
-                                    }))
-                                  }
-                                  disabled={isSaving}
-                                >
-                                  <option value="annotation">Annotation</option>
-                                  <option value="ner">NER</option>
                                 </Select>
                               </Field>
                               {revisionForms[featureId]?.execution_strategy ===

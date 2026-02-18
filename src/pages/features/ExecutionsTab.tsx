@@ -1,16 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  ExecutionsService,
-  featureplat_Feature,
-  featureplat_FeatureExecution,
-  featureplat_FeatureExecutionApplyItem,
-  featureplat_FeatureExecutionStatus,
-  featureplat_FeatureExecutionSkipIf,
-} from "../../../common/hub-api";
-import { COLLECTION_ID } from "../../utils/hubApi";
-import { loadEditionsData } from "../../utils/dataUtils";
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { TITLE_PAGES_DATASET_ID } from "../../constants";
+import { mapEditionsToItems } from "../../utils/dataUtils";
 import { Item } from "../../types";
-import MultiSelect from "../../components/tps/filters/MultiSelect";
 import { STUDY_CORPORA_FILTER } from "./types";
 import { formatDate } from "./helpers";
 import {
@@ -47,17 +43,19 @@ import {
   ExecutionEditionsToggleContent,
 } from "./styles";
 import pluralize from "pluralize";
+import {
+  ExecutionsService,
+  feature_Execution,
+  feature_ExecutionApplyItem,
+  feature_ExecutionSkipIf,
+  feature_ExecutionStatus,
+  feature_Feature,
+  FeaturesService,
+} from "../../../hub-api";
+import { MultiSelect } from "../../components/tps/filters/MultiSelect.tsx";
+import { listAllEditions } from "../../api/editionApi";
 
-interface ExecutionsTabProps {
-  sortedFeatures: featureplat_Feature[];
-  loading: boolean;
-  apiReady: boolean;
-}
-
-const EXECUTION_STATUS_LABELS: Record<
-  featureplat_FeatureExecutionStatus,
-  string
-> = {
+const EXECUTION_STATUS_LABELS: Record<feature_ExecutionStatus, string> = {
   success: "Completed",
   failed: "Failed",
   in_progress: "In progress",
@@ -65,31 +63,21 @@ const EXECUTION_STATUS_LABELS: Record<
   canceled: "Canceled",
 };
 
-const EXECUTION_SKIP_IF_OPTIONS: featureplat_FeatureExecutionSkipIf[] = [
+const EXECUTION_SKIP_IF_OPTIONS: feature_ExecutionSkipIf[] = [
   "feature_exist",
   "revision_exist",
   "human_reviewed",
 ];
 
-const EXECUTION_SKIP_IF_LABELS: Record<
-  featureplat_FeatureExecutionSkipIf,
-  string
-> = {
+const EXECUTION_SKIP_IF_LABELS: Record<feature_ExecutionSkipIf, string> = {
   feature_exist: "Feature exist",
   revision_exist: "Revision exist",
   human_reviewed: "Human reviewed",
 };
 
-export function ExecutionsTab({
-  sortedFeatures,
-  loading,
-  apiReady,
-}: ExecutionsTabProps) {
-  const [executions, setExecutions] = useState<featureplat_FeatureExecution[]>(
-    [],
-  );
-  const [executionsLoading, setExecutionsLoading] = useState(false);
-  const [executionsError, setExecutionsError] = useState<string | null>(null);
+export function ExecutionsTab() {
+  const queryClient = useQueryClient();
+  const [actionError, setActionError] = useState<string | null>(null);
   const [cancelingExecutionId, setCancelingExecutionId] = useState<
     string | null
   >(null);
@@ -100,19 +88,93 @@ export function ExecutionsTab({
   const [selectedFeatureIds, setSelectedFeatureIds] = useState<Set<string>>(
     new Set(),
   );
-  const [editionItems, setEditionItems] = useState<Item[]>([]);
-  const [editionItemsLoading, setEditionItemsLoading] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
-  const [execSkipIf, setExecSkipIf] = useState<
-    featureplat_FeatureExecutionSkipIf[]
-  >([]);
-  const [submittingExecution, setSubmittingExecution] = useState(false);
+  const [execSkipIf, setExecSkipIf] = useState<feature_ExecutionSkipIf[]>([]);
   const [executionStatusFilter, setExecutionStatusFilter] = useState<
-    "all" | featureplat_FeatureExecutionStatus
+    "all" | feature_ExecutionStatus
   >("all");
   const [expandedExecutionEditions, setExpandedExecutionEditions] = useState<
     Record<string, boolean>
   >({});
+
+  const featuresQueryKey = ["features", TITLE_PAGES_DATASET_ID, "revisions"];
+  const executionsQueryKey = ["executions", TITLE_PAGES_DATASET_ID];
+  const editionsQueryKey = ["editions", "all", "items"];
+
+  const featuresQuery = useQuery({
+    queryKey: featuresQueryKey,
+    queryFn: () =>
+      FeaturesService.getDatasetsFeatures({
+        dataSetId: TITLE_PAGES_DATASET_ID,
+        expand: ["revisions"],
+      }),
+    refetchOnWindowFocus: false,
+  });
+
+  const executionsQuery = useQuery({
+    queryKey: executionsQueryKey,
+    queryFn: () =>
+      ExecutionsService.getFeaturesExecutions({
+        dataset: TITLE_PAGES_DATASET_ID,
+      }),
+    refetchOnWindowFocus: false,
+  });
+
+  const editionsQuery = useQuery({
+    queryKey: editionsQueryKey,
+    queryFn: async () => mapEditionsToItems(await listAllEditions()),
+    refetchOnWindowFocus: false,
+  });
+
+  const cancelExecutionMutation = useMutation({
+    mutationFn: (executionId: string) =>
+      ExecutionsService.putFeaturesExecutionsCancel({ executionId }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: executionsQueryKey });
+    },
+  });
+
+  const createExecutionMutation = useMutation({
+    mutationFn: (execution: feature_Execution) =>
+      ExecutionsService.postFeaturesExecutions({ execution }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: executionsQueryKey });
+    },
+  });
+
+  const sortedFeatures = useMemo(
+    () =>
+      [...(featuresQuery.data ?? [])].sort((a, b) =>
+        (a.name || "").localeCompare(b.name || "", undefined, {
+          sensitivity: "base",
+        }),
+      ),
+    [featuresQuery.data],
+  );
+  const executions = executionsQuery.data ?? [];
+  const editionItems = editionsQuery.data ?? [];
+  const loading = featuresQuery.isLoading;
+  const executionsLoading = executionsQuery.isLoading || executionsQuery.isFetching;
+  const editionItemsLoading = editionsQuery.isLoading || editionsQuery.isFetching;
+  const submittingExecution = createExecutionMutation.isPending;
+  const executionsError = useMemo(() => {
+    if (actionError) {
+      return actionError;
+    }
+    if (featuresQuery.error instanceof Error) {
+      return featuresQuery.error.message;
+    }
+    if (executionsQuery.error instanceof Error) {
+      return executionsQuery.error.message;
+    }
+    if (editionsQuery.error instanceof Error) {
+      return editionsQuery.error.message;
+    }
+    if (featuresQuery.error || executionsQuery.error || editionsQuery.error) {
+      return "Failed to load features data.";
+    }
+    return null;
+  }, [actionError, editionsQuery.error, executionsQuery.error, featuresQuery.error]);
 
   const corpusEditionItems = useMemo(
     () =>
@@ -180,53 +242,13 @@ export function ExecutionsTab({
     return map;
   }, [editionItems]);
 
-  const loadExecutions = useCallback(async () => {
-    if (!apiReady) {
-      return;
-    }
-    setExecutionsLoading(true);
-    setExecutionsError(null);
-    try {
-      const response = await ExecutionsService.getExecutions({
-        collection: COLLECTION_ID,
-      });
-      setExecutions(response ?? []);
-    } catch (err) {
-      setExecutionsError(
-        err instanceof Error ? err.message : "Failed to load executions.",
-      );
-    } finally {
-      setExecutionsLoading(false);
-    }
-  }, [apiReady]);
-
-  useEffect(() => {
-    if (!apiReady) {
-      return;
-    }
-    void loadExecutions();
-    if (editionItems.length === 0 && !editionItemsLoading) {
-      setEditionItemsLoading(true);
-      loadEditionsData(setEditionItems);
-    }
-  }, [apiReady, editionItems.length, editionItemsLoading, loadExecutions]);
-
-  useEffect(() => {
-    if (editionItems.length > 0) {
-      setEditionItemsLoading(false);
-    }
-  }, [editionItems]);
-
   const handleCancelExecution = async (executionId: string) => {
-    if (!apiReady) {
-      return;
-    }
     setCancelingExecutionId(executionId);
+    setActionError(null);
     try {
-      await ExecutionsService.putExecutionsCancel({ executionId });
-      await loadExecutions();
+      await cancelExecutionMutation.mutateAsync(executionId);
     } catch (err) {
-      setExecutionsError(
+      setActionError(
         err instanceof Error ? err.message : "Failed to cancel execution.",
       );
     } finally {
@@ -269,27 +291,23 @@ export function ExecutionsTab({
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-    if (!apiReady) {
-      return;
-    }
     if (selectedFeatureIds.size === 0) {
-      setExecutionsError("Select at least one feature.");
+      setActionError("Select at least one feature.");
       return;
     }
     if (selectedKeys.size === 0) {
-      setExecutionsError("Select at least one edition.");
+      setActionError("Select at least one edition.");
       return;
     }
-    setSubmittingExecution(true);
-    setExecutionsError(null);
+    setActionError(null);
     const featureById = new Map(
       sortedFeatures
-        .filter((feature): feature is featureplat_Feature & { id: string } =>
+        .filter((feature): feature is feature_Feature & { id: string } =>
           Boolean(feature.id),
         )
         .map((feature) => [feature.id, feature]),
     );
-    const apply: featureplat_FeatureExecutionApplyItem[] = [];
+    const apply: feature_ExecutionApplyItem[] = [];
     for (const fId of selectedFeatureIds) {
       const feature = featureById.get(fId);
       if (!feature) continue;
@@ -299,32 +317,27 @@ export function ExecutionsTab({
         return tB - tA;
       });
       apply.push({
-        collection: COLLECTION_ID,
+        dataset_id: TITLE_PAGES_DATASET_ID,
         feature: fId,
         revision: revisions[0]?.id,
       });
     }
-    const executionPayload: featureplat_FeatureExecution = {
-      collection: COLLECTION_ID,
+    const executionPayload: feature_Execution = {
+      dataset_id: TITLE_PAGES_DATASET_ID,
       apply,
       keys: Array.from(selectedKeys),
       policy: execSkipIf.length ? { skip_if: execSkipIf } : undefined,
     };
     try {
-      await ExecutionsService.postExecutions({
-        execution: executionPayload,
-      });
+      await createExecutionMutation.mutateAsync(executionPayload);
       setSelectedFeatureIds(new Set());
       setSelectedKeys(new Set());
       setExecSkipIf([]);
       setExecFormOpen(false);
-      await loadExecutions();
     } catch (err) {
-      setExecutionsError(
+      setActionError(
         err instanceof Error ? err.message : "Failed to create execution.",
       );
-    } finally {
-      setSubmittingExecution(false);
     }
   };
 
@@ -504,13 +517,11 @@ export function ExecutionsTab({
                   options={EXECUTION_SKIP_IF_OPTIONS}
                   value={execSkipIf}
                   onChange={(values) =>
-                    setExecSkipIf(
-                      values as featureplat_FeatureExecutionSkipIf[],
-                    )
+                    setExecSkipIf(values as feature_ExecutionSkipIf[])
                   }
                   labelFn={(value) =>
                     EXECUTION_SKIP_IF_LABELS[
-                      value as featureplat_FeatureExecutionSkipIf
+                      value as feature_ExecutionSkipIf
                     ] || value
                   }
                   placeholder="Select skip-if rules"
@@ -534,7 +545,7 @@ export function ExecutionsTab({
             <Button
               type="button"
               variant="primary"
-              onClick={() => void loadExecutions()}
+              onClick={() => void executionsQuery.refetch()}
               disabled={executionsLoading}
             >
               {executionsLoading ? "Refreshing..." : "Refresh"}
@@ -545,9 +556,7 @@ export function ExecutionsTab({
               aria-label="Filter executions by status"
               onChange={(event) =>
                 setExecutionStatusFilter(
-                  event.target.value as
-                    | "all"
-                    | featureplat_FeatureExecutionStatus,
+                  event.target.value as "all" | feature_ExecutionStatus,
                 )
               }
             >
@@ -555,7 +564,7 @@ export function ExecutionsTab({
               {(
                 Object.keys(
                   EXECUTION_STATUS_LABELS,
-                ) as Array<featureplat_FeatureExecutionStatus>
+                ) as Array<feature_ExecutionStatus>
               ).map((status) => (
                 <option key={status} value={status}>
                   {EXECUTION_STATUS_LABELS[status]}

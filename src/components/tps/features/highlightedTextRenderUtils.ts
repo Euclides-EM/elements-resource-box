@@ -1,5 +1,5 @@
-import type { featureplat_Feature } from "../../../../common/hub-api";
 import type { HighlightSpan } from "./highlightedTextTypes";
+import { feature_Feature } from "../../../../hub-api";
 
 const OUTLINE_FEATURES = ["action_verbs"];
 
@@ -39,7 +39,7 @@ const buildSpanHtml = (
   trimmedText: string,
   span: HighlightSpan,
   style: string,
-  featuresById: Record<string, featureplat_Feature>,
+  featuresById: Record<string, feature_Feature>,
 ) => {
   const featureLabel = featuresById[span.featureKey].name || span.featureKey;
   const tooltip = escapeHtmlAttr(featureLabel);
@@ -70,7 +70,7 @@ const buildSpanHtml = (
 export const buildHighlightLayers = (
   trimmedText: string,
   spans: HighlightSpan[],
-  featuresById: Record<string, featureplat_Feature>,
+  featuresById: Record<string, feature_Feature>,
 ) => {
   if (
     !trimmedText ||
@@ -109,7 +109,7 @@ export const buildHighlightLayers = (
 export const buildHighlightHitLayers = (
   trimmedText: string,
   spans: HighlightSpan[],
-  featuresById: Record<string, featureplat_Feature>,
+  featuresById: Record<string, feature_Feature>,
 ) => {
   if (
     !trimmedText ||

@@ -20,18 +20,16 @@ import {
 import { NotesEditor } from "./NotesEditor.tsx";
 import { ItemInfo } from "./ItemInfo.tsx";
 import { inEditMode } from "../../../utils/mode.ts";
-import type {
+import { TITLE_PAGES_DATASET_ID } from "../../../utils/hubApi";
+import pluralize from "pluralize";
+import { toItemImageUrl } from "../../../utils/util.ts";
+import {
   HighlightAction,
   HighlightSelection,
   HighlightSpan,
-} from "../features/HighlightedText";
-import {
-  featureplat_Feature,
-  FeatureResultsService,
-} from "../../../../common/hub-api";
-import { COLLECTION_ID } from "../../../utils/hubApi";
-import SingleSelect from "../filters/SingleSelect";
-import pluralize from "pluralize";
+} from "../features/highlightedTextTypes.ts";
+import { SingleSelect } from "../filters/SingleSelect.tsx";
+import { feature_Feature, FeatureResultsService } from "../../../../hub-api";
 
 const HighlightedText = lazy(() =>
   import("../features/HighlightedText.tsx").then((module) => ({
@@ -41,7 +39,7 @@ const HighlightedText = lazy(() =>
 
 type ItemModalProps = {
   item: Item;
-  featuresById: Record<string, featureplat_Feature> | null;
+  featuresById: Record<string, feature_Feature> | null;
   apiReady: boolean;
   onClose: () => void;
 };
@@ -171,7 +169,7 @@ type PendingHighlightEdit = {
   note?: string;
 };
 
-const ItemModal = ({
+export const ItemModal = ({
   item,
   featuresById,
   apiReady,
@@ -179,8 +177,8 @@ const ItemModal = ({
 }: ItemModalProps) => {
   const highlightFeatures = featuresById || {};
   const hasTitleText = !!item.title && item.title !== "?";
-    const imageUrl = toItemImageUrl(item.imageUrl);
-    const canEditHighlights =
+  const imageUrl = toItemImageUrl(item.imageUrl);
+  const canEditHighlights =
     inEditMode() && Object.keys(highlightFeatures).length > 0;
   const [pendingEdits, setPendingEdits] = useState<PendingHighlightEdit[]>([]);
   const [addedHighlights, setAddedHighlights] = useState<HighlightSpan[]>([]);
@@ -311,10 +309,11 @@ const ItemModal = ({
     try {
       await Promise.all(
         pendingEdits.map((edit) =>
-          FeatureResultsService.postCollectionsResults({
-            collectionId: COLLECTION_ID,
+          FeatureResultsService.postDatasetsAnnotationsResults({
+            dataSetId: TITLE_PAGES_DATASET_ID,
+            id: item.key,
             result: {
-              collection_id: COLLECTION_ID,
+              dataset_id: TITLE_PAGES_DATASET_ID,
               feature: edit.featureKey,
               key: item.key,
               note:

@@ -1,194 +1,239 @@
-import { Feature, Item } from "../../../types";
-import { FeatureToColor } from "../../../constants";
-import { trimEnd } from "lodash";
-import { useEffect, useState, useMemo, memo } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import FeatureHighlightTooltip from "./FeatureHighlightTooltip";
+import {
+  handleHighlightTooltipMouseLeave,
+  handleHighlightTooltipMouseMove,
+  HighlightTooltipState,
+} from "./highlightTooltipUtils";
+import {
+  buildHighlightHitLayers,
+  buildHighlightLayers,
+  buildTextHtml,
+  normalizeDisplayText,
+} from "./highlightedTextRenderUtils";
+import { getSelectionState } from "./highlightedTextSelectionUtils";
+import {
+  getCachedOrFetchTei,
+  parseTeiToSpans,
+} from "./highlightedTextTeiUtils";
+import type {
+  HighlightAction,
+  HighlightSelection,
+  HighlightSpan,
+} from "./highlightedTextTypes";
+import { feature_Feature } from "../../../../hub-api";
+
+export type { HighlightAction, HighlightSelection, HighlightSpan };
 
 type HighlightedTextProps = {
   text: string;
-  features: Feature[];
-  mapping: Item["features"];
+  featuresById: Record<string, feature_Feature>;
+  itemKey: string;
+  apiReady: boolean;
+  editable?: boolean;
+  addedHighlights?: HighlightSpan[];
+  removedHighlightIds?: Set<string>;
+  onRequestAddAnnotation?: (selection: HighlightSelection) => void;
+  onRemoveHighlight?: (highlight: HighlightAction) => void;
 };
-
-const highlightLayers = (
-  text: string,
-  features: Feature[],
-  mapping: Item["features"],
-): string[] => {
-  const layers: string[] = [];
-  const allPositions: Array<{
-    start: number;
-    end: number;
-    feature: Feature;
-    featureIndex: number;
-  }> = [];
-
-  features.forEach((feature, featureIndex) => {
-    const phrases = mapping[feature];
-    if (!phrases?.length) return;
-
-    phrases.forEach((phrase) => {
-      const normalized = phrase.replace(/\s+|-/g, "");
-      const pattern = normalized
-        .split("")
-        .map((char) => escapeRegExpLoose(char) + "(?:\\s+|\\n|-)*")
-        .join("");
-
-      const regex = new RegExp(pattern, "giu");
-      const matches = Array.from(text.matchAll(regex));
-
-      matches.forEach((match) => {
-        if (match.index !== undefined) {
-          allPositions.push({
-            start: match.index,
-            end: match.index + match[0].length,
-            feature,
-            featureIndex,
-          });
-        }
-      });
-    });
-  });
-
-  features.forEach((feature, featureIndex) => {
-    const phrases = mapping[feature]?.filter((f) => f.trim().length >= 2);
-    if (!phrases) {
-      return;
-    }
-
-    let layer = text;
-
-    phrases
-      .map((phrase) =>
-        phrase.length <= 3 ? phrase : trimEnd(phrase.trim(), ",."),
-      )
-      .forEach((phrase) => {
-        const normalized = phrase.replace(/\s+|-/g, "");
-        const pattern = normalized
-          .split("")
-          .map((char) => escapeRegExpLoose(char) + "(?:\\s+|\\n|-)*")
-          .join("");
-        const regex = new RegExp(pattern, "giu");
-
-        layer = layer.replace(regex, (match) => {
-          const shadowSize = Math.min(
-            6,
-            2 + calculateIntersections(feature, featureIndex, allPositions) * 2,
-          );
-
-          const style =
-            feature === "Verbs"
-              ? `outline: 2px solid ${FeatureToColor[feature]}; outline-offset: 2px; border-radius: 8px;`
-              : `background-color: ${FeatureToColor[feature]}; box-shadow: 0 0 0 ${shadowSize}px ${FeatureToColor[feature]}; border-radius: 8px;`;
-
-          return `<span style="${style}">${match}</span>`;
-        });
-      });
-
-    layer = layer.replaceAll("\n", "<br/>");
-    layers.push(layer);
-  });
-
-  return layers;
-};
-
-function calculateIntersections(
-  feature: Feature,
-  featureIndex: number,
-  allPositions: Array<{
-    start: number;
-    end: number;
-    feature: Feature;
-    featureIndex: number;
-  }>,
-): number {
-  let intersections = 0;
-
-  const currentFeaturePositions = allPositions.filter(
-    (p) => p.feature === feature && p.featureIndex === featureIndex,
-  );
-
-  if (currentFeaturePositions.length === 0) return 0;
-
-  const higherLayerPositions = allPositions.filter(
-    (p) => p.featureIndex > featureIndex,
-  );
-
-  currentFeaturePositions.forEach((currentPos) => {
-    higherLayerPositions.forEach((higherPos) => {
-      if (
-        currentPos.start <= higherPos.end &&
-        currentPos.end >= higherPos.start
-      ) {
-        intersections++;
-      }
-    });
-  });
-
-  return intersections;
-}
-
-function escapeRegExpLoose(str: string): string {
-  return str.replace(/([.*+?^${}()|[\]\\])/g, "\\$1");
-}
-
-const getTotalLength = (arr?: string[]) =>
-  arr?.reduce((sum, str) => sum + str.length, 0) || 0;
 
 export const HighlightedText = memo(
-  ({ text, features, mapping }: HighlightedTextProps) => {
+  ({
+    text,
+    featuresById,
+    itemKey,
+    apiReady,
+    editable = false,
+    addedHighlights = [],
+    removedHighlightIds,
+    onRequestAddAnnotation,
+    onRemoveHighlight,
+  }: HighlightedTextProps) => {
+    const [renderedHtml, setRenderedHtml] = useState<string>("");
     const [isReady, setIsReady] = useState(false);
-    const [processedLayers, setProcessedLayers] = useState<string[]>([]);
-    const [processedText, setProcessedText] = useState("");
+    const [tooltipState, setTooltipState] =
+      useState<HighlightTooltipState | null>(null);
+    const [tooltipPinned, setTooltipPinned] = useState(false);
+    const [teiSpans, setTeiSpans] = useState<HighlightSpan[]>([]);
+    const [displayText, setDisplayText] = useState("");
+    const [selectionState, setSelectionState] =
+      useState<HighlightSelection | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-    const computeHighlights = useMemo(() => {
-      return new Promise<{ layers: string[]; processedText: string }>(
-        (resolve) => {
-          setTimeout(() => {
-            const formattedText = text.replace(
-              /\[(.*?)]:/g,
-              "<span style='font-size: 0.8rem; opacity: .8'>[$1]:</span>",
-            );
+    const plainHtml = useMemo(() => buildTextHtml(text), [text]);
+    const normalizedPlainText = useMemo(
+      () => normalizeDisplayText(text),
+      [text],
+    );
 
-            const sortedFeatures = features.sort((a, b) => {
-              if (a === "Verbs") return 1;
-              if (b === "Verbs") return -1;
-              return getTotalLength(mapping[b]) - getTotalLength(mapping[a]);
-            });
+    const combinedSpans = useMemo(() => {
+      const selectedSet = new Set(Object.keys(featuresById));
+      const removedIds = removedHighlightIds ?? new Set<string>();
+      const normalizedText = displayText || normalizedPlainText;
 
-            const layers = highlightLayers(
-              formattedText,
-              sortedFeatures,
-              mapping,
-            );
-            resolve({ layers, processedText: formattedText });
-          }, 0);
-        },
-      );
-    }, [text, features, mapping]);
+      return [
+        ...teiSpans.filter((span) => !removedIds.has(span.id)),
+        ...addedHighlights,
+      ]
+        .map((span) => ({
+          ...span,
+          start: Math.max(0, Math.min(span.start, normalizedText.length)),
+          end: Math.max(0, Math.min(span.end, normalizedText.length)),
+        }))
+        .filter((span) => span.end > span.start)
+        .filter(
+          (span) => selectedSet.size === 0 || selectedSet.has(span.featureKey),
+        );
+    }, [
+      addedHighlights,
+      displayText,
+      featuresById,
+      normalizedPlainText,
+      removedHighlightIds,
+      teiSpans,
+    ]);
+
+    const normalizedText = displayText || normalizedPlainText;
+
+    const renderedLayers = useMemo(
+      () => buildHighlightLayers(normalizedText, combinedSpans, featuresById),
+      [combinedSpans, featuresById, normalizedText],
+    );
+
+    const renderedHitLayers = useMemo(
+      () =>
+        buildHighlightHitLayers(normalizedText, combinedSpans, featuresById),
+      [combinedSpans, featuresById, normalizedText],
+    );
 
     useEffect(() => {
-      setIsReady(false);
       let isMounted = true;
 
-      computeHighlights.then(({ layers, processedText }) => {
-        if (isMounted) {
-          setProcessedLayers(layers);
-          setProcessedText(processedText);
-          setIsReady(true);
+      const finalize = (
+        html: string,
+        spans: HighlightSpan[],
+        textValue: string,
+      ) => {
+        if (!isMounted) {
+          return;
         }
-      });
+        setRenderedHtml(html);
+        setTeiSpans(spans);
+        setDisplayText(textValue);
+        setIsReady(true);
+      };
+
+      const loadHighlights = async () => {
+        setIsReady(false);
+
+        if (!itemKey || !apiReady) {
+          finalize(plainHtml, [], normalizedPlainText);
+          return;
+        }
+
+        try {
+          const tei = await getCachedOrFetchTei(itemKey);
+          if (!tei) {
+            finalize(plainHtml, [], normalizedPlainText);
+            return;
+          }
+
+          const parsed = parseTeiToSpans(tei, Object.keys(featuresById));
+          finalize(
+            parsed?.baseHtml || plainHtml,
+            parsed?.spans || [],
+            parsed?.text || normalizedPlainText,
+          );
+        } catch {
+          finalize(plainHtml, [], normalizedPlainText);
+        }
+      };
+
+      loadHighlights();
 
       return () => {
         isMounted = false;
       };
-    }, [computeHighlights]);
+    }, [apiReady, featuresById, itemKey, normalizedPlainText, plainHtml]);
+
+    const handleSelectionUpdate = useCallback(() => {
+      setSelectionState(
+        getSelectionState(editable, containerRef.current, normalizedText),
+      );
+    }, [editable, normalizedText]);
+
+    const handleAnnotationRequest = () => {
+      if (!selectionState || !onRequestAddAnnotation) {
+        return;
+      }
+      onRequestAddAnnotation(selectionState);
+      setSelectionState(null);
+      window.getSelection()?.removeAllRanges();
+    };
+
+    const handleRemoveHighlight =
+      editable && onRemoveHighlight
+        ? (state: HighlightTooltipState) => {
+            onRemoveHighlight({
+              id: state.id,
+              featureKey: state.featureKey,
+              start: state.start,
+              end: state.end,
+              text: normalizedText.slice(state.start, state.end),
+              label: state.label,
+              normalized: state.normalized,
+              color: state.color,
+            });
+            setTooltipState(null);
+          }
+        : undefined;
+
+    const selectionTooltip =
+      editable && selectionState && onRequestAddAnnotation ? (
+        <div
+          data-highlight-action
+          style={{
+            position: "fixed",
+            left: selectionState.x,
+            top: selectionState.y,
+            transform: "translate(-50%, -100%)",
+            background: "white",
+            border: "1px solid #d9d9d9",
+            boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
+            borderRadius: "0.4rem",
+            padding: "0.4rem 0.6rem",
+            fontSize: "0.8rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            zIndex: 12001,
+          }}
+        >
+          <span>Tag selection as annotation</span>
+          <button
+            type="button"
+            onClick={handleAnnotationRequest}
+            style={{
+              border: "none",
+              background: "#333",
+              color: "white",
+              padding: "0.25rem 0.5rem",
+              borderRadius: "0.25rem",
+              cursor: "pointer",
+              fontSize: "0.8rem",
+            }}
+          >
+            Tag
+          </button>
+        </div>
+      ) : null;
 
     if (!isReady) {
       return (
         <div style={{ position: "relative", whiteSpace: "pre-wrap" }}>
           <div
             style={{ position: "relative" }}
-            dangerouslySetInnerHTML={{ __html: text }}
+            dangerouslySetInnerHTML={{ __html: plainHtml }}
           />
         </div>
       );
@@ -196,28 +241,85 @@ export const HighlightedText = memo(
 
     return (
       <div
-        style={{
-          position: "relative",
-          whiteSpace: "pre-wrap",
+        style={{ position: "relative", whiteSpace: "pre-wrap" }}
+        onMouseMove={(event) => {
+          if (
+            (event.target as HTMLElement | null)?.closest?.(
+              "[data-highlight-action]",
+            )
+          ) {
+            return;
+          }
+          handleHighlightTooltipMouseMove(event, setTooltipState);
         }}
+        onMouseLeave={() => {
+          if (!tooltipPinned) {
+            handleHighlightTooltipMouseLeave(setTooltipState);
+          }
+        }}
+        onMouseUp={handleSelectionUpdate}
+        onKeyUp={handleSelectionUpdate}
+        ref={containerRef}
       >
-        {processedLayers.map((layer, i) => (
+        {renderedLayers.map((layer, index) => (
           <div
-            key={i}
+            key={index}
+            data-highlight-layer={`layer-${index}`}
             style={{
               color: "transparent",
               position: "absolute",
               inset: 0,
               pointerEvents: "none",
-              zIndex: i,
+              userSelect: "none",
+              zIndex: index,
             }}
             dangerouslySetInnerHTML={{ __html: layer }}
           />
         ))}
         <div
-          style={{ position: "relative", zIndex: processedLayers.length }}
-          dangerouslySetInnerHTML={{ __html: processedText }}
+          data-highlight-layer="base"
+          style={{
+            position: "relative",
+            zIndex: renderedLayers.length,
+            pointerEvents:
+              editable || renderedLayers.length === 0 ? "auto" : "none",
+          }}
+          dangerouslySetInnerHTML={{ __html: renderedHtml }}
         />
+        {editable &&
+          renderedHitLayers.map((layer, index) => (
+            <div
+              key={`hit-${index}`}
+              data-highlight-layer={`hit-${index}`}
+              style={{
+                color: "transparent",
+                position: "absolute",
+                inset: 0,
+                pointerEvents: "auto",
+                userSelect: "text",
+                zIndex: renderedLayers.length + index + 1,
+              }}
+              dangerouslySetInnerHTML={{ __html: layer }}
+            />
+          ))}
+        <FeatureHighlightTooltip
+          tooltipState={
+            tooltipState?.featureKey && featuresById[tooltipState.featureKey]
+              ? tooltipState
+              : null
+          }
+          onRemove={handleRemoveHighlight}
+          onTooltipEnter={editable ? () => setTooltipPinned(true) : undefined}
+          onTooltipLeave={
+            editable
+              ? () => {
+                  setTooltipPinned(false);
+                  setTooltipState(null);
+                }
+              : undefined
+          }
+        />
+        {selectionTooltip}
       </div>
     );
   },

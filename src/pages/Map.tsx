@@ -30,7 +30,7 @@ import { NAVBAR_HEIGHT } from "../components/layout/routes.ts";
 import { useIsMobile } from "../components/layout/isMobile.ts";
 import { useEditFilter } from "../contexts/FilterEditContext.tsx";
 import { FLOATING_CITY_ENTRY, Item } from "../types";
-import { EditionsService } from "../../hub-api/services/EditionsService.ts";
+import { EditionsService } from "../../hub-api";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -128,9 +128,9 @@ const loadCitiesAsync = async (): Promise<Record<string, Point>> => {
 
   return {
     ...mappedCities,
-    [FLOATING_CITY_ENTRY.city]: [
-      FLOATING_CITY_ENTRY.lon,
-      FLOATING_CITY_ENTRY.lat,
+    [FLOATING_CITY_ENTRY.name]: [
+      FLOATING_CITY_ENTRY.longitude,
+      FLOATING_CITY_ENTRY.latitude,
     ],
   };
 };

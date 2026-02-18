@@ -1,6 +1,6 @@
 import { NO_CITY } from "../constants";
-import { City } from "../../common/csv.ts";
-import { featureplat_Feature } from "../../common/hub-api";
+import { feature_Feature } from "../../common/hub-api";
+import { model_City } from "../../hub-api";
 
 export type Mode = "texts" | "images";
 
@@ -21,10 +21,10 @@ type YesNoBool = "Yes" | "No";
 export const MIN_YEAR = 1482;
 export const MAX_YEAR = 1883;
 
-export const FLOATING_CITY_ENTRY: City = {
-  city: NO_CITY,
-  lon: -16,
-  lat: 42,
+export const FLOATING_CITY_ENTRY: model_City = {
+  name: NO_CITY,
+  longitude: -16,
+  latitude: 42,
 };
 
 export type Item = {
@@ -69,6 +69,6 @@ export type ItemProps = {
   height: number;
   width: number;
   mode: Mode;
-  featuresById: Record<string, featureplat_Feature> | null;
+  featuresById: Record<string, feature_Feature> | null;
   hubApiReady: boolean;
 };

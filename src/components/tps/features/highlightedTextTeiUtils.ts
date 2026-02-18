@@ -1,7 +1,7 @@
-import { TeiService } from "../../../../common/hub-api";
-import { COLLECTION_ID } from "../../../utils/hubApi";
+import { TITLE_PAGES_DATASET_ID } from "../../../utils/hubApi";
 import { buildTextHtml } from "./highlightedTextRenderUtils";
 import type { HighlightSpan } from "./highlightedTextTypes";
+import { AnnotationsService } from "../../../../hub-api";
 
 const TEI_NS = "http://www.tei-c.org/ns/1.0";
 
@@ -27,9 +27,9 @@ export const getCachedOrFetchTei = async (itemKey: string) => {
 
   const inFlight =
     teiPromiseCache.get(itemKey) ||
-    TeiService.getCollectionsTei({
-      id: COLLECTION_ID,
-      key: itemKey,
+    AnnotationsService.getDatasetsAnnotationsTei({
+      dataSetId: TITLE_PAGES_DATASET_ID,
+      id: itemKey,
     });
   teiPromiseCache.set(itemKey, inFlight);
 

@@ -17,10 +17,6 @@ import {
   Text,
 } from "../components/common";
 import { TILE_HEIGHT, TILE_WIDTH } from "../constants";
-import MultiSelect from "../components/tps/filters/MultiSelect";
-import Radio from "../components/tps/filters/Radio";
-import ItemView from "../components/tps/features/ItemView";
-import { useAppliedFilter } from "../contexts/FilterAppliedContext";
 import { IoWarning } from "react-icons/io5";
 import styled from "@emotion/styled";
 import Switch from "react-switch";
@@ -28,10 +24,15 @@ import { LAND_COLOR, MARKER_3 } from "../utils/colors.ts";
 import { Stats } from "../components/Stats.tsx";
 import { inEuclidesMode } from "../utils/mode.ts";
 import { AuthContext } from "../contexts/Auth";
-import { COLLECTION_ID, configureHubApi } from "../utils/hubApi";
-import { featureplat_Feature, FeaturesService } from "../../common/hub-api";
+import { TITLE_PAGES_DATASET_ID, configureHubApi } from "../utils/hubApi";
 import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
 import { groupByMap } from "../utils/util.ts";
+import { useEditionsSearchInfinite } from "../hooks/useEditionsSearch.ts";
+import { feature_Feature } from "../../hub-api/models/feature_Feature.ts";
+import { FeaturesService } from "../../hub-api";
+import { Radio } from "../components/tps/filters/Radio.tsx";
+import { MultiSelect } from "../components/tps/filters/MultiSelect.tsx";
+import { ItemView } from "../components/tps/features/ItemView.tsx";
 
 const NoteLine = styled(Row)`
   opacity: 0.8;
@@ -45,7 +46,7 @@ const SearchInput = styled.input`
   font-size: 1rem;
 `;
 
-function TitlePage() {
+export function TitlePage() {
   const { items, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useEditionsSearchInfinite({
       pageSize: 25,
@@ -65,9 +66,9 @@ function TitlePage() {
   const [mode, setMode] = useLocalStorageState<Mode>("tp-mode", {
     defaultValue: "images",
   });
-  const [availableFeatures, setAvailableFeatures] = useState<
-    featureplat_Feature[]
-  >([]);
+  const [availableFeatures, setAvailableFeatures] = useState<feature_Feature[]>(
+    [],
+  );
   const [featureColors, setFeatureColors] = useState<Record<string, string>>(
     {},
   );
@@ -140,8 +141,8 @@ function TitlePage() {
         return;
       }
       try {
-        const response = await FeaturesService.getCollectionsFeatures({
-          collectionId: COLLECTION_ID,
+        const response = await FeaturesService.getDatasetsFeatures({
+          dataSetId: TITLE_PAGES_DATASET_ID,
         });
         const sortedFeatures = (response ?? [])
           .filter((feature) => feature.id && feature.name)
@@ -168,7 +169,7 @@ function TitlePage() {
           .map((feature) => feature.id as string);
         const colorMap: Record<string, string> = {};
         const tooltipMap: Record<string, string> = {};
-        (response ?? []).forEach((feature: featureplat_Feature) => {
+        (response ?? []).forEach((feature: feature_Feature) => {
           if (!feature.id) {
             return;
           }

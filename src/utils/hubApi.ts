@@ -1,6 +1,5 @@
-import { OpenAPI } from "../../common/hub-api";
+import { OpenAPI } from "../../hub-api";
 
-export const COLLECTION_ID = "tps";
 const HUB_API_BASE = "http://localhost:8086/api/v1";
 
 let hubConfigured = false;

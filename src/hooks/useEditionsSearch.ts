@@ -1,16 +1,15 @@
 import { useCallback, useMemo } from "react";
 import {
-  useQuery,
-  useInfiniteQuery,
   keepPreviousData,
+  useInfiniteQuery,
+  useQuery,
 } from "@tanstack/react-query";
 import { useAppliedFilter } from "../contexts/FilterAppliedContext";
 import { listAllEditions, searchEditionsPage } from "../api/editionApi";
 import { mapEditionsToItems } from "../utils/dataUtils";
 import type { FilterValue } from "../components/map/Filter";
 import type { Item } from "../types";
-import type { search_OrderByOption } from "../../hub-api/models/search_OrderByOption";
-import type { search_Query } from "../../hub-api/models/search_Query";
+import type { search_OrderByOption, search_Query } from "../../hub-api";
 
 const ITEM_FIELD_TO_EDITION_FIELD: Record<string, string> = {
   type: "isElements",
@@ -137,7 +136,7 @@ export function useEditionsSearch() {
   const items = useMemo(() => {
     if (!editionsQuery.data) return null;
     return mapEditionsToItems(editionsQuery.data);
-  }, [editionsQuery.data, diagramDirsQuery.data]);
+  }, [editionsQuery.data]);
 
   return {
     items,
@@ -183,12 +182,6 @@ export function useEditionsSearchInfinite(options: InfiniteSearchOptions = {}) {
     ],
   );
 
-  const diagramDirsQuery = useQuery({
-    queryKey: ["diagram-directories"],
-    queryFn: fetchDiagramDirectories,
-    staleTime: Infinity,
-  });
-
   const editionsQuery = useInfiniteQuery({
     queryKey: [
       "editions",
@@ -227,7 +220,7 @@ export function useEditionsSearchInfinite(options: InfiniteSearchOptions = {}) {
     );
     if (!editions) return null;
     return mapEditionsToItems(editions);
-  }, [editionsQuery.data, diagramDirsQuery.data]);
+  }, [editionsQuery.data]);
 
   const total = editionsQuery.data?.pages[0]?.total;
   const fetchAllItemsForExport = useCallback(async () => {
@@ -236,7 +229,7 @@ export function useEditionsSearchInfinite(options: InfiniteSearchOptions = {}) {
       order_by: orderBy,
     });
     return mapEditionsToItems(editions);
-  }, [diagramDirsQuery.data, orderBy, searchQuery]);
+  }, [orderBy, searchQuery]);
 
   return {
     items,

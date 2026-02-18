@@ -175,7 +175,7 @@ export const ItemInfo = ({
                 <FaBookReader />
               </StyledAnchor>
             ))}
-            {showDiagramsLink && item.diagramsExtracted === "True" && (
+            {showDiagramsLink && item.diagramsExtracted === "Yes" && (
               <StyledAnchor
                 href={withAppBasePath(`/diagrams?key=${item.key}`)}
                 target="_blank"
@@ -222,7 +222,7 @@ export const ItemInfo = ({
       {inEditMode() && (
         <div>
           <EditLink
-            href={withBasePath(`${ITEM_EDIT_ROUTE}?key=${item.key}`)}
+            href={withAppBasePath(`${ITEM_EDIT_ROUTE}?key=${item.key}`)}
             target="_blank"
             rel="noopener noreferrer"
           >
