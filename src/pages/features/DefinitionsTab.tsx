@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import styled from "@emotion/styled";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   feature_ExecutionStrategy,
@@ -9,10 +8,54 @@ import {
   FeaturesService,
 } from "../../../hub-api";
 import { TITLE_PAGES_DATASET_ID } from "../../constants";
+import { defaultRevisionForm } from "./types.ts";
+import { formatDate, getRevisionDefaults } from "./helpers.ts";
+import { HexColorPicker } from "react-colorful";
+import {
+  Button,
+  ButtonRow,
+  Card,
+  CollapseButton,
+  ColorHexInput,
+  ColorPickerPanel,
+  ColorPickerRow,
+  ColorSwatch,
+  CreateFeatureGrid,
+  CreateFeatureMainColumn,
+  EmptyState,
+  ErrorText,
+  FeatureActions,
+  FeatureDescription,
+  FeatureHeader,
+  FeatureList,
+  FeatureMeta,
+  FeatureTitle,
+  FeatureTitleRow,
+  Field,
+  Form,
+  FormGrid,
+  IconButton,
+  InlineValue,
+  Input,
+  Label,
+  LatestTag,
+  RevisionCard,
+  RevisionHeader,
+  RevisionLabel,
+  RevisionList,
+  SearchInput,
+  SearchRow,
+  Section,
+  Select,
+  SmallText,
+  Tag,
+  TextArea,
+} from "./styles.ts";
 
 type FeatureEditState = {
   name: string;
   description: string;
+  color: string;
 };
 
 type RevisionFormState = {
@@ -22,357 +65,53 @@ type RevisionFormState = {
   note: string;
 };
 
-const PageContainer = styled.div`
-  padding: 1.5rem;
-  width: 100%;
-  margin: 1.5rem auto;
-  max-width: min(1200px, 100vw - 4rem);
-  min-height: calc(100vh - 120px);
-  color: black;
-  background-color: aliceblue;
-  border-radius: 1rem;
-  box-sizing: border-box;
-`;
+const createRandomPastelColor = () => {
+  const hue = Math.floor(Math.random() * 360);
+  const saturation = 60 + Math.random() * 20;
+  const lightness = 78 + Math.random() * 10;
+  const s = saturation / 100;
+  const l = lightness / 100;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const m = l - c / 2;
+  let r = 0;
+  let g = 0;
+  let b = 0;
 
-const PageHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-`;
-
-const Title = styled.h1`
-  margin: 0;
-  font-size: 2rem;
-  color: #333;
-`;
-
-const Card = styled.div`
-  background-color: #fdfdfd;
-  border: 1px solid #e3e3e3;
-  border-radius: 0.75rem;
-  padding: 1.25rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const Section = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-`;
-
-const FormGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 1rem;
-`;
-
-const Field = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-`;
-
-const Label = styled.label`
-  font-size: 0.85rem;
-  color: #555;
-  font-weight: 600;
-`;
-
-const Input = styled.input`
-  padding: 0.55rem 0.65rem;
-  border: 1px solid #dcdcdc;
-  border-radius: 0.4rem;
-  background-color: #fafafa;
-  color: black;
-  font-size: 0.9rem;
-
-  &:focus {
-    outline: none;
-    border-color: #74b9ff;
-    background-color: white;
-  }
-`;
-
-const SearchInput = styled(Input)`
-  width: 100%;
-  max-width: 520px;
-`;
-
-const TextArea = styled.textarea`
-  padding: 0.55rem 0.65rem;
-  border: 1px solid #dcdcdc;
-  border-radius: 0.4rem;
-  background-color: #fafafa;
-  color: black;
-  font-size: 0.9rem;
-  resize: vertical;
-  min-height: 80px;
-
-  &:focus {
-    outline: none;
-    border-color: #74b9ff;
-    background-color: white;
-  }
-`;
-
-const Select = styled.select`
-  padding: 0.55rem 0.65rem;
-  border: 1px solid #dcdcdc;
-  border-radius: 0.4rem;
-  background-color: #fafafa;
-  color: black;
-  font-size: 0.9rem;
-
-  &:focus {
-    outline: none;
-    border-color: #74b9ff;
-    background-color: white;
-  }
-`;
-
-const ButtonRow = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  flex-wrap: wrap;
-`;
-
-const CollapseButton = styled.button`
-  border: none;
-  background: transparent;
-  color: #2c3e50;
-  border-radius: 999px;
-  width: 1.5rem;
-  height: 1.5rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #eef3f9;
-  }
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const Button = styled.button<{
-  variant?: "primary" | "danger" | "ghost" | "outline";
-}>`
-  padding: 0.5rem 1rem;
-  min-width: 6.5rem;
-  text-align: center;
-  border-radius: 0.4rem;
-  border: 1px solid
-    ${({ variant }) => (variant === "outline" ? "#2c3e50" : "transparent")};
-  background-color: ${({ variant }) =>
-    variant === "danger"
-      ? "#c0392b"
-      : variant === "outline"
-        ? "transparent"
-        : variant === "ghost"
-          ? "transparent"
-          : "#1e88e5"};
-  color: ${({ variant }) =>
-    variant === "ghost" || variant === "outline" ? "#2c3e50" : "white"};
-  ${({ variant }) =>
-    variant === "ghost" &&
-    `
-      color: #2c3e50;
-      background-color: #eef3f9;
-    `};
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: opacity 0.2s ease;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  if (hue < 60) {
+    r = c;
+    g = x;
+  } else if (hue < 120) {
+    r = x;
+    g = c;
+  } else if (hue < 180) {
+    g = c;
+    b = x;
+  } else if (hue < 240) {
+    g = x;
+    b = c;
+  } else if (hue < 300) {
+    r = x;
+    b = c;
+  } else {
+    r = c;
+    b = x;
   }
 
-  &:hover:not(:disabled) {
-    opacity: 0.85;
-  }
-`;
+  const toHex = (value: number) =>
+    Math.round((value + m) * 255)
+      .toString(16)
+      .padStart(2, "0");
 
-const FeatureList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-`;
-
-const FeatureHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-`;
-
-const FeatureTitle = styled.div<{ clickable?: boolean }>`
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #222;
-  ${({ clickable }) => clickable && "cursor: pointer;"}
-`;
-
-const FeatureDescription = styled.div`
-  font-size: 0.9rem;
-  color: #555;
-  line-height: 1.4;
-  white-space: pre-wrap;
-`;
-
-const FeatureMeta = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-`;
-
-const FeatureActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-`;
-
-const IconButton = styled.span`
-  border: none;
-  background: transparent;
-  color: #2c3e50;
-  border-radius: 999px;
-  width: 1.6rem;
-  height: 1.6rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #eef3f9;
-  }
-`;
-
-const Tag = styled.span`
-  background-color: #dde9f5;
-  color: #2c3e50;
-  border-radius: 999px;
-  padding: 0.2rem 0.65rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-`;
-
-const RevisionList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-`;
-
-const RevisionHeader = styled.button`
-  border: none;
-  background: transparent;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  margin-left: -0.5rem;
-  cursor: pointer;
-`;
-
-const RevisionLabel = styled.span`
-  font-size: 0.85rem;
-  color: #666;
-`;
-
-const RevisionCard = styled.div`
-  background-color: #f8fbff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  padding: 0.75rem 0.9rem;
-  font-size: 0.85rem;
-  display: grid;
-  gap: 0.4rem;
-  position: relative;
-`;
-
-const LatestTag = styled(Tag)`
-  position: absolute;
-  top: 0.6rem;
-  right: 0.75rem;
-`;
-const InlineValue = styled.span`
-  color: #333;
-  font-weight: 600;
-`;
-
-const SmallText = styled.div`
-  font-size: 0.8rem;
-  color: #666;
-`;
-
-const EmptyState = styled.div`
-  font-size: 0.9rem;
-  color: #666;
-`;
-
-const ErrorText = styled.div`
-  color: #b00020;
-  font-size: 0.9rem;
-`;
-
-const defaultRevisionForm: RevisionFormState = {
-  execution_strategy: "prompt",
-  prompt: "",
-  regex: "",
-  note: "",
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase();
 };
 
-const getRevisionDefaults = (revision?: {
-  execution_strategy?: "prompt" | "regex";
-  prompt?: string;
-  regex?: string;
-  note?: string;
-}): RevisionFormState => ({
-  execution_strategy: revision?.execution_strategy ?? "prompt",
-  prompt: revision?.prompt ?? "",
-  regex: revision?.regex ?? "",
-  note: revision?.note ?? "",
-});
-
-const formatDate = (value?: string) => {
-  if (!value) {
-    return "Unknown";
+const normalizeHexInput = (value: string) => {
+  const cleaned = value.trim().replace(/^#/, "");
+  if (!cleaned) {
+    return "";
   }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-  return date.toLocaleString();
-};
-
-const getRevisionPreview = (revision?: string) => {
-  if (!revision) {
-    return "—";
-  }
-  if (revision.length <= 160) {
-    return revision;
-  }
-  return `${revision.slice(0, 160)}…`;
+  return `#${cleaned.toLowerCase()}`;
 };
 
 const FEATURES_QUERY_KEY = [
@@ -389,6 +128,7 @@ export function DefinitionsTab() {
   const [createForm, setCreateForm] = useState<FeatureEditState>({
     name: "",
     description: "",
+    color: createRandomPastelColor(),
   });
   const [revisionForms, setRevisionForms] = useState<
     Record<string, RevisionFormState>
@@ -456,6 +196,7 @@ export function DefinitionsTab() {
         next[feature.id] = {
           name: feature.name || "",
           description: feature.description || "",
+          color: feature.color || "",
         };
       }
       return next;
@@ -607,6 +348,7 @@ export function DefinitionsTab() {
       [feature.id as string]: {
         name: feature.name || "",
         description: feature.description || "",
+        color: feature.color || "",
       },
     }));
     setEditingFeatures((prev) => ({
@@ -656,7 +398,11 @@ export function DefinitionsTab() {
         is_root: false,
         is_default: false,
       });
-      setCreateForm({ name: "", description: "" });
+      setCreateForm({
+        name: "",
+        description: "",
+        color: createRandomPastelColor(),
+      });
       setCreateFormOpen(false);
     } catch (err) {
       setActionError(
@@ -721,11 +467,7 @@ export function DefinitionsTab() {
   };
 
   return (
-    <PageContainer>
-      <PageHeader>
-        <Title>Title Page Features</Title>
-      </PageHeader>
-
+    <>
       <Section>
         <Card>
           <FeatureHeader>
@@ -757,37 +499,67 @@ export function DefinitionsTab() {
           </FeatureHeader>
           {createFormOpen && (
             <Form onSubmit={handleCreateFeature}>
-              <FormGrid>
+              <CreateFeatureGrid>
+                <CreateFeatureMainColumn>
+                  <Field>
+                    <Label htmlFor="feature-name">Name</Label>
+                    <Input
+                      id="feature-name"
+                      value={createForm.name}
+                      onChange={(event) =>
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          name: event.target.value,
+                        }))
+                      }
+                      disabled={creatingFeature}
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <Label htmlFor="feature-description">Description</Label>
+                    <TextArea
+                      id="feature-description"
+                      value={createForm.description}
+                      onChange={(event) =>
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          description: event.target.value,
+                        }))
+                      }
+                      disabled={creatingFeature}
+                    />
+                  </Field>
+                </CreateFeatureMainColumn>
                 <Field>
-                  <Label htmlFor="feature-name">Name</Label>
-                  <Input
-                    id="feature-name"
-                    value={createForm.name}
-                    onChange={(event) =>
-                      setCreateForm((prev) => ({
-                        ...prev,
-                        name: event.target.value,
-                      }))
-                    }
-                    disabled={creatingFeature}
-                    required
-                  />
+                  <Label>Color</Label>
+                  <ColorPickerRow>
+                    <ColorSwatch color={createForm.color} />
+                    <ColorPickerPanel>
+                      <HexColorPicker
+                        color={createForm.color || "#f2f2f2"}
+                        onChange={(value) =>
+                          setCreateForm((prev) => ({
+                            ...prev,
+                            color: value,
+                          }))
+                        }
+                      />
+                    </ColorPickerPanel>
+                    <ColorHexInput
+                      value={createForm.color.replace(/^#/, "")}
+                      onChange={(event) =>
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          color: normalizeHexInput(event.target.value),
+                        }))
+                      }
+                      disabled={creatingFeature}
+                      aria-label="New feature color value"
+                    />
+                  </ColorPickerRow>
                 </Field>
-                <Field>
-                  <Label htmlFor="feature-description">Description</Label>
-                  <TextArea
-                    id="feature-description"
-                    value={createForm.description}
-                    onChange={(event) =>
-                      setCreateForm((prev) => ({
-                        ...prev,
-                        description: event.target.value,
-                      }))
-                    }
-                    disabled={creatingFeature}
-                  />
-                </Field>
-              </FormGrid>
+              </CreateFeatureGrid>
               <ButtonRow>
                 <Button type="submit" disabled={creatingFeature}>
                   {creatingFeature ? "Creating..." : "Create"}
@@ -799,7 +571,7 @@ export function DefinitionsTab() {
       </Section>
 
       <Section>
-        <FeatureHeader>
+        <SearchRow>
           <SearchInput
             id="feature-search"
             placeholder="Search features"
@@ -811,7 +583,7 @@ export function DefinitionsTab() {
               ? `Listing ${filteredFeatures.length} of ${sortedFeatures.length} features`
               : `Listing ${sortedFeatures.length} features`}
           </SmallText>
-        </FeatureHeader>
+        </SearchRow>
 
         {error && <ErrorText>{error}</ErrorText>}
         {loading ? (
@@ -846,7 +618,8 @@ export function DefinitionsTab() {
               const isDirty =
                 edits &&
                 (edits.name !== (feature.name || "") ||
-                  edits.description !== (feature.description || ""));
+                  edits.description !== (feature.description || "") ||
+                  edits.color !== (feature.color || ""));
 
               return (
                 <Card key={featureId || feature.name}>
@@ -854,57 +627,12 @@ export function DefinitionsTab() {
                     onSubmit={(event) => handleUpdateFeature(feature, event)}
                   >
                     <FeatureHeader>
-                      <FeatureMeta>
-                        {isEditing ? (
-                          <>
-                            <Field>
-                              <Label>Name</Label>
-                              <Input
-                                value={edits?.name || ""}
-                                onChange={(event) =>
-                                  featureId &&
-                                  setFeatureEdits((prev) => ({
-                                    ...prev,
-                                    [featureId]: {
-                                      name: event.target.value,
-                                      description:
-                                        prev[featureId]?.description ?? "",
-                                    },
-                                  }))
-                                }
-                                disabled={isSaving}
-                                required
-                              />
-                            </Field>
-                            <Field>
-                              <Label>Description</Label>
-                              <TextArea
-                                value={edits?.description || ""}
-                                onChange={(event) =>
-                                  featureId &&
-                                  setFeatureEdits((prev) => ({
-                                    ...prev,
-                                    [featureId]: {
-                                      name: prev[featureId]?.name ?? "",
-                                      description: event.target.value,
-                                    },
-                                  }))
-                                }
-                                disabled={isSaving}
-                              />
-                            </Field>
-                          </>
-                        ) : (
-                          <>
-                            <FeatureTitle>
-                              {feature.name || "Untitled"}
-                            </FeatureTitle>
-                            <FeatureDescription>
-                              {feature.description || "No description."}
-                            </FeatureDescription>
-                          </>
-                        )}
-                      </FeatureMeta>
+                      <FeatureTitleRow>
+                        <ColorSwatch color={feature.color} />
+                        <FeatureTitle>
+                          {feature.name || "Untitled"}
+                        </FeatureTitle>
+                      </FeatureTitleRow>
                       <FeatureActions>
                         {feature.is_root && <Tag>Root</Tag>}
                         {feature.is_default && <Tag>Default</Tag>}
@@ -952,6 +680,96 @@ export function DefinitionsTab() {
                         )}
                       </FeatureActions>
                     </FeatureHeader>
+                    {isEditing ? (
+                      <FeatureMeta>
+                        <Field>
+                          <Label>Name</Label>
+                          <Input
+                            value={edits?.name || ""}
+                            onChange={(event) =>
+                              featureId &&
+                              setFeatureEdits((prev) => ({
+                                ...prev,
+                                [featureId]: {
+                                  name: event.target.value,
+                                  description:
+                                    prev[featureId]?.description ?? "",
+                                  color: prev[featureId]?.color ?? "",
+                                },
+                              }))
+                            }
+                            disabled={isSaving}
+                            required
+                          />
+                        </Field>
+                        <Field>
+                          <Label>Description</Label>
+                          <TextArea
+                            value={edits?.description || ""}
+                            onChange={(event) =>
+                              featureId &&
+                              setFeatureEdits((prev) => ({
+                                ...prev,
+                                [featureId]: {
+                                  name: prev[featureId]?.name ?? "",
+                                  description: event.target.value,
+                                  color: prev[featureId]?.color ?? "",
+                                },
+                              }))
+                            }
+                            disabled={isSaving}
+                          />
+                        </Field>
+                        <Field>
+                          <Label>Color</Label>
+                          <ColorPickerRow>
+                            <ColorSwatch
+                              color={edits?.color || feature.color}
+                            />
+                            <ColorPickerPanel>
+                              <HexColorPicker
+                                color={edits?.color || "#f2f2f2"}
+                                onChange={(value) =>
+                                  featureId &&
+                                  setFeatureEdits((prev) => ({
+                                    ...prev,
+                                    [featureId]: {
+                                      name: prev[featureId]?.name ?? "",
+                                      description:
+                                        prev[featureId]?.description ?? "",
+                                      color: value,
+                                    },
+                                  }))
+                                }
+                              />
+                            </ColorPickerPanel>
+                            <ColorHexInput
+                              value={(edits?.color || "").replace(/^#/, "")}
+                              onChange={(event) =>
+                                featureId &&
+                                setFeatureEdits((prev) => ({
+                                  ...prev,
+                                  [featureId]: {
+                                    name: prev[featureId]?.name ?? "",
+                                    description:
+                                      prev[featureId]?.description ?? "",
+                                    color: normalizeHexInput(
+                                      event.target.value,
+                                    ),
+                                  },
+                                }))
+                              }
+                              disabled={isSaving}
+                              aria-label="Feature color value"
+                            />
+                          </ColorPickerRow>
+                        </Field>
+                      </FeatureMeta>
+                    ) : (
+                      <FeatureDescription>
+                        {feature.description || "No description."}
+                      </FeatureDescription>
+                    )}
                   </Form>
                   <SmallText>
                     Last updated: {formatDate(feature.updated_at)}
@@ -991,14 +809,16 @@ export function DefinitionsTab() {
                             </div>
                             {revision.execution_strategy === "prompt" && (
                               <div>
-                                <InlineValue>Prompt:</InlineValue>{" "}
-                                {getRevisionPreview(revision.prompt)}
+                                <InlineValue>Prompt:</InlineValue>
+                                {"\n"}
+                                {revision.prompt || "—"}
                               </div>
                             )}
                             {revision.execution_strategy === "regex" && (
                               <div>
-                                <InlineValue>Regex:</InlineValue>{" "}
-                                {getRevisionPreview(revision.regex)}
+                                <InlineValue>Regex:</InlineValue>
+                                {"\n"}
+                                {revision.regex || "—"}
                               </div>
                             )}
                             <div>
@@ -1170,6 +990,6 @@ export function DefinitionsTab() {
           </FeatureList>
         )}
       </Section>
-    </PageContainer>
+    </>
   );
 }
