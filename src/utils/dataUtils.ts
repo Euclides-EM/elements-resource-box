@@ -58,6 +58,16 @@ export const mapEditionsToItems = (editions: model_Edition[]): Item[] => {
         .map((corpus) => mapStudyCorpus(corpus))
         .filter(Boolean);
 
+      if (
+        (!Number(edition.year) || Number(edition.year) <= 1700) &&
+        studyCorpora.includes("Origin Eip Csv") &&
+        !edition.languages?.includes("CHINESE") &&
+        edition.title &&
+        edition.title !== "?"
+      ) {
+        studyCorpora.push("Title pages");
+      }
+
       return {
         key: edition.key!,
         year: edition.year || null,

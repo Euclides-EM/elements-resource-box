@@ -6,37 +6,37 @@ import { Item } from "../../types";
 import { STUDY_CORPORA_FILTER } from "./types";
 import { formatDate } from "./helpers";
 import {
-  Section,
-  Card,
-  FeatureHeader,
-  FeatureTitle,
-  CollapseButton,
-  Form,
-  Field,
-  Label,
-  Select,
-  ButtonRow,
   Button,
-  SearchRow,
-  SearchInput,
-  SmallText,
-  ErrorText,
-  EmptyState,
-  FeatureList,
-  FeatureActions,
-  FeatureDescription,
-  StatusTag,
-  CheckboxRow,
+  ButtonRow,
+  Card,
   CheckboxList,
-  ItemRow,
-  ItemDetails,
-  InlineValue,
-  FeatureTokenList,
-  FeatureToken,
-  FeatureTokenColor,
-  NoRevisionText,
+  CheckboxRow,
+  CollapseButton,
+  EmptyState,
+  ErrorText,
   ExecutionEditionsToggle,
   ExecutionEditionsToggleContent,
+  FeatureActions,
+  FeatureDescription,
+  FeatureHeader,
+  FeatureList,
+  FeatureTitle,
+  FeatureToken,
+  FeatureTokenColor,
+  FeatureTokenList,
+  Field,
+  Form,
+  InlineValue,
+  ItemDetails,
+  ItemRow,
+  Label,
+  NoRevisionText,
+  SearchInput,
+  SearchRow,
+  Section,
+  Select,
+  SmallText,
+  StatusTag,
 } from "./styles";
 import pluralize from "pluralize";
 import {
@@ -182,12 +182,22 @@ export function ExecutionsTab() {
     featuresQuery.error,
   ]);
 
-  const corpusEditionItems = useMemo(
+  const uniqueEditionItems = useMemo(
     () =>
-      (editionsQuery.data ?? []).filter((item) =>
-        item.study_corpora.includes(STUDY_CORPORA_FILTER),
+      Array.from(
+        new Map(
+          (editionsQuery.data ?? []).map((item) => [item.key, item]),
+        ).values(),
       ),
     [editionsQuery.data],
+  );
+
+  const corpusEditionItems = useMemo(
+    () =>
+      uniqueEditionItems.filter((item) =>
+        item.study_corpora.includes(STUDY_CORPORA_FILTER),
+      ),
+    [uniqueEditionItems],
   );
 
   const execFilteredFeatures = useMemo(() => {
@@ -226,7 +236,9 @@ export function ExecutionsTab() {
 
   const filteredEditionItems = useMemo(() => {
     const q = editionSearch.trim().toLowerCase();
-    if (!q) return corpusEditionItems;
+    if (!q) {
+      return corpusEditionItems;
+    }
     return corpusEditionItems.filter((item) => {
       const hay = [
         item.year,
@@ -243,11 +255,11 @@ export function ExecutionsTab() {
 
   const editionItemByKey = useMemo(() => {
     const map = new Map<string, Item>();
-    for (const item of editionsQuery.data ?? []) {
+    for (const item of uniqueEditionItems) {
       map.set(item.key, item);
     }
     return map;
-  }, [editionsQuery.data]);
+  }, [uniqueEditionItems]);
 
   const handleCancelExecution = async (executionId: string) => {
     setCancelingExecutionId(executionId);
@@ -508,7 +520,7 @@ export function ExecutionsTab() {
                                 .join(", ") || "—"}
                             </InlineValue>
                             {(item.shortTitle || item.title) && (
-                              <span>- {item.shortTitle || item.title}</span>
+                              <span> - {item.shortTitle || item.title}</span>
                             )}
                           </ItemDetails>
                         </ItemRow>
@@ -601,7 +613,7 @@ export function ExecutionsTab() {
               const canCancel =
                 execution.status === "in_progress" ||
                 execution.status === "canceling";
-              const executionKeys = execution.keys ?? [];
+              const executionKeys = Array.from(new Set(execution.keys ?? []));
               const showExecutionEditions =
                 expandedExecutionEditions[executionCardKey] ?? false;
               return (
