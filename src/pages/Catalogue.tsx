@@ -539,7 +539,7 @@ export function Catalogue() {
                     <FaBookReader style={{ color: SEA_COLOR }} />
                   </a>
                 ))}
-              {info.row.original.diagramsExtracted === "True" && (
+              {info.row.original.diagramsExtracted === "Yes" && (
                 <a
                   href={withAppBasePath(
                     `/diagrams?key=${info.row.original.key}`,

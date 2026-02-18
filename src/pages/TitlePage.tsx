@@ -16,7 +16,7 @@ import {
   ScrollToTopButton,
   Text,
 } from "../components/common";
-import { TILE_HEIGHT, TILE_WIDTH } from "../constants";
+import { TILE_HEIGHT, TILE_WIDTH, TITLE_PAGES_DATASET_ID } from "../constants";
 import { IoWarning } from "react-icons/io5";
 import styled from "@emotion/styled";
 import Switch from "react-switch";
@@ -24,7 +24,7 @@ import { LAND_COLOR, MARKER_3 } from "../utils/colors.ts";
 import { Stats } from "../components/Stats.tsx";
 import { inEuclidesMode } from "../utils/mode.ts";
 import { AuthContext } from "../contexts/Auth";
-import { TITLE_PAGES_DATASET_ID, configureHubApi } from "../utils/hubApi";
+import { configureHubApi } from "../api/hubApi.ts";
 import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
 import { groupByMap } from "../utils/util.ts";
 import { useEditionsSearchInfinite } from "../hooks/useEditionsSearch.ts";

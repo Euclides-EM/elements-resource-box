@@ -20,7 +20,7 @@ import {
 import { NotesEditor } from "./NotesEditor.tsx";
 import { ItemInfo } from "./ItemInfo.tsx";
 import { inEditMode } from "../../../utils/mode.ts";
-import { TITLE_PAGES_DATASET_ID } from "../../../utils/hubApi";
+import { TITLE_PAGES_DATASET_ID } from "../../../constants";
 import pluralize from "pluralize";
 import { toItemImageUrl } from "../../../utils/util.ts";
 import {
