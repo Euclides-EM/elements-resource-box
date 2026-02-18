@@ -71,6 +71,14 @@ const EXECUTION_SKIP_IF_LABELS: Record<feature_ExecutionSkipIf, string> = {
   human_reviewed: "Human reviewed",
 };
 
+const FEATURES_QUERY_KEY = [
+  "features",
+  TITLE_PAGES_DATASET_ID,
+  "revisions",
+] as const;
+const EXECUTIONS_QUERY_KEY = ["executions", TITLE_PAGES_DATASET_ID] as const;
+const EDITIONS_QUERY_KEY = ["editions", "all", "items"] as const;
+
 export function ExecutionsTab() {
   const queryClient = useQueryClient();
   const [actionError, setActionError] = useState<string | null>(null);
@@ -93,12 +101,8 @@ export function ExecutionsTab() {
     Record<string, boolean>
   >({});
 
-  const featuresQueryKey = ["features", TITLE_PAGES_DATASET_ID, "revisions"];
-  const executionsQueryKey = ["executions", TITLE_PAGES_DATASET_ID];
-  const editionsQueryKey = ["editions", "all", "items"];
-
   const featuresQuery = useQuery({
-    queryKey: featuresQueryKey,
+    queryKey: FEATURES_QUERY_KEY,
     queryFn: () =>
       FeaturesService.getDatasetsFeatures({
         dataSetId: TITLE_PAGES_DATASET_ID,
@@ -108,7 +112,7 @@ export function ExecutionsTab() {
   });
 
   const executionsQuery = useQuery({
-    queryKey: executionsQueryKey,
+    queryKey: EXECUTIONS_QUERY_KEY,
     queryFn: () =>
       ExecutionsService.getFeaturesExecutions({
         dataset: TITLE_PAGES_DATASET_ID,
@@ -117,7 +121,7 @@ export function ExecutionsTab() {
   });
 
   const editionsQuery = useQuery({
-    queryKey: editionsQueryKey,
+    queryKey: EDITIONS_QUERY_KEY,
     queryFn: async () => mapEditionsToItems(await listAllEditions()),
     refetchOnWindowFocus: false,
   });
@@ -126,7 +130,7 @@ export function ExecutionsTab() {
     mutationFn: (executionId: string) =>
       ExecutionsService.putFeaturesExecutionsCancel({ executionId }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: executionsQueryKey });
+      await queryClient.invalidateQueries({ queryKey: EXECUTIONS_QUERY_KEY });
     },
   });
 
@@ -134,7 +138,7 @@ export function ExecutionsTab() {
     mutationFn: (execution: feature_Execution) =>
       ExecutionsService.postFeaturesExecutions({ execution }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: executionsQueryKey });
+      await queryClient.invalidateQueries({ queryKey: EXECUTIONS_QUERY_KEY });
     },
   });
 
@@ -147,8 +151,7 @@ export function ExecutionsTab() {
       ),
     [featuresQuery.data],
   );
-  const executions = executionsQuery.data ?? [];
-  const editionItems = editionsQuery.data ?? [];
+  const executions = executionsQuery.data;
   const loading = featuresQuery.isLoading;
   const executionsLoading =
     executionsQuery.isLoading || executionsQuery.isFetching;
@@ -181,10 +184,10 @@ export function ExecutionsTab() {
 
   const corpusEditionItems = useMemo(
     () =>
-      editionItems.filter((item) =>
+      (editionsQuery.data ?? []).filter((item) =>
         item.study_corpora.includes(STUDY_CORPORA_FILTER),
       ),
-    [editionItems],
+    [editionsQuery.data],
   );
 
   const execFilteredFeatures = useMemo(() => {
@@ -212,10 +215,11 @@ export function ExecutionsTab() {
   }, [sortedFeatures]);
 
   const filteredExecutions = useMemo(() => {
+    const executionList = executions ?? [];
     if (executionStatusFilter === "all") {
-      return executions;
+      return executionList;
     }
-    return executions.filter(
+    return executionList.filter(
       (execution) => execution.status === executionStatusFilter,
     );
   }, [executions, executionStatusFilter]);
@@ -239,11 +243,11 @@ export function ExecutionsTab() {
 
   const editionItemByKey = useMemo(() => {
     const map = new Map<string, Item>();
-    for (const item of editionItems) {
+    for (const item of editionsQuery.data ?? []) {
       map.set(item.key, item);
     }
     return map;
-  }, [editionItems]);
+  }, [editionsQuery.data]);
 
   const handleCancelExecution = async (executionId: string) => {
     setCancelingExecutionId(executionId);
@@ -583,7 +587,7 @@ export function ExecutionsTab() {
           <EmptyState>Loading executions...</EmptyState>
         ) : filteredExecutions.length === 0 ? (
           <EmptyState>
-            {executions.length === 0
+            {(executions?.length ?? 0) === 0
               ? "No executions found yet."
               : "No executions match the selected status."}
           </EmptyState>

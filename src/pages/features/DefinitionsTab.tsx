@@ -375,6 +375,12 @@ const getRevisionPreview = (revision?: string) => {
   return `${revision.slice(0, 160)}…`;
 };
 
+const FEATURES_QUERY_KEY = [
+  "features",
+  "definitions",
+  TITLE_PAGES_DATASET_ID,
+] as const;
+
 export function DefinitionsTab() {
   const queryClient = useQueryClient();
   const [featureEdits, setFeatureEdits] = useState<
@@ -403,14 +409,9 @@ export function DefinitionsTab() {
     Record<string, boolean>
   >({});
   const [searchQuery, setSearchQuery] = useState("");
-  const featuresQueryKey = [
-    "features",
-    "definitions",
-    TITLE_PAGES_DATASET_ID,
-  ] as const;
 
   const featuresQuery = useQuery({
-    queryKey: featuresQueryKey,
+    queryKey: FEATURES_QUERY_KEY,
     queryFn: () =>
       FeaturesService.getDatasetsFeatures({
         dataSetId: TITLE_PAGES_DATASET_ID,
@@ -418,16 +419,15 @@ export function DefinitionsTab() {
       }),
     refetchOnWindowFocus: false,
   });
-  const features = featuresQuery.data ?? [];
 
   const sortedFeatures = useMemo(
     () =>
-      [...features].sort((a, b) =>
+      [...(featuresQuery.data ?? [])].sort((a, b) =>
         (a.name || "").localeCompare(b.name || "", undefined, {
           sensitivity: "base",
         }),
       ),
-    [features],
+    [featuresQuery.data],
   );
 
   const filteredFeatures = useMemo(() => {
@@ -445,7 +445,7 @@ export function DefinitionsTab() {
   useEffect(() => {
     setFeatureEdits((previous) => {
       const next: Record<string, FeatureEditState> = {};
-      for (const feature of features) {
+      for (const feature of featuresQuery.data ?? []) {
         if (!feature.id) {
           continue;
         }
@@ -462,7 +462,7 @@ export function DefinitionsTab() {
     });
     setRevisionForms((previous) => {
       const next: Record<string, RevisionFormState> = {};
-      for (const feature of features) {
+      for (const feature of featuresQuery.data ?? []) {
         if (!feature.id) {
           continue;
         }
@@ -470,7 +470,7 @@ export function DefinitionsTab() {
       }
       return next;
     });
-  }, [features, editingFeatures]);
+  }, [featuresQuery.data, editingFeatures]);
 
   const updateFeatureMutation = useMutation({
     mutationFn: ({
@@ -486,7 +486,7 @@ export function DefinitionsTab() {
         feature,
       }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: featuresQueryKey });
+      await queryClient.invalidateQueries({ queryKey: FEATURES_QUERY_KEY });
     },
   });
 
@@ -497,7 +497,7 @@ export function DefinitionsTab() {
         featureId,
       }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: featuresQueryKey });
+      await queryClient.invalidateQueries({ queryKey: FEATURES_QUERY_KEY });
     },
   });
 
@@ -508,7 +508,7 @@ export function DefinitionsTab() {
         feature,
       }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: featuresQueryKey });
+      await queryClient.invalidateQueries({ queryKey: FEATURES_QUERY_KEY });
     },
   });
 
@@ -526,7 +526,7 @@ export function DefinitionsTab() {
         revision,
       }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: featuresQueryKey });
+      await queryClient.invalidateQueries({ queryKey: FEATURES_QUERY_KEY });
     },
   });
 

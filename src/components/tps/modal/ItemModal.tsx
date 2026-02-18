@@ -175,7 +175,7 @@ export const ItemModal = ({
   apiReady,
   onClose,
 }: ItemModalProps) => {
-  const highlightFeatures = featuresById || {};
+  const highlightFeatures = useMemo(() => featuresById || {}, [featuresById]);
   const hasTitleText = !!item.title && item.title !== "?";
   const imageUrl = toItemImageUrl(item.imageUrl);
   const canEditHighlights =
