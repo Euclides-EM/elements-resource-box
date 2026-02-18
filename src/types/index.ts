@@ -1,10 +1,6 @@
 import { NO_CITY } from "../constants";
-
-export type City = {
-  city: string;
-  lon: number;
-  lat: number;
-};
+import { City } from "../../common/csv.ts";
+import { featureplat_Feature } from "../../common/hub-api";
 
 export type Mode = "texts" | "images";
 
@@ -73,4 +69,6 @@ export type ItemProps = {
   height: number;
   width: number;
   mode: Mode;
+  featuresById: Record<string, featureplat_Feature> | null;
+  hubApiReady: boolean;
 };

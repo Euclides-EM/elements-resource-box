@@ -802,8 +802,9 @@ export function Catalogue() {
       {selectedItem && (
         <ItemModal
           item={selectedItem}
-          features={null}
+          featuresById={{}}
           onClose={() => setSelectedItem(null)}
+          apiReady
         />
       )}
     </Container>

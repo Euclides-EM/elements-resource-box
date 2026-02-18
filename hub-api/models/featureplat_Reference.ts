@@ -2,9 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type annotation_DuplicateRequest = {
-    description?: string;
-    name?: string;
-    source_annotation_id?: string;
+export type featureplat_Reference = {
+    id?: string;
 };
 

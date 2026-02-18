@@ -1,7 +1,13 @@
-import { useCallback, useEffect, useState, useMemo, useRef } from "react";
-import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import useLocalStorageState from "use-local-storage-state";
-import { Feature, Mode } from "../types";
+import { Mode } from "../types";
 import {
   Column,
   Container,
@@ -10,24 +16,22 @@ import {
   ScrollToTopButton,
   Text,
 } from "../components/common";
-import {
-  FeaturesNotSelectedByDefault,
-  FeatureToColor,
-  FeatureToColumnName,
-  FeatureToTooltip,
-  TILE_HEIGHT,
-  TILE_WIDTH,
-} from "../constants";
-import { MultiSelect } from "../components/tps/filters/MultiSelect";
-import { Radio } from "../components/tps/filters/Radio";
-import { ItemView } from "../components/tps/features/ItemView";
-import { useEditionsSearchInfinite } from "../hooks/useEditionsSearch";
+import { TILE_HEIGHT, TILE_WIDTH } from "../constants";
+import MultiSelect from "../components/tps/filters/MultiSelect";
+import Radio from "../components/tps/filters/Radio";
+import ItemView from "../components/tps/features/ItemView";
+import { useAppliedFilter } from "../contexts/FilterAppliedContext";
 import { IoWarning } from "react-icons/io5";
 import styled from "@emotion/styled";
 import Switch from "react-switch";
 import { LAND_COLOR, MARKER_3 } from "../utils/colors.ts";
 import { Stats } from "../components/Stats.tsx";
 import { inEuclidesMode } from "../utils/mode.ts";
+import { AuthContext } from "../contexts/Auth";
+import { COLLECTION_ID, configureHubApi } from "../utils/hubApi";
+import { featureplat_Feature, FeaturesService } from "../../common/hub-api";
+import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
+import { groupByMap } from "../utils/util.ts";
 
 const NoteLine = styled(Row)`
   opacity: 0.8;
@@ -41,7 +45,7 @@ const SearchInput = styled.input`
   font-size: 1rem;
 `;
 
-export function TitlePage() {
+function TitlePage() {
   const { items, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useEditionsSearchInfinite({
       pageSize: 25,
@@ -50,6 +54,7 @@ export function TitlePage() {
         { field: "key", descending: false },
       ],
     });
+  const { token } = useContext(AuthContext);
 
   const [titlePagesModeOn, setTitlePagesModeOn] = useLocalStorageState<boolean>(
     "tp-on",
@@ -60,24 +65,157 @@ export function TitlePage() {
   const [mode, setMode] = useLocalStorageState<Mode>("tp-mode", {
     defaultValue: "images",
   });
-  const [features, setFeatures] = useLocalStorageState<Feature[]>(
-    "tp-features",
-    {
-      defaultValue: Object.keys(FeatureToColumnName).sort() as Feature[],
-    },
+  const [availableFeatures, setAvailableFeatures] = useState<
+    featureplat_Feature[]
+  >([]);
+  const [featureColors, setFeatureColors] = useState<Record<string, string>>(
+    {},
   );
+  const [featureTooltips, setFeatureTooltips] = useState<
+    Record<string, string>
+  >({});
+  const [defaultFeatureIds, setDefaultFeatureIds] = useState<string[]>([]);
+  const [selectedFeatureIds, setSelectedFeatureIds] = useLocalStorageState<
+    string[]
+  >("tp-features", {
+    defaultValue: [],
+  });
   const [searchText, setSearchText] = useLocalStorageState<string>(
     "tps-search",
     { defaultValue: "" },
   );
   const [showScrollTop, setShowScrollTop] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [hubApiReady, setHubApiReady] = useState(false);
+  const [featuresLoaded, setFeaturesLoaded] = useState(false);
+
+  const featureNameById = useMemo(() => {
+    const map: Record<string, string> = {};
+    availableFeatures.forEach((feature) => {
+      if (feature.id && feature.name) {
+        map[feature.id] = feature.name;
+      }
+    });
+    return map;
+  }, [availableFeatures]);
+
+  const sortedFeatureIds = useMemo(() => {
+    return availableFeatures
+      .filter((feature) => feature.id && feature.name)
+      .slice()
+      .sort((a, b) =>
+        (a.name || "").localeCompare(b.name || "", undefined, {
+          sensitivity: "base",
+        }),
+      )
+      .map((feature) => feature.id as string);
+  }, [availableFeatures]);
+
+  const sortFeatures = useCallback(
+    (ids: string[]) =>
+      [...ids].sort((a, b) =>
+        (featureNameById[a] || "").localeCompare(
+          featureNameById[b] || "",
+          undefined,
+          { sensitivity: "base" },
+        ),
+      ),
+    [featureNameById],
+  );
 
   useEffect(() => {
     if (!titlePagesModeOn && mode === "texts") {
       setMode("images");
     }
   }, [mode, setMode, titlePagesModeOn]);
+
+  useEffect(() => {
+    configureHubApi(token);
+    setHubApiReady(true);
+  }, [token]);
+
+  useEffect(() => {
+    const loadFeatures = async () => {
+      if (!hubApiReady || featuresLoaded) {
+        return;
+      }
+      try {
+        const response = await FeaturesService.getCollectionsFeatures({
+          collectionId: COLLECTION_ID,
+        });
+        const sortedFeatures = (response ?? [])
+          .filter((feature) => feature.id && feature.name)
+          .slice()
+          .sort((a, b) =>
+            (a.name || "").localeCompare(b.name || "", undefined, {
+              sensitivity: "base",
+            }),
+          );
+        const nameById: Record<string, string> = {};
+        sortedFeatures.forEach((feature) => {
+          if (feature.id && feature.name) {
+            nameById[feature.id] = feature.name;
+          }
+        });
+        const sortIdsByName = (ids: string[]) =>
+          [...ids].sort((a, b) =>
+            (nameById[a] || "").localeCompare(nameById[b] || "", undefined, {
+              sensitivity: "base",
+            }),
+          );
+        const defaultIds = sortedFeatures
+          .filter((feature) => feature.is_default)
+          .map((feature) => feature.id as string);
+        const colorMap: Record<string, string> = {};
+        const tooltipMap: Record<string, string> = {};
+        (response ?? []).forEach((feature: featureplat_Feature) => {
+          if (!feature.id) {
+            return;
+          }
+          if (feature.color) {
+            colorMap[feature.id] = feature.color;
+          }
+          if (feature.description) {
+            tooltipMap[feature.id] = feature.description;
+          }
+        });
+        setFeatureColors(colorMap);
+        setFeatureTooltips(tooltipMap);
+        setDefaultFeatureIds(sortIdsByName(defaultIds));
+        setAvailableFeatures(sortedFeatures);
+        if (sortedFeatures.length > 0) {
+          setSelectedFeatureIds((prev) => {
+            const normalized = prev
+              .map((value) => {
+                if (sortedFeatures.some((f) => f.id === value)) {
+                  return value;
+                }
+                const matching = sortedFeatures.filter(
+                  (feature) => feature.name === value,
+                );
+                if (matching.length === 1) {
+                  return matching[0].id as string;
+                }
+                return null;
+              })
+              .filter((value): value is string => Boolean(value));
+            if (normalized.length > 0) {
+              return sortIdsByName(normalized);
+            }
+            if (defaultIds.length > 0) {
+              return sortIdsByName(defaultIds);
+            }
+            return sortIdsByName(
+              sortedFeatures.map((feature) => feature.id as string),
+            );
+          });
+        }
+      } finally {
+        setFeaturesLoaded(true);
+      }
+    };
+    void loadFeatures();
+  }, [hubApiReady, featuresLoaded, setSelectedFeatureIds]);
 
   const handleScroll = useCallback(() => {
     const el = document.getElementById(MAIN_CONTENT_ID);
@@ -218,24 +356,26 @@ export function TitlePage() {
                   </Column>
                   <MultiSelect
                     name="Features"
-                    value={features}
-                    options={Object.keys(FeatureToColumnName).sort()}
-                    onChange={(f) => setFeatures((f as Feature[]).sort())}
-                    colors={FeatureToColor}
-                    tooltips={FeatureToTooltip}
+                    value={selectedFeatureIds}
+                    options={sortedFeatureIds}
+                    labelFn={(featureId) =>
+                      featureNameById[featureId] || featureId
+                    }
+                    onChange={(f) =>
+                      setSelectedFeatureIds(sortFeatures(f as string[]))
+                    }
+                    colors={featureColors}
+                    tooltips={featureTooltips}
                     className="features-multi-select"
                   />
                   <ResetButton
                     onClick={() =>
-                      setFeatures(
-                        Object.keys(FeatureToColumnName)
-                          .filter(
-                            (f) =>
-                              !FeaturesNotSelectedByDefault.includes(
-                                f as Feature,
-                              ),
-                          )
-                          .sort() as Feature[],
+                      setSelectedFeatureIds(
+                        sortFeatures(
+                          defaultFeatureIds.length > 0
+                            ? defaultFeatureIds
+                            : sortedFeatureIds,
+                        ),
                       )
                     }
                   >
@@ -277,7 +417,17 @@ export function TitlePage() {
                 width={TILE_WIDTH}
                 item={item}
                 mode={mode}
-                features={titlePagesModeOn ? features : null}
+                featuresById={
+                  titlePagesModeOn
+                    ? groupByMap(
+                        availableFeatures.filter((feat) =>
+                          selectedFeatureIds.includes(feat.id!),
+                        ),
+                        (feat) => feat.id!,
+                      )
+                    : null
+                }
+                hubApiReady={hubApiReady}
               />
             ))
         ) : (

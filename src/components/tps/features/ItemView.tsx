@@ -30,11 +30,11 @@ const NoTitlePage = styled.div`
 `;
 
 export const ItemView = memo(
-  ({ item, height, width, mode, features }: ItemProps) => {
+  ({ item, height, width, mode, featuresById, hubApiReady }: ItemProps) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
-    const imageUrl = toItemImageUrl(item.imageUrl);
+      const imageUrl = toItemImageUrl(item.imageUrl);
 
     useEffect(() => {
       const observer = new IntersectionObserver(
@@ -76,7 +76,7 @@ export const ItemView = memo(
               </>
             ) : (
               <>
-                <TextTile alignCenter={!!imageUrl}>
+                  <TextTile alignCenter={!!imageUrl}>
                   {!isVisible ? (
                     <div>
                       {item.title}
@@ -104,18 +104,15 @@ export const ItemView = memo(
                       {item.title && (
                         <HighlightedText
                           text={item.title}
-                          features={features || []}
-                          mapping={item.features}
+                          featuresById={featuresById || {}}
+                          itemKey={item.key}
+                          apiReady={hubApiReady}
                         />
                       )}
                       {item.imprint && (
                         <>
                           <hr style={{ opacity: 0.3 }} />
-                          <HighlightedText
-                            text={item.imprint}
-                            features={features || []}
-                            mapping={item.features}
-                          />
+                          {item.imprint}
                         </>
                       )}
                       {!item.title && (
@@ -134,10 +131,10 @@ export const ItemView = memo(
           </>
         )}
         {mode === "images" &&
-          (imageUrl ? (
+          (item.imageUrl ? (
             <ImageTile>
               <StyledImage
-                src={imageUrl}
+                src={item.imageUrl}
                 onClick={() => openScan(item)}
                 clickable={!!item.scanUrl && item.scanUrl.length > 0}
               />
@@ -163,7 +160,8 @@ export const ItemView = memo(
         {modalOpen && (
           <ItemModal
             item={item}
-            features={features}
+            featuresById={featuresById}
+            apiReady={hubApiReady}
             onClose={() => setModalOpen(false)}
           />
         )}
@@ -171,3 +169,4 @@ export const ItemView = memo(
     );
   },
 );
+
