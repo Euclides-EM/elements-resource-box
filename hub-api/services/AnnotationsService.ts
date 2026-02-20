@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-/* eslint-disable */
+ 
 import type { annotation_Annotation } from '../models/annotation_Annotation';
 import type { annotation_DuplicateRequest } from '../models/annotation_DuplicateRequest';
 import type { annotation_ExpectedBlocks } from '../models/annotation_ExpectedBlocks';
@@ -381,34 +381,6 @@ export class AnnotationsService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/datasets/{dataSetId}/annotations/{id}/categories',
-            path: {
-                'dataSetId': dataSetId,
-                'id': id,
-            },
-        });
-    }
-    /**
-     * Download annotation assets
-     * Generate and download assets for a specific annotation within a dataset
-     * @returns binary ZIP file containing the annotation assets
-     * @throws ApiError
-     */
-    public static getDatasetsAnnotationsDownloadAssets({
-        dataSetId,
-        id,
-    }: {
-        /**
-         * Dataset ID
-         */
-        dataSetId: string,
-        /**
-         * Annotation ID
-         */
-        id: string,
-    }): CancelablePromise<Blob> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/datasets/{dataSetId}/annotations/{id}/download_assets',
             path: {
                 'dataSetId': dataSetId,
                 'id': id,

@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-/* eslint-disable */
+ 
 import type { annotationrule_MetadataDetails } from '../models/annotationrule_MetadataDetails';
 import type { annotationrule_PipelineStage } from '../models/annotationrule_PipelineStage';
 import type { CancelablePromise } from '../core/CancelablePromise';

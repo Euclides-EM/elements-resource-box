@@ -1,7 +1,7 @@
 /* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
-/* eslint-disable */
+ 
 import type { common_OCRModelType } from './common_OCRModelType';
 import type { model_AnnotationReference } from './model_AnnotationReference';
 import type { model_OCRModelAlgorithmFamily } from './model_OCRModelAlgorithmFamily';
