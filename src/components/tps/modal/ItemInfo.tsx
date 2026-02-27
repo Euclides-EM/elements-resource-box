@@ -5,13 +5,15 @@ import { Item } from "../../../types";
 import { Row } from "../../common";
 import { ModalTextColumn } from "./ModalComponents";
 import { authorDisplayName } from "../../../utils/dataUtils";
-import { joinArr } from "../../../utils/util";
-import { withBasePath } from "../../../utils/basePath";
+import { formatBookRanges, joinArr } from "../../../utils/util";
+import { withAppBasePath } from "../../../utils/basePath";
 import { NO_AUTHOR } from "../../../constants";
 import { LAND_COLOR } from "../../../utils/colors";
 import { TOOLTIP_SCAN } from "../../map/MapTooltips";
 import { SiMaterialdesign } from "react-icons/si";
 import pluralize from "pluralize";
+import { inEditMode } from "../../../utils/mode.ts";
+import { ITEM_EDIT_ROUTE } from "../../layout/routes.ts";
 
 const InfoTitle = styled.div`
   font-size: 0.8rem;
@@ -61,6 +63,26 @@ const StyledDiagramIcon = styled(SiMaterialdesign)`
   width: 20px;
   height: 20px;
   border-radius: 4px;
+`;
+
+const EditLink = styled.a`
+  display: block;
+  margin-left: 1rem;
+  padding: 0.5rem;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  text-decoration: none;
+  color: #333;
+  text-align: center;
+  font-size: 0.8rem;
+  border-radius: 0.5rem;
+  height: fit-content;
+  width: max-content;
+  justify-self: end;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
 `;
 
 const getAuthorLastName = (author: string) => {
@@ -153,9 +175,9 @@ export const ItemInfo = ({
                 <FaBookReader />
               </StyledAnchor>
             ))}
-            {showDiagramsLink && item.diagramsExtracted === "True" && (
+            {showDiagramsLink && item.diagramsExtracted === "Yes" && (
               <StyledAnchor
-                href={withBasePath(`/diagrams?key=${item.key}`)}
+                href={withAppBasePath(`/diagrams?key=${item.key}`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 title="View Diagrams"
@@ -180,14 +202,7 @@ export const ItemInfo = ({
       )}
       {item.elementsBooks && (
         <Row justifyStart>
-          <InfoTitle>Books:</InfoTitle>{" "}
-          {joinArr(
-            item.elementsBooks.map((range) =>
-              range.end === range.start
-                ? range.start.toString()
-                : `${range.start}-${range.end}`,
-            ),
-          )}
+          <InfoTitle>Books:</InfoTitle> {formatBookRanges(item.elementsBooks)}
         </Row>
       )}
       {item.class && (
@@ -202,6 +217,18 @@ export const ItemInfo = ({
           <InfoTitle>Additional Content:</InfoTitle>{" "}
           {joinArr(item.additionalContent)}
         </Row>
+      )}
+
+      {inEditMode() && (
+        <div>
+          <EditLink
+            href={withAppBasePath(`${ITEM_EDIT_ROUTE}?key=${item.key}`)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Edit Item
+          </EditLink>
+        </div>
       )}
     </ModalTextColumn>
   );

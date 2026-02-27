@@ -6,12 +6,12 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { HomeResourceBox } from "./pages/HomeResourceBox.tsx";
-import TitlePage from "./pages/TitlePage";
-import Layout from "./components/layout/Layout";
+import { Gallery } from "./pages/Gallery.tsx";
+import { Layout } from "./components/layout/Layout";
 import { TourProvider } from "@reactour/tour";
 import { tourSteps } from "./components/map/Tour.tsx";
 import { PANE_COLOR_ALT } from "./utils/colors.ts";
-import Map from "./pages/Map.tsx";
+import { Map } from "./pages/Map.tsx";
 import { UpsertEdition } from "./pages/UpsertEdition.tsx";
 import {
   CATALOGUE_ROUTE,
@@ -24,37 +24,49 @@ import {
   TITLE_PAGES_ROUTE,
   TRENDS_ROUTE,
 } from "./components/layout/routes.ts";
-import Catalogue from "./pages/Catalogue.tsx";
-import Trends from "./pages/Trends.tsx";
-import Presentation from "./pages/Presentation.tsx";
-import Diagrams from "./pages/Diagrams.tsx";
+import { Catalogue } from "./pages/Catalogue.tsx";
+import { Trends } from "./pages/trends/index.tsx";
+import { Presentation } from "./pages/Presentation.tsx";
+import { Diagrams } from "./pages/Diagrams.tsx";
 import { useLocalStorage } from "usehooks-ts";
 import { AuthContext } from "./contexts/Auth.ts";
 import { inEuclidesMode } from "./utils/mode.ts";
 import { HomeCommentaria } from "./pages/HomeCommentaria.tsx";
-import Features from "./pages/Features.tsx";
+import { FeaturesPage } from "./pages/features/FeaturesPage";
 import { getRouterBasename } from "./utils/basePath.ts";
+import { configureHubApi } from "./api/hubApiConfig.ts";
+import { NuqsAdapter } from "nuqs/adapters/react-router/v7";
+import { FilterAppliedProvider } from "./contexts/FilterAppliedContext.tsx";
 
-function App() {
+export function App() {
   const [authToken, setAuthToken] = useLocalStorage<string | null>(
     "resource-box-auth",
     null,
   );
+  configureHubApi(authToken);
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route element={<Layout />}>
+      <Route
+        element={
+          <NuqsAdapter>
+            <FilterAppliedProvider>
+              <Layout />
+            </FilterAppliedProvider>
+          </NuqsAdapter>
+        }
+      >
         <Route
           path={HOME_ROUTE}
           element={inEuclidesMode() ? <HomeCommentaria /> : <HomeResourceBox />}
         />
-        <Route path={TITLE_PAGES_ROUTE} element={<TitlePage />} />
+        <Route path={TITLE_PAGES_ROUTE} element={<Gallery />} />
         <Route path={CATALOGUE_ROUTE} element={<Catalogue />} />
         <Route path={TRENDS_ROUTE} element={<Trends />} />
         <Route path={PRESENTATION_ROUTE} element={<Presentation />} />
         <Route path={DIAGRAMS_ROUTE} element={<Diagrams />} />
         <Route path={ITEM_EDIT_ROUTE} element={<UpsertEdition />} />
-        <Route path={FEATURES_ROUTE} element={<Features />} />
+        <Route path={FEATURES_ROUTE} element={<FeaturesPage />} />
         <Route
           path={MAP_ROUTE}
           element={
@@ -90,5 +102,3 @@ function App() {
     </AuthContext.Provider>
   );
 }
-
-export default App;

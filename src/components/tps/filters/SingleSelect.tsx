@@ -3,16 +3,22 @@ import CreatableSelect from "react-select/creatable";
 
 type SingleSelectProps = {
   name: string;
-  options: Array<{ value: string | number; label: string }>;
+  options: Array<{ value: string | number; label: string; color?: string }>;
   value: string | number | null;
   onBlur?: () => void;
   onChange: (value: string | number | null) => void;
   placeholder?: string;
   className?: string;
   isCreatable?: boolean;
+  formatOptionLabel?: (option: {
+    value: string | number;
+    label: string;
+    color?: string;
+  }) => React.ReactNode;
+  stylesOverride?: Record<string, unknown>;
 };
 
-const SingleSelect = ({
+export const SingleSelect = ({
   name,
   options,
   value,
@@ -21,6 +27,8 @@ const SingleSelect = ({
   placeholder,
   className,
   isCreatable,
+  formatOptionLabel,
+  stylesOverride,
 }: SingleSelectProps) => {
   const SelectComponent = isCreatable ? CreatableSelect : Select;
   return (
@@ -34,6 +42,7 @@ const SingleSelect = ({
       onChange={(selected) => onChange(selected?.value || null)}
       placeholder={placeholder || `Select ${name}`}
       isClearable
+      formatOptionLabel={formatOptionLabel}
       styles={{
         menu: (base) => ({
           ...base,
@@ -51,10 +60,9 @@ const SingleSelect = ({
           ...base,
           color: "black",
         }),
+        ...(stylesOverride || {}),
       }}
       menuPortalTarget={document.body}
     />
   );
 };
-
-export default SingleSelect;

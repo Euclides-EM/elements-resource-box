@@ -3,6 +3,7 @@ import { useLocalStorage } from "usehooks-ts";
 import { Item, Range } from "../../types";
 import { itemProperties } from "../../constants/itemProperties.ts";
 import { useAppliedFilter } from "../../contexts/FilterAppliedContext";
+import { useEditionsSearch } from "../../hooks/useEditionsSearch";
 import { isNil } from "lodash";
 
 export type GroupByOption = {
@@ -65,7 +66,8 @@ function countItem(
 }
 
 export function useTrendsData() {
-  const { filteredItems, range } = useAppliedFilter();
+  const { range } = useAppliedFilter();
+  const { items: filteredItems } = useEditionsSearch();
   const [groupBy, setGroupBy] = useLocalStorage<GroupByOption>(
     "trends-group-by",
     {

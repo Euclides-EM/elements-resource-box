@@ -2,29 +2,39 @@ import styled from "@emotion/styled";
 import { PANE_BORDER } from "../../utils/colors";
 import { FiltersGroup } from "./FiltersGroup";
 import { useAppliedFilter } from "../../contexts/FilterAppliedContext";
+import { useEditionsSearch } from "../../hooks/useEditionsSearch";
 import { useEditFilter } from "../../contexts/FilterEditContext";
 import { ScrollbarStyle } from "../common";
-import RangeSlider from "../tps/filters/RangeSlider";
+import { RangeSlider } from "../tps/filters/RangeSlider";
 import { FilterButton as FilterToggleButton } from "../layout/FilterButton.tsx";
 import { itemProperties } from "../../constants/itemProperties.ts";
-import { NO_FILTER_ROUTES } from "../layout/routes.ts";
+import {
+  MAP_ROUTE,
+  NAVBAR_HEIGHT,
+  NO_FILTER_ROUTES,
+} from "../layout/routes.ts";
 import { TextSearchFilter } from "./TextSearchFilter";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FilterValue } from "./Filter";
-import { useLocalStorage } from "usehooks-ts";
 import { Item } from "../../types";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 const FILTER_PANE_WIDTH = "26rem";
 
-const Pane = styled.div<{ isLoading?: boolean }>`
+const Pane = styled.div<{ isLoading?: boolean; overlay?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  position: ${({ overlay }) => (overlay ? "fixed" : "relative")};
+  top: ${({ overlay }) => (overlay ? `${NAVBAR_HEIGHT}px` : "auto")};
+  left: ${({ overlay }) => (overlay ? "0" : "auto")};
+  height: ${({ overlay }) =>
+    overlay ? `calc(100vh - ${NAVBAR_HEIGHT}px)` : "100%"};
+  z-index: ${({ overlay }) => (overlay ? 20 : "auto")};
   width: ${FILTER_PANE_WIDTH};
   min-width: 256px;
-  flex-shrink: 0;
+  flex-shrink: ${({ overlay }) => (overlay ? "unset" : 0)};
   box-sizing: border-box;
   overflow-y: ${({ isLoading }) => (isLoading ? "hidden" : "auto")};
   overflow-x: hidden;
@@ -32,7 +42,6 @@ const Pane = styled.div<{ isLoading?: boolean }>`
   color: black;
   padding: 1rem;
   border-right: 2px ${PANE_BORDER} solid;
-  position: relative;
   pointer-events: ${({ isLoading }) => (isLoading ? "none" : "auto")};
 
   ${ScrollbarStyle};
@@ -147,14 +156,16 @@ const LoadingText = styled.div`
   }
 `;
 
-export const FilterPane = () => {
+type FilterPaneProps = {
+  overlay?: boolean;
+};
+
+export const FilterPane = ({ overlay }: FilterPaneProps) => {
   const {
-    filteredItems,
     data,
     minYear,
     maxYear,
     resetFilters,
-    isFiltering,
     applyFilters,
     hasUnappliedChanges,
     updateHasUnappliedChanges,
@@ -165,43 +176,25 @@ export const FilterPane = () => {
     textSearch: appliedTextSearch,
     textSearchFields: appliedTextSearchFields,
   } = useAppliedFilter();
+  const { isFetching: isFiltering } = useEditionsSearch();
   const location = useLocation();
 
   const { filterOpen } = useEditFilter();
 
-  const [range, setRange] = useLocalStorage<[number, number]>("time-range", [
-    minYear,
-    maxYear,
-  ]);
-  const rangeRef = useRef<[number, number]>(range);
-  const [filters, setFilters] = useLocalStorage<
-    Record<string, FilterValue[] | undefined>
-  >("filters", {
-    type: [
-      {
-        label: "Elements",
-        value: "Elements",
-      },
-    ],
-  });
-  const [filtersInclude, setFiltersInclude] = useLocalStorage<
-    Record<string, boolean>
-  >("filter-include", {});
-  const [includeUndated, setIncludeUndated] = useLocalStorage<boolean>(
-    "include-undated",
-    false,
+  const [range, setRange] = useState<[number, number]>(appliedRange);
+  const rangeRef = useRef<[number, number]>(appliedRange);
+  const [filters, setFilters] =
+    useState<Record<string, FilterValue[] | undefined>>(appliedFilters);
+  const [filtersInclude, setFiltersInclude] = useState<Record<string, boolean>>(
+    appliedFiltersInclude,
   );
-  const [textSearch, setTextSearch] = useLocalStorage<string>(
-    "text-search",
-    "",
+  const [includeUndated, setIncludeUndated] = useState<boolean>(
+    appliedIncludeUndated,
   );
-  const [textSearchFields, setTextSearchFields] = useLocalStorage<
-    (keyof Item)[]
-  >("text-search-fields", ["shortTitle", "title", "titleEn"]);
-
-  useEffect(() => {
-    setRange([minYear, maxYear]);
-  }, [maxYear, minYear, setRange]);
+  const [textSearch, setTextSearch] = useState<string>(appliedTextSearch);
+  const [textSearchFields, setTextSearchFields] = useState<(keyof Item)[]>(
+    appliedTextSearchFields,
+  );
 
   useEffect(() => {
     rangeRef.current = range;
@@ -294,14 +287,19 @@ export const FilterPane = () => {
     !filterOpen ||
     !range[0] ||
     !range[1] ||
-    filteredItems == null ||
     NO_FILTER_ROUTES.includes(location.pathname)
   ) {
     return null;
   }
 
+  const isMapOverlay = overlay ?? location.pathname === MAP_ROUTE;
+
   return (
-    <Pane isLoading={isFiltering} onClick={(e) => e.stopPropagation()}>
+    <Pane
+      overlay={isMapOverlay}
+      isLoading={isFiltering}
+      onClick={(e) => e.stopPropagation()}
+    >
       {isFiltering && (
         <LoadingOverlay>
           <LoadingText>

@@ -104,8 +104,14 @@ export const RangeSlider = ({
 }: RangeSliderProps) => {
   const resolvedMin = Number.isFinite(min) ? min : MIN_YEAR;
   const resolvedMax = Number.isFinite(max) ? max : MAX_YEAR;
-  const initialMin = Number.isFinite(value?.[0]) ? value[0] : resolvedMin;
-  const initialMax = Number.isFinite(value?.[1]) ? value[1] : resolvedMax;
+  const initialMin = Math.max(
+    resolvedMin,
+    Number.isFinite(value?.[0]) ? value[0] : resolvedMin,
+  );
+  const initialMax = Math.min(
+    resolvedMax,
+    Number.isFinite(value?.[1]) ? value[1] : resolvedMax,
+  );
 
   const [minInputValue, setMinInputValue] = useState(initialMin.toString());
   const [maxInputValue, setMaxInputValue] = useState(initialMax.toString());
@@ -154,8 +160,14 @@ export const RangeSlider = ({
   }, [emitChange]);
 
   useEffect(() => {
-    const nextMin = Number.isFinite(value?.[0]) ? value[0] : resolvedMin;
-    const nextMax = Number.isFinite(value?.[1]) ? value[1] : resolvedMax;
+    const nextMin = Math.max(
+      resolvedMin,
+      Number.isFinite(value?.[0]) ? value[0] : resolvedMin,
+    );
+    const nextMax = Math.min(
+      resolvedMax,
+      Number.isFinite(value?.[1]) ? value[1] : resolvedMax,
+    );
     if (
       nextMin !== prevValueRef.current[0] ||
       nextMax !== prevValueRef.current[1]
@@ -239,8 +251,11 @@ export const RangeSlider = ({
       <SliderContainer>
         <SliderTrack id="range-slider-track" />
         <SliderRange
-          left={localValue[0]}
-          width={localValue[1] - localValue[0]}
+          left={Math.max(localValue[0], resolvedMin)}
+          width={
+            Math.min(localValue[1], resolvedMax) -
+            Math.max(localValue[0], resolvedMin)
+          }
           min={resolvedMin}
           max={resolvedMax}
         />
@@ -297,5 +312,3 @@ export const RangeSlider = ({
     </Row>
   );
 };
-
-export default RangeSlider;

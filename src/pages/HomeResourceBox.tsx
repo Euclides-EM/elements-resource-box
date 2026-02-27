@@ -15,9 +15,9 @@ import { EIP_URL, MACTUTOR_URL } from "../constants";
 import { TbMathMaxMin } from "react-icons/tb";
 import { useEditFilter } from "../contexts/FilterEditContext.tsx";
 import { useNavigateWithQuery } from "../utils/navigationUtils";
-import { withBasePath } from "../utils/basePath";
+import { withAppBasePath } from "../utils/basePath";
 
-const SCAN_BACKGROUND = withBasePath("/scan-v2.png");
+const SCAN_BACKGROUND = withAppBasePath("/scan-v2.png");
 
 const ParallaxBackground = styled.div`
   position: fixed;
@@ -168,7 +168,7 @@ export function HomeResourceBox() {
 
   useEffect(() => {
     const img = new Image();
-    img.src = withBasePath("/scan-v2.png");
+    img.src = withAppBasePath("/scan-v2.png");
     const bgElement = document.getElementById("parallax-bg");
     if (!bgElement) {
       return;
@@ -230,7 +230,7 @@ export function HomeResourceBox() {
           title="The Project"
           icon={<FaDraftingCompass />}
           color={PANE_COLOR}
-          imageSrc={withBasePath("/frontispiece.png")}
+          imageSrc={withAppBasePath("/frontispiece.png")}
           imageOnLeft={true}
           text={
             <div>
@@ -249,7 +249,7 @@ export function HomeResourceBox() {
           }
         />
         <Card
-          imageSrc={withBasePath("/map.png")}
+          imageSrc={withAppBasePath("/map.png")}
           imageOnLeft={false}
           text={
             <div>
@@ -278,7 +278,7 @@ export function HomeResourceBox() {
           onClick={() => navigateWithQuery(CATALOGUE_ROUTE)}
           icon={<GiHolySymbol />}
           color={MARKER_5}
-          imageSrc={withBasePath("/tps/Paris_1622_tp.jpeg")}
+          imageSrc={`${import.meta.env.VITE_BACKEND_URL}/store/data/tps/Paris_1622_tp.jpeg`}
           imageOnLeft={true}
           text={
             <div>
@@ -301,7 +301,7 @@ export function HomeResourceBox() {
         />
         <Card
           onClick={() => navigateWithQuery(TITLE_PAGES_ROUTE)}
-          imageSrc={withBasePath("/modal.png")}
+          imageSrc={withAppBasePath("/modal.png")}
           imageOnLeft={false}
           text={
             <div>
@@ -320,7 +320,7 @@ export function HomeResourceBox() {
           onClick={() => window.open(MACTUTOR_URL, "_blank")}
           icon={<TbMathMaxMin />}
           color={MARKER_4}
-          imageSrc={withBasePath("/mactutor.png")}
+          imageSrc={withAppBasePath("/mactutor.png")}
           imageOnLeft={true}
           text={
             <div>

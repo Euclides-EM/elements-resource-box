@@ -1,50 +1,43 @@
 import { upperFirst } from "lodash";
 import { MAIN_CONTENT_ID } from "../components/layout/routes.ts";
-import { useEffect, useMemo, useState, useContext } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   ColumnDef,
   ColumnResizeMode,
   createColumnHelper,
+  ExpandedState,
   flexRender,
   getCoreRowModel,
-  getSortedRowModel,
+  getExpandedRowModel,
   SortingState,
   useReactTable,
-  ExpandedState,
-  getExpandedRowModel,
 } from "@tanstack/react-table";
 import styled from "@emotion/styled";
+import type { search_OrderByOption } from "../../hub-api/models/search_OrderByOption";
 import { SiMaterialdesign } from "react-icons/si";
 import { Item } from "../types";
 import { useAppliedFilter } from "../contexts/FilterAppliedContext";
+import { useEditionsSearchInfinite } from "../hooks/useEditionsSearch";
 import {
   Container,
   Row,
   ScrollbarStyle,
   ScrollToTopButton,
 } from "../components/common";
-import ItemModal from "../components/tps/modal/ItemModal";
+import { ItemModal } from "../components/tps/modal/ItemModal";
 import { NO_AUTHOR, NO_CITY, NO_YEAR } from "../constants";
-import { joinArr } from "../utils/util.ts";
+import { formatBookRanges, joinArr } from "../utils/util.ts";
 import { FaBookReader, FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { AiFillEdit } from "react-icons/ai";
 import { SEA_COLOR } from "../utils/colors.ts";
 import { AuthContext } from "../contexts/Auth.ts";
-import { authorDisplayName } from "../utils/dataUtils.ts";
 import { TOOLTIP_BOOK_TYPE } from "../components/map/MapTooltips.tsx";
 import { HelpTip } from "../components/map/Filter.tsx";
 import { Switch, SwitchOption } from "../components/map/Switch.tsx";
 import { Stats } from "../components/Stats.tsx";
 import { exportCitationsAsRTF } from "../utils/chicagoCitationExport";
-import {
-  ClusterEntry,
-  ClusterItem,
-  CSV_PATH_CLUSTERS,
-  CSV_PATH_CLUSTER_ITEMS,
-} from "../../common/csv";
-import { loadAndParseCsv } from "../utils/csv";
 import { useLocalStorage } from "usehooks-ts";
-import { withBasePath } from "../utils/basePath";
+import { withAppBasePath } from "../utils/basePath";
 import { PiArrowBendDownRightBold } from "react-icons/pi";
 import { inEuclidesMode } from "../utils/mode.ts";
 
@@ -55,7 +48,7 @@ const TableContainer = styled.div`
   background-color: aliceblue;
   color: black;
   margin-bottom: 2rem;
-  overflow-x: hidden;
+  overflow-x: auto;
 `;
 
 const StyledTable = styled.table`
@@ -114,8 +107,6 @@ const StyledTable = styled.table`
 
   th {
     font-weight: bold;
-    cursor: pointer;
-    user-select: none;
     position: relative;
     padding-right: 1.5rem;
 
@@ -224,17 +215,53 @@ const ChildRow = styled.tr`
   }
 `;
 
+const TableFooterStatus = styled.div`
+  color: #334;
+  font-size: 0.85rem;
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+`;
+
 type ViewMode = "flat" | "reprint";
 
 type ItemWithCluster = Item & {
   isClusterRoot?: boolean;
   clusterKey?: string;
-  clusterMembers?: Item[];
+  clusterMembers?: ItemWithCluster[];
   isReprintOf?: string;
 };
 
-function Catalogue() {
-  const { filteredItems, filters } = useAppliedFilter();
+const SORT_TO_SERVER_FIELD: Record<string, string> = {
+  year: "year",
+  cities: "cities",
+  languages: "languages",
+  authors: "editor",
+  title: "shortTitle",
+  format: "format",
+  volumesCount: "volumes",
+  additionalContent: "additionalContent",
+  type: "isElements",
+  study_corpora: "corpus",
+};
+
+const toServerOrderBy = (sorting: SortingState): search_OrderByOption[] => {
+  const mapped = sorting
+    .map((rule) => ({
+      field: SORT_TO_SERVER_FIELD[rule.id],
+      descending: rule.desc,
+    }))
+    .filter((rule) => rule.field);
+  if (mapped.length === 0) {
+    return [
+      { field: "year", descending: false },
+      { field: "key", descending: false },
+    ];
+  }
+  return [...mapped, { field: "key", descending: false }];
+};
+
+export function Catalogue() {
+  const { filters } = useAppliedFilter();
   const { token } = useContext(AuthContext);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "year", desc: false },
@@ -242,19 +269,24 @@ function Catalogue() {
   const [columnResizeMode] = useState<ColumnResizeMode>("onChange");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>(
     "catalogue-view-mode",
     "reprint",
   );
   const [expanded, setExpanded] = useState<ExpandedState>({});
-  const [clusters, setClusters] = useState<ClusterEntry[]>([]);
-  const [clusterItems, setClusterItems] = useState<ClusterItem[]>([]);
-
-  const handleScroll = () => {
-    const el = document.getElementById(MAIN_CONTENT_ID);
-    const scrollTop = el ? el.scrollTop : 0;
-    setShowScrollTop(scrollTop > 200);
-  };
+  const orderBy = useMemo(() => toServerOrderBy(sorting), [sorting]);
+  const {
+    items: filteredItems,
+    total,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchAllItemsForExport,
+  } = useEditionsSearchInfinite({
+    pageSize: 25,
+    orderBy,
+  });
 
   const scrollToTop = () => {
     document.getElementById(MAIN_CONTENT_ID)?.scrollTo({
@@ -263,91 +295,162 @@ function Catalogue() {
     });
   };
 
-  const handleExportCitations = () => {
-    if (!filteredItems) {
-      return;
+  const handleExportCitations = async () => {
+    setIsExporting(true);
+    try {
+      const itemsForExport = await fetchAllItemsForExport();
+      const timestamp = new Date().toISOString().slice(0, 10);
+      exportCitationsAsRTF(
+        itemsForExport,
+        `chicago_citations_${timestamp}.rtf`,
+      );
+    } finally {
+      setIsExporting(false);
     }
-    const timestamp = new Date().toISOString().slice(0, 10);
-    exportCitationsAsRTF(filteredItems, `chicago_citations_${timestamp}.rtf`);
   };
 
   useEffect(() => {
     const el = document.getElementById(MAIN_CONTENT_ID);
-    el?.addEventListener("scroll", handleScroll);
-    return () => el?.removeEventListener("scroll", handleScroll);
-  }, []);
+    if (!el) {
+      return;
+    }
 
-  useEffect(() => {
-    const loadClusterData = async () => {
-      try {
-        const [clustersData, clusterItemsData] = await Promise.all([
-          loadAndParseCsv<ClusterEntry>(CSV_PATH_CLUSTERS),
-          loadAndParseCsv<ClusterItem>(CSV_PATH_CLUSTER_ITEMS),
-        ]);
-        setClusters(clustersData);
-        setClusterItems(clusterItemsData);
-      } catch (error) {
-        console.error("Failed to load cluster data:", error);
+    const onScroll = () => {
+      const scrollTop = el.scrollTop;
+      setShowScrollTop(scrollTop > 200);
+
+      const remaining = el.scrollHeight - (el.scrollTop + el.clientHeight);
+      if (remaining < 300 && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
       }
     };
 
-    loadClusterData();
-  }, []);
+    el.addEventListener("scroll", onScroll);
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const processedItems = useMemo(() => {
     if (viewMode === "flat") {
       return filteredItems;
     }
 
-    const reprintClusters = clusters.filter((c) => c.type === "reprint");
-    const itemMap = new Map(filteredItems?.map((item) => [item.key, item]));
-    const processedItemsMap = new Map<string, ItemWithCluster>();
+    const normalizeKey = (key?: string | null) =>
+      (key || "").trim().toLowerCase();
+    const itemMap = new Map(
+      filteredItems?.map((item) => [normalizeKey(item.key), item]),
+    );
+    const childrenByParent = new Map<string, Item[]>();
 
     for (const item of filteredItems ?? []) {
-      const clusterItem = clusterItems.find((ci) => ci.item_key === item.key);
-
-      if (clusterItem) {
-        const cluster = reprintClusters.find(
-          (c) => c.key === clusterItem.cluster_key,
-        );
-
-        if (cluster) {
-          const itemsInCluster = clusterItems
-            .filter((ci) => ci.cluster_key === cluster.key)
-            .map((ci) => itemMap.get(ci.item_key))
-            .filter(Boolean) as Item[];
-
-          if (itemsInCluster.length > 1) {
-            const sortedByYear = itemsInCluster.sort((a, b) => {
-              const yearA = a.year ? parseInt(a.year) : 9999;
-              const yearB = b.year ? parseInt(b.year) : 9999;
-              return yearA - yearB;
-            });
-
-            const rootItem = sortedByYear[0];
-
-            if (item.key === rootItem.key) {
-              const clusterMembers = sortedByYear.slice(1);
-              processedItemsMap.set(item.key, {
-                ...item,
-                isClusterRoot: true,
-                clusterKey: cluster.key,
-                clusterMembers,
-              } as ItemWithCluster);
-            }
-          } else {
-            processedItemsMap.set(item.key, item as ItemWithCluster);
-          }
-        } else {
-          processedItemsMap.set(item.key, item as ItemWithCluster);
-        }
-      } else {
-        processedItemsMap.set(item.key, item as ItemWithCluster);
+      const parentKey = normalizeKey(item.reprintOf);
+      if (!parentKey || !itemMap.has(parentKey)) {
+        continue;
       }
+      const existing = childrenByParent.get(parentKey) || [];
+      existing.push(item);
+      childrenByParent.set(parentKey, existing);
     }
 
-    return Array.from(processedItemsMap.values());
-  }, [filteredItems, viewMode, clusters, clusterItems]);
+    const sortByYearThenKey = (a: Item, b: Item) => {
+      const yearA = a.year ? parseInt(a.year) : 9999;
+      const yearB = b.year ? parseInt(b.year) : 9999;
+      if (yearA !== yearB) {
+        return yearA - yearB;
+      }
+      return a.key.localeCompare(b.key);
+    };
+
+    const buildTree = (item: Item, lineage: Set<string>): ItemWithCluster => {
+      const nextLineage = new Set(lineage);
+      nextLineage.add(normalizeKey(item.key));
+
+      const children = (childrenByParent.get(normalizeKey(item.key)) || [])
+        .filter((child) => !nextLineage.has(normalizeKey(child.key)))
+        .sort(sortByYearThenKey)
+        .map((child) => buildTree(child, nextLineage));
+
+      return {
+        ...item,
+        ...(children.length > 0 ? { clusterMembers: children } : {}),
+        ...(item.reprintOf && itemMap.has(normalizeKey(item.reprintOf))
+          ? { isReprintOf: item.reprintOf }
+          : {}),
+      };
+    };
+
+    const roots = (filteredItems ?? []).filter((item) => {
+      const parentKey = normalizeKey(item.reprintOf);
+      return !(parentKey && itemMap.has(parentKey));
+    });
+
+    const seen = new Set<string>();
+    const markTreeSeen = (node: ItemWithCluster) => {
+      seen.add(node.key);
+      for (const child of node.clusterMembers || []) {
+        markTreeSeen(child);
+      }
+    };
+
+    const toRow = (tree: ItemWithCluster, rootKey: string): ItemWithCluster => {
+      if (tree.clusterMembers?.length) {
+        return {
+          ...tree,
+          isClusterRoot: true,
+          clusterKey: rootKey,
+        };
+      }
+      return tree;
+    };
+
+    const indexByKey = new Map(
+      (filteredItems ?? []).map((item, index) => [
+        normalizeKey(item.key),
+        index,
+      ]),
+    );
+    const minIndexInTree = (node: ItemWithCluster): number => {
+      let minIndex =
+        indexByKey.get(normalizeKey(node.key)) ?? Number.MAX_SAFE_INTEGER;
+      for (const child of node.clusterMembers || []) {
+        minIndex = Math.min(minIndex, minIndexInTree(child));
+      }
+      return minIndex;
+    };
+
+    const result: { row: ItemWithCluster; order: number }[] = [];
+
+    for (const item of roots) {
+      const tree = buildTree(item, new Set<string>());
+      const row = toRow(tree, item.key);
+      result.push({
+        row,
+        order: minIndexInTree(row),
+      });
+      markTreeSeen(tree);
+    }
+
+    const unresolvedLinkedItems = (filteredItems ?? []).filter(
+      (item) =>
+        item.reprintOf &&
+        itemMap.has(normalizeKey(item.reprintOf)) &&
+        !seen.has(item.key),
+    );
+
+    for (const item of unresolvedLinkedItems) {
+      if (seen.has(item.key)) {
+        continue;
+      }
+      const tree = buildTree(item, new Set<string>());
+      const row = toRow(tree, item.key);
+      result.push({
+        row,
+        order: minIndexInTree(row),
+      });
+      markTreeSeen(tree);
+    }
+
+    return result.sort((a, b) => a.order - b.order).map((entry) => entry.row);
+  }, [filteredItems, viewMode]);
 
   const columnHelper = createColumnHelper<ItemWithCluster>();
 
@@ -413,7 +516,9 @@ function Catalogue() {
               </ViewButton>
               {token && (
                 <a
-                  href={withBasePath(`/item/edit?key=${info.row.original.key}`)}
+                  href={withAppBasePath(
+                    `/item/edit?key=${info.row.original.key}`,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Edit Item"
@@ -434,9 +539,11 @@ function Catalogue() {
                     <FaBookReader style={{ color: SEA_COLOR }} />
                   </a>
                 ))}
-              {info.row.original.diagramsExtracted === "True" && (
+              {info.row.original.diagramsExtracted === "Yes" && (
                 <a
-                  href={withBasePath(`/diagrams?key=${info.row.original.key}`)}
+                  href={withAppBasePath(
+                    `/diagrams?key=${info.row.original.key}`,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="View Diagrams"
@@ -452,14 +559,6 @@ function Catalogue() {
           header: "Year",
           cell: (info) => info.getValue() || NO_YEAR,
           size: 10,
-          sortingFn: (rowA, rowB) => {
-            const yearA = rowA.original.year;
-            const yearB = rowB.original.year;
-            if (!yearA && !yearB) return 0;
-            if (!yearA) return 1;
-            if (!yearB) return -1;
-            return yearA.localeCompare(yearB);
-          },
         }),
         columnHelper.accessor("cities", {
           header: "Cities",
@@ -481,19 +580,6 @@ function Catalogue() {
           header: "Authors",
           cell: (info) => joinArr(info.getValue()) || NO_AUTHOR,
           size: 160,
-          sortingFn: (rowA, rowB) => {
-            const authorsA = rowA.original.authors || [];
-            const authorsB = rowB.original.authors || [];
-
-            if (authorsA.length === 0 && authorsB.length === 0) return 0;
-            if (authorsA.length === 0) return 1;
-            if (authorsB.length === 0) return -1;
-
-            const displayNameA = authorDisplayName(authorsA[0]);
-            const displayNameB = authorDisplayName(authorsB[0]);
-
-            return displayNameA.localeCompare(displayNameB);
-          },
         }),
         showOtherColumns &&
           columnHelper.accessor((row) => row, {
@@ -538,15 +624,7 @@ function Catalogue() {
           columnHelper.accessor("elementsBooks", {
             header: "Elements Books",
             enableSorting: false,
-            cell: (info) =>
-              info
-                .getValue()
-                .map((range) =>
-                  range.start === range.end
-                    ? range.start
-                    : `${range.start}-${range.end}`,
-                )
-                .join(", "),
+            cell: (info) => formatBookRanges(info.getValue()),
             size: 105,
           }),
         columnHelper.accessor("volumesCount", {
@@ -567,7 +645,7 @@ function Catalogue() {
                 Classification <StyledHelpTip tooltipId={TOOLTIP_BOOK_TYPE} />
               </Row>
             ),
-            size: 120,
+            size: 140,
           }),
         inEuclidesMode() &&
           columnHelper.accessor("study_corpora", {
@@ -589,7 +667,6 @@ function Catalogue() {
     onSortingChange: setSorting,
     onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSubRows: (row) =>
       viewMode === "reprint" ? row.clusterMembers || [] : undefined,
@@ -628,8 +705,10 @@ function Catalogue() {
           </Switch>
         </ViewModeToggle>
 
-        <ExportButton onClick={handleExportCitations}>
-          Export Citations (Chicago Style)
+        <ExportButton onClick={handleExportCitations} disabled={isExporting}>
+          {isExporting
+            ? "Exporting citations..."
+            : "Export Citations (Chicago Style)"}
         </ExportButton>
       </Row>
 
@@ -648,18 +727,22 @@ function Catalogue() {
                   >
                     {header.isPlaceholder ? null : (
                       <div
-                        {...{
-                          className: header.column.getCanSort()
-                            ? "cursor-pointer select-none"
-                            : "",
-                          onClick: header.column.getToggleSortingHandler(),
-                        }}
+                        onClick={header.column.getToggleSortingHandler()}
+                        style={
+                          header.column.getCanSort()
+                            ? {
+                                display: "inline-flex",
+                                cursor: "pointer",
+                                userSelect: "none",
+                              }
+                            : {}
+                        }
                       >
                         {flexRender(
                           header.column.columnDef.header,
                           header.getContext(),
                         )}
-                        {header.column.columnDef.enableSorting && (
+                        {header.column.getCanSort() && (
                           <SortIndicator>
                             {{
                               asc: "↑",
@@ -708,15 +791,21 @@ function Catalogue() {
         </StyledTable>
       </TableContainer>
 
+      <TableFooterStatus>
+        {isFetchingNextPage
+          ? "Loading more editions..."
+          : hasNextPage
+            ? "Scroll for more"
+            : `Loaded ${filteredItems?.length ?? 0}${typeof total === "number" ? ` of ${total}` : ""}`}
+      </TableFooterStatus>
+
       {selectedItem && (
         <ItemModal
           item={selectedItem}
-          features={null}
+          featuresById={{}}
           onClose={() => setSelectedItem(null)}
         />
       )}
     </Container>
   );
 }
-
-export default Catalogue;

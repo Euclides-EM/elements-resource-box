@@ -1,25 +1,12 @@
-import { NOTES_API_PATH, NotesRequestBody } from "../../common/api.ts";
-import { withBasePath } from "../utils/basePath.ts";
+import { EditionsService } from "../../hub-api/services/EditionsService";
 
 export const saveNote = async (
-  key: string,
-  authToken: string,
-  data: NotesRequestBody,
+  editionId: string,
+  data: { note: string },
 ): Promise<void> => {
-  console.log("Saving note", { key, ...data });
-
-  const response = await fetch(withBasePath(`${NOTES_API_PATH}/${key}`), {
-    method: "POST",
-    headers: {
-      Authorization: authToken,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
+  console.log("Saving note", { editionId, ...data });
+  await EditionsService.postEditionsNotes({
+    editionId,
+    note: { note: data.note },
   });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to save note: ${response.status} ${response.statusText}`,
-    );
-  }
 };

@@ -147,7 +147,7 @@ export const ActionsMenu = ({
 
     setActionInProgress(true);
     try {
-      const result = await pullRepo(token);
+      const result = await pullRepo();
       console.log("Pull successful:", result);
       alert(`Pull successful!\n\nBranch: ${result.branch}`);
     } catch (error) {
@@ -166,7 +166,7 @@ export const ActionsMenu = ({
 
     setActionInProgress(true);
     try {
-      const result = await createPullRequest(token);
+      const result = await createPullRequest();
       console.log("Push/PR creation successful:", result);
       alert(
         `Pull Request created successfully!\n\nBranch: ${result.branchName}\nPR: ${result.prUrl}`,

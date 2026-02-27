@@ -1,35 +1,7 @@
 import { NO_CITY } from "../constants";
-import { City } from "../../common/csv.ts";
+import { feature_Feature, model_City } from "../../hub-api";
 
 export type Mode = "texts" | "images";
-
-export type Feature =
-  | "Base Content"
-  | "Base Content Description"
-  | "Adapter Attribution"
-  | "Adapter Description"
-  | "Patronage Dedication"
-  | "Edition Statement"
-  | "Supplementary Content"
-  | "Publishing Privileges"
-  | "Euclid References"
-  | "Other Educational Authorities"
-  | "Explicit Language References"
-  | "Euclid Description"
-  | "Verbs"
-  | "Intended Audience"
-  | "Elements Designation"
-  | "Greek designation"
-  | "Institutions"
-  | "Bound With"
-  | "Enriched With"
-  | "Date in Imprint"
-  | "Publisher in Imprint"
-  | "Place in Imprint"
-  | "Privileges in Imprint"
-  | "Dedication in Imprint"
-  | "Adapter Attribution in Imprint"
-  | "Adapter Description in Imprint";
 
 export type FilterGroup =
   | "General"
@@ -48,20 +20,21 @@ type YesNoBool = "Yes" | "No";
 export const MIN_YEAR = 1482;
 export const MAX_YEAR = 1883;
 
-export const FLOATING_CITY_ENTRY: City = {
-  city: NO_CITY,
-  lon: -16,
-  lat: 42,
+export const FLOATING_CITY_ENTRY: Required<model_City> = {
+  name: NO_CITY,
+  longitude: -16,
+  latitude: 42,
 };
 
 export type Item = {
   key: string;
+  reprintOf?: string | null;
   year: string | null;
   cities: string[];
   languages: string[];
   authors: string[];
   publishers: string[];
-  imageUrl: string | null;
+  tpImageName: string | null;
   hasTitle: string;
   shortTitle: string | null;
   title: string | null;
@@ -69,7 +42,6 @@ export type Item = {
   imprint: string | null;
   imprintEn: string | null;
   scanUrl: string[];
-  features: Partial<Record<Feature, string[]>>;
   type: string;
   format: string | null;
   elementsBooks: Range[];
@@ -77,35 +49,11 @@ export type Item = {
   additionalContent: string[];
   volumesCount: number | null;
   class: string | null;
-  colorInTitle: string | null;
-  titlePageDesign: string | null;
-  titlePageNumberOfTypes: number | null;
-  titlePageFrameType: string | null;
-  titlePageEngraving: string | null;
-  hasPrintersDevice: YesNoBool | null;
-  fontTypes: string[];
-  calligraphicFeatures: string | null;
   notes: string | null;
   study_corpora: string[];
-  tp_illustration: string;
-  otherNamesClassification: string[] | null;
-  hasIntendedAudience: YesNoBool | null;
-  hasPatronageDedication: YesNoBool | null;
-  hasAdapterAttribution: YesNoBool | null;
-  hasPublishingPrivileges: YesNoBool | null;
-  hasGreekDesignation: YesNoBool | null;
-  explicitLanguageReferences: string[] | null;
-  institutions: string[] | null;
-  otherNames: string[] | null;
-  diagramsExtracted: string;
+  diagramsExtracted: YesNoBool | null;
   hasDiagrams: string;
   visualElementsTypes: string[];
-  dotted_lines_b79_cases: string;
-  dotted_lines_b10_case: string;
-  dotted_lines_b2_cases: string[];
-  dotted_lines_geo_cases: string[];
-  dotted_lines_other_cases: string[];
-  dotted_lines_cases: string[];
 };
 
 export type RadioProps = {
@@ -120,5 +68,5 @@ export type ItemProps = {
   height: number;
   width: number;
   mode: Mode;
-  features: Feature[] | null;
+  featuresById: Record<string, feature_Feature> | null;
 };

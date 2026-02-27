@@ -16,7 +16,7 @@ const pageLayout: PageLayout = {
   }),
 };
 
-const Presentation = () => {
+export const Presentation = () => {
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
   return (
     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
@@ -30,5 +30,3 @@ const Presentation = () => {
     </Worker>
   );
 };
-
-export default Presentation;

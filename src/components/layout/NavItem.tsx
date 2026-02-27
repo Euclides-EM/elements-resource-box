@@ -14,10 +14,13 @@ import {
 import { MACTUTOR_URL } from "../../constants";
 import { ActionsMenu } from "./ActionsMenu.tsx";
 import { inEditMode, inEuclidesMode } from "../../utils/mode.ts";
-import { preserveQueryParams } from "../../utils/navigationUtils";
+import {
+  preserveQueryParams,
+  useNavigateWithQuery,
+} from "../../utils/navigationUtils";
 import { AuthContext } from "../../contexts/Auth.ts";
 import { useContext } from "react";
-import { withBasePath } from "../../utils/basePath";
+import { withAppBasePath } from "../../utils/basePath";
 
 const separatorStyles = css`
   &::after {
@@ -109,7 +112,7 @@ function NavItem({
   mobile,
   hideSeparator = false,
 }: NavItemProps) {
-  const location = useLocation();
+  const navigateWithQuery = useNavigateWithQuery();
 
   if (external) {
     return (
@@ -126,8 +129,6 @@ function NavItem({
     );
   }
 
-  const pathWithQuery = preserveQueryParams(to, location.search);
-
   return (
     <StyledNavItem
       active={active}
@@ -135,7 +136,15 @@ function NavItem({
       mobile={mobile}
       hideSeparator={hideSeparator}
     >
-      <Link to={pathWithQuery}>{children}</Link>
+      <Link
+        to={to}
+        onClick={(e) => {
+          e.preventDefault();
+          navigateWithQuery(to);
+        }}
+      >
+        {children}
+      </Link>
     </StyledNavItem>
   );
 }
@@ -220,7 +229,9 @@ export const NavItems = ({ mobile }: { mobile: boolean }) => {
             <ActionsMenu
               mobile={mobile}
               onShowCreateModal={() => {
-                window.location.href = withBasePath(ITEM_EDIT_ROUTE);
+                window.location.href = withAppBasePath(
+                  preserveQueryParams(ITEM_EDIT_ROUTE, window.location.search),
+                );
               }}
             />
           </DevNavItem>

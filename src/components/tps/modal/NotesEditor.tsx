@@ -45,6 +45,8 @@ const NotesContent = styled.div`
 
 const NotesTextarea = styled.textarea`
   width: 100%;
+  background: white;
+  color: black;
   min-height: 120px;
   padding: 0.5rem;
   border: 1px solid #ccc;
@@ -101,7 +103,7 @@ export const NotesEditor = ({ item }: NotesEditorProps) => {
     }
     setSaving(true);
     try {
-      await saveNote(token, item.key, {
+      await saveNote(item.key, {
         note: notes,
       });
 

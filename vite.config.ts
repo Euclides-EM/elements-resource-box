@@ -2,9 +2,6 @@ import type { ViteDevServer } from "vite";
 import { defineConfig, loadEnv, Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
-// @ts-expect-error js file
-import { facsimileListingPlugin } from "./vite-plugins/facsimile-listing.js";
-import { router } from "./dev-server/router";
 
 const normalizeBasePath = (value?: string): string => {
   const raw = (value ?? "").trim();
@@ -16,15 +13,6 @@ const normalizeBasePath = (value?: string): string => {
     ? withLeadingSlash
     : `${withLeadingSlash}/`;
 };
-
-function devApiPlugin(): Plugin {
-  return {
-    name: "dev-api",
-    configureServer(server: ViteDevServer) {
-      server.middlewares.use(router);
-    },
-  };
-}
 
 function basePathRedirectPlugin(base: string): Plugin {
   return {
@@ -53,13 +41,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     base,
-    plugins: [
-      react(),
-      svgr(),
-      basePathRedirectPlugin(base),
-      devApiPlugin(),
-      facsimileListingPlugin(),
-    ],
+    plugins: [react(), svgr(), basePathRedirectPlugin(base)],
     server: {
       allowedHosts: ["euclides.huma-num.fr"],
     },
